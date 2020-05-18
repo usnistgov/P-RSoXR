@@ -315,6 +315,7 @@ class AnisotropicTransferMatrix(TransferMatrix):
             q = S.zeros((4, 3, nlayers), dtype=complex)
             D = S.zeros((4, 4, nlayers), dtype=complex)
             P = S.zeros((4, 4, nlayers), dtype=complex)
+            W = S.zeros((4, 4, nlayers), dtype=complex) ## Additional Matrix to characterize roughness
 
             for i in range(nlayers):
 
@@ -346,11 +347,38 @@ class AnisotropicTransferMatrix(TransferMatrix):
             for i in range(1, nlayers - 1):
                 P[:, :, i] = S.diag(S.exp(1j * k[:, 2, i] * d[i]))
 
-            M = inv(D[:, :, 0])
-            for i in range(1, nlayers - 1):
-                M = S.dot(
-                    M, S.dot(D[:, :, i], S.dot(P[:, :, i], inv(D[:, :, i]))))
-            M = S.dot(M, D[:, :, -1])
+            ##Calculate roughness matrix
+            ## Elzo et all ~~ Journal of Magnetism and Magnetic Materials -- Borrowed from ReMagX software
+            ## Matrix is multiplied element-by-element to the dynamical matrices in order to apply Nevent-Croche formalism.
+            ## Order of elements have been modified due to difference in author convention from Elzo and Yeh (codebase reference)
+            ## Roughness has been verified with isotropic tensors and 5 layer stacks
+            r = S.asarray([0,0,0]) ##roughness values are currently hard-coded here due to no roughness parameter built into EMpy
+            for i in range(nlayers): 
+                ##elements of matrix
+                eplus = S.exp(-(k[:,2,i] + k[:,2,i-1])**2 * r[i]**2 / 2) 
+                eminus = S.exp(-(k[:,2,i] - k[:,2,i-1])**2 * r[i]**2 / 2)
+                
+                ##Probably a better way to script this but it was helpful in testing/debugging
+                W[:,:,i] = [[eminus[0],eplus[1],eminus[2],eplus[3]],
+                            [eplus[0],eminus[1],eplus[2],eminus[3]],
+                            [eminus[0],eplus[1],eminus[2],eplus[3]],
+                            [eplus[0],eminus[1],eplus[2],eminus[3]]
+                           ]
+            
+            ## Alternative method to calculate transfer matrix
+            ## Allows for easier implementation of roughness matrix
+            ## Begin loop index with identity matrix instead of the dynamical matrix corresponding to the surface.
+            M = S.identity(4, dtype=complex)
+            for i in range(1,nlayers-1):
+                M = S.dot(M, S.dot((S.dot(inv(D[:,:,i-1]),D[:,:,i]) * W[:,:,i]) , P[:,:,i]))
+            M = S.dot(M,(S.dot(inv(D[:,:,-2]),D[:,:,-1]) * W[:,:,-1]))
+            
+            ##Old method from EMpy that generates transfer matrix kept for reference.
+            #M = inv(D[:, :, 0])
+            #for i in range(1, nlayers - 1):
+            #    M = S.dot(
+            #        M, S.dot(D[:, :, i], S.dot(P[:, :, i], inv(D[:, :, i]))))
+            #M = S.dot(M, D[:, :, -1])
 
             deltaM = M[0, 0] * M[2, 2] - M[0, 2] * M[2, 0]
 
