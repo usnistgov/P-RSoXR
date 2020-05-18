@@ -1,0 +1,231 @@
+Details of changes made to refnx
+================================
+
+0.1.1
+-----
+- removal of Python 2.7 support
+- added azure pipelines for faster windows CI
+- remove `uncertainties` as a package dependency (it's still used for testing)
+- remove `six` as a package dependency
+- add `refnx.util.refplot` for quick plotting of reflectometry datasets
+- fixed various deprecation warnings
+- added the ability to mask (hide) points in a `refnx.dataset.Data1D` dataset
+
+0.1.2
+-----
+- added save/load model buttons in the interactive reflectometry modeller.
+- removed `from __future__ import ...` statements as refnx is now solely Py3
+- added `cython: language_level=3` statements to cython code
+- marked cython extensions as c++ language
+- smarter (faster) cataloging of NeXUS files
+- removed pandas as a strict dependency, as it's only required for reduction,
+  not analysis
+- improved documentation of the ManualBeamFinder
+- adding a pyqt based GUI (alpha state)
+- improved __repr__ of many classes
+- Start the GUI via a 'refnx' console command, via a setup.py entry_point.
+
+0.1.3
+-----
+- GUI machinery can now use Components other than Slab, such as LipidLeaflet
+  (already added). New Components may require extra shim code to be written for
+  them. Specifically how they're to be displayed, and a default way of
+  initialising the Component (which may require a dialogue).
+- The 'Link equivalent parameters' action has been added, enabling equivalent
+  parameters on other datasets to be linked. This greatly aids setup of multiple
+  contrast datasets. All the datasets to be linked must have the same type of
+  structure.
+- The initialisation of a LipidLeaflet is made much easier by using a library
+  of lipid head/volumes and scattering lengths for popular lipids which are
+  presented to the user in an initialisation dialogue.
+- The refnx paper is accepted and the article and manuscript file are
+  included in the repository.
+- The pyqt GUI to refnx can be made into standalone executables for Windows,
+  macOS.
+- Fixed a bug that meant most reflectivity calculations were single-threaded
+  instead of multi-threaded.
+- Added MixedReflectModel to the pyqt GUI, allowing one to model 'patchy'
+  systems, i.e. incoherent averaging of reflectivities.
+- BACKWARDS INCOMPATIBLE CHANGE: the slabs properties of `Component` and
+  `Structure` have now been changed to methods, taking the optional `structure`
+  kwd parameter. The reason for this is so each `Component` knows what kind of
+  `Structure` it is in.
+- The Spline Component can be used within the pyqt GUI.
+- In the pyqt gui Components can be re-ordered within their host structure by
+  drag/drop. Dragging to other Structures copies the Component to that
+  structure.
+- Added the Stack Component. A Stack contains a series of Components, and the
+  Stack.repeats attribute can be used to produce a multilayer repeat structure.
+- Folded in a reduction pyqt gui for Platypus data. The app was already in the
+  slim directory. It's now available from refnx.reduce.gui
+
+0.1.4
+-----
+- fixed bug in reflectivity calculation with significant non-zero absorption.
+  The wavevector calculation was using the wrong branch of the complex sqrt.
+
+0.1.5
+-----
+- fixed font size in pyqt GUI.
+- script export from pyqt GUI can use either multiprocessing or MPI for
+  parallelisation during MCMC sampling.
+- speeded up reflectivity calculation, following on from changes made in 0.1.4
+  (if the imaginary part of a complex sqrt argument is very small, then the C++
+  calculation takes a lot longer).
+- added a plot method to PlatypusNexus
+- refactor util.PoolWrapper to util.MapWrapper
+- allow the number of Stack repeats to be fittable.
+- GUI option to only display those parameters (and datasets) that are going to
+  be varied in a fit.
+- update testimonials.bib
+- "to code" button in Jupyter interactive modeller respects the transform
+  popup.
+
+0.1.6
+-----
+- When parameters are linked in the refnx GUI only the dataset containing the
+  master parameter was being updated (reflectivity/SLD curves) when the master
+  was changed. Now all datasets that have parameters linked to the master
+  parameter (a constraint) are updated.
+- When a dataset/component/structure containing a master parameter (i.e. a
+  parameter to which other parameters are constrained to) is removed, the GUI
+  now unlinks those dependent parameters from the master parameter.
+- display number of iterations in GUI progress box. If fit is aborted put best
+  fit so far into Objective that's being fitted.
+- fixed crash resulting from the use of a comma when entering a floating point
+  number. Entering '3,1' would crash the gui, using '3.1' would work but be
+  displayed as '3,1'. The use of a dot as a decimal point is now enforced.
+
+0.1.7
+-----
+- print human readable output when fitting with the Jupyter interactive
+  modeller.
+- added shgo and dual_annealing minimiser options to the refnx gui.
+- SLD calculator retains state between viewings.
+- Added dialogue to adjust optimisation parameters.
+- Fixed bug in export of MCMC code fragment, Gui would crash.
+- Autocorrelation plot produced from mcmc.py code fragment, this can be used to
+  judge how much to thin the chains by.
+- `refnx.analysis` now possesses a standalone function, `autocorrelation_chain`
+  for calculating chain autocorrelation. Previously the calculation had to be
+  done using a CurveFitter instance.
+- Function for calculating autocorrelation time made visible as:
+  `refnx.analysis.integrated_time`. You should pass the autocorrelation array
+  to this function.
+- GUI can now export an ASCII file representing the model SLD curve.
+- BUG: when the GUI saves a model it should pickle a ReflectModel. It wasn't
+  doing this, it was pickling a DataObject. This has now been fixed, but the
+  fix affects back compatibility.
+- *GUI can now do MCMC sampling*
+- Add option to change context of Mapwrapper (spawn/fork/forkserver)
+- BUG: when loading (not refreshing) a dataset that was already loaded, the
+  associated model was lost. (GH331)
+- Added a progress bar for batch fitting.
+- Speeded up batch fitting
+
+0.1.8
+-----
+- When GUI experiment file is loaded the correct fitting algorithm wasn't being
+  set correctly (GH338).
+- Prevent crash when trying to refresh a stale dataset (i.e. is no longer in
+  its original location.
+- Produce autocorrelation graph when sampling in GUI.
+- Added links to ptemcee and emcee in the optimisation parameters window.
+- GUI produces corner plot after MCMC sampling
+- BUG fix for rebinning code (doesn't affect analysis)
+- Different interfacial roughness types can be specified between all Components
+  in a Structure. The available types are: Erf (Error Function, default), Tanh,
+  Sinusoidal, Exponential, Step, Linear. User specifiable interfaces can be
+  created by subclassing Interface.
+- A fix for the PyQt5 interface using 4K screens on Windows was made.
+  Previously the GUI elements and fonts were being displayed in a much too
+  small fashion.
+- Made various dialogues in the PyQt5 GUI window modal (to prevent them being
+ lost).
+- fixed bugs if cancel was pressed during the MCMC folder dialogue phase.
+- made loading of experiment file back compatible.
+
+0.1.9
+-----
+- Added DOTAP, h-DOPC, 18:1 Diether PC to lipids database
+- Updated SLIM reduction software to cope with the new monobloc detector
+- Improve speed of resolution smearing by using splev/splrep
+- Added shell scripts to build manylinux and macOS wheels (as well as test
+ them).
+- Some minor optimisations for calculation of `Interval.logp`.
+- Some minor optimisations for various calculations in `Objective`.
+- Fixed potential for crashes in ManualBeamFinder if controls specified
+  regions that went outside the detector region.
+- cythonized contract_by_area, resulting in huge speedup for microsliced
+  structures.
+- Enabled parallel calculation of reflectivity using OpenMP. Tests show that
+  it should be ~20% faster than the previous calculation in C.
+- tqdm progress bar for ptemcee sampling (if tqdm is installed).
+- Cleaned up the _creflect module. Threaded reflectivity calculation in that
+  extension now uses std::thread instead of pthreads (POSIX) or WinAPI
+  (windows).
+
+0.1.10
+------
+- Prevent spurious benchmark package installation.
+- Fixed bug when loading a MTFT file saved in a previous version of refnx.
+- event mode data reduction sped up by an order of magnitude
+- Added neutron transmission calculator (if periodictable is present)
+- event file reader can now read any ANSTO packedbin file (reduction).
+- Align SLD plots around a specific interface in a slab representation. Useful
+  if plotting many samples at the same time.
+- Add MaterialSLD object that is constructed from a chemical formula and mass
+  density. This enables the use of specific materials to describe layers, e.g.
+  MaterialSLD('SiO2', density=2.2).
+- Components can be multiplied by an integer to make them repeat.
+- Add _open_mp_helpers to MANIFEST.in (gh381).
+- update bundled vendored emcee
+
+0.1.11
+------
+- Fixed a bug in the GUI that prevented load/save of mixed area models.
+- Fixed a bug in the resynthesis of data.
+- Fixed a bug in the loading of event data from the Platypus monobloc detector.
+- Added a FresnelTransform.
+- Document inequality constraints.
+- Made refnx SLD calculator GUI more fault tolerant to incorrect formula.
+- Add example Jupyter notebook for batch reduction.
+- Autoscaling for Panalytical XRR reduction.
+- Fixed bug in drag/drop within a Stack in the GUI.
+- Added a MixedSlab Component which is constituted from several individual
+  Scatterers. The SLD of the MixedSlab is weighted by their volume fractions.
+
+0.1.12
+------
+- allow master and slave chopper parameters to be ignored in PLP reduction.
+- tunable t_0 offset in PLP/SPZ reduction.
+- possibly_create_parameter accepts default bounds/vary/constraint. This fixes
+  a bug in MixedSlab.
+- Don't require numpy be installed before setup.py can run.
+- Speed up reflectivity calculation if there is solvation.
+- reflect.choose_dq_type for finding out fastest mode of resolution smearing.
+- User can now select resolution smearing approach in ReflectModel. Choosing
+  between 'pointwise' or 'constant'.
+- Add progress bar for Curvefitter.fit() (requires tqdm being installed).
+- A few micro-optimisations.
+- Optimized pickling/unpickling of Bounds instances. This can lead to a huge
+  performance increase (~ 40%) when doing parallel sampling.
+- MCMC sampling initialisation made reproducible
+
+0.1.13
+------
+- synthesising of datasets (Data1D.synthesise) can now be repeatable by
+  providing a seed.
+- use Github Actions to test and build macOS wheels across all the Pythons.
+- The _creflect.abeles reflectivity calculation can release the GIL for a
+  large part of its calculation now. This will enable parallelisation using
+  either Processes or Threads. Processes still have the edge on speed at the
+  moment.
+- change reduction code for ReflectNexus.phase_angle to use degrees, not
+  radians. (previously angles were returned in a mix of degrees/radians)
+- Speed of reflectivity calculation is improved between 10 and 20 %. This is
+  achieved by the use of C99 complex arithmetic instead of C++ std::complex.
+  This improvement does not apply to Windows because it doesn't have a
+  C99 standard conformant compiler.
+- Document how to save a model.
+- macOS wheels (and CI testing) have the cyreflect openmp option activated.
