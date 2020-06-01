@@ -132,10 +132,11 @@ class Structure(UserList):
 
     """
     def __init__(self, components=(), name='', solvent=None,
-                 reverse_structure=False, contract=0):
+                 reverse_structure=False, contract=0, isAnisotropic = None): ##TFerron Edit 05/20/2020 *Adds an attribute to make the entire film use the anisotropic calculation
         super(Structure, self).__init__()
         self._name = name
         self._solvent = solvent
+        self._isAnisotropic = isAnisotropic ##TFerron Edit 05/20/2020 *See later @property addition
 
         self._reverse_structure = bool(reverse_structure)
         #: **float** if contract > 0 then an attempt to contract/shrink the
@@ -200,6 +201,28 @@ class Structure(UserList):
     @name.setter
     def name(self, name):
         self._name = name
+        
+    #Tferron Edits 05/20/2020 *Cycles through the slabs to check if any of them are Anisotropic ~~ If so it will make the entire structure anisotropic   
+    @property
+    def isAnisotropic(self):
+        if self._isAnisotropic is not True:
+            for i in range(len(self)):
+                if self.data[i].isAnisotropic is True:
+                    self._isAnisotropic = True
+                    break
+ 
+        return self._isAnisotropic
+    
+    @isAnisotropic.setter ##I think I implemented the 'getter' 'setter' attribute correctly....it seems to work for me right now....
+    def isAnisocopic(self, isAnisotropic):
+        if isAnisotropic is not True:
+            for i in range(len(self)):
+                if self.data[i].isAnisotropic is True:
+                    self._isAnisotropic = True
+                    break
+        else:
+            self._isAnisotropic = isAnisotropic
+    
 
     @property
     def solvent(self):
@@ -321,6 +344,27 @@ class Structure(UserList):
             return contract_by_area(slabs, self.contract)
         else:
             return slabs
+            
+    def dielectric_tensor(self):
+        if not len(self):
+            return None
+        if not self.isAnisotropic:
+            raise ValueError("No slabs in structure were assigned"
+                             "dielectric tensor properties")
+            return None
+        
+        d1 = [c.dielectric_tensor(structure=self) for c in self.components]
+        try:
+            dielectric_tensor = np.concatenate(d1)
+        except ValueError:
+            # some of slabs may be None. np can't concatenate arr and None
+            dielectric_tensor = np.concatenate([s for s in d1 if s is not None])
+        return dielectric_tensor
+        
+        
+        
+        
+    
 
     def _micro_slabs(self, slice_size=0.5):
         """
@@ -762,25 +806,48 @@ class SLD(Scatterer):
     """
     def __init__(self, value, name=''):
         super(SLD, self).__init__(name=name)
-
         self.imag = Parameter(0, name='%s - isld' % name)
-        if isinstance(value, numbers.Real):
-            self.real = Parameter(value.real, name='%s - sld' % name)
-        elif isinstance(value, numbers.Complex):
-            self.real = Parameter(value.real, name='%s - sld' % name)
-            self.imag = Parameter(value.imag, name='%s - isld' % name)
-        elif isinstance(value, SLD):
-            self.real = value.real
-            self.imag = value.imag
-        elif isinstance(value, Parameter):
-            self.real = value
-        elif (hasattr(value, '__len__') and isinstance(value[0], Parameter) and
-              isinstance(value[1], Parameter)):
-            self.real = value[0]
-            self.imag = value[1]
+        
+        ##TFerron Edits 05/20/2020 *For anisotropic reflectivity implementation
+        if (isinstance(value, np.ndarray)) and value.shape==(3,3): ##Quick check to see if the scatterer is a tensor object 
+            #Initialize the parameter wave                      ##May require an update for multi-energy considerations (later)
+            self._parameters = Parameters(name=name) ##Generates the parameters for the SLD object 
+            TensorStr = np.array([["sldxx","sldxy","sldxz"],["sldyx","sldyy","sldyz"],["sldzx","sldzy","sldzz"]]) ##Name of the tensor elements
+            self.real = Parameter((np.trace(value).real)/3, name='%s - sldAvg' % name) ##Save the trace to use SLD_profile functionality
+            self.imag = Parameter((np.trace(value).imag)/3, name='%s - isldAvg' % name) 
+            
+            #Create tensor attributes //Just brute force it right now? Need a better method in the future if more energies want to be fit
+            #Each element of the tensor becomes its own fit parameter in the Refnx machinary.
+            ##Only considering diagonal matrices right now.
+            self.xx = Parameter(value.item((0,0)).real, name='%s - %s'%(name, TensorStr.item((0,0))))
+            self.ixx = Parameter(value.item((0,0)).imag, name='%s - i%s'%(name, TensorStr.item((0,0))))
+            self.yy = Parameter(value.item((1,1)).real, name='%s - %s'%(name, TensorStr.item((1,1))))
+            self.iyy = Parameter(value.item((1,1)).imag, name='%s - i%s'%(name, TensorStr.item((1,1))))
+            self.zz = Parameter(value.item((2,2)).real, name='%s - %s'%(name, TensorStr.item((2,2))))
+            self.izz = Parameter(value.item((2,2)).imag, name='%s - i%s'%(name, TensorStr.item((2,2))))
+            self._parameters.extend([self.real,self.imag,self.xx,self.ixx,self.yy,self.iyy,self.zz,self.izz])
+            ##Store the values of the parameters in the form of a tensor object for easier calculations later
+            self.tensor = np.array([[self.xx.value + 1j*self.ixx.value, 0, 0],
+                                   [0, self.yy.value + 1j*self.iyy.value, 0],
+                                   [0, 0, self.zz.value + 1j*self.izz.value]],dtype=complex)
+        else: #Retain all starting functionality if single SLD is passed
+            if isinstance(value, numbers.Real):
+                self.real = Parameter(value.real, name='%s - sld' % name)
+            elif isinstance(value, numbers.Complex):
+                self.real = Parameter(value.real, name='%s - sld' % name)
+                self.imag = Parameter(value.imag, name='%s - isld' % name)
+            elif isinstance(value, SLD):
+                self.real = value.real
+                self.imag = value.imag
+            elif isinstance(value, Parameter):
+                self.real = value
+            elif (hasattr(value, '__len__') and isinstance(value[0], Parameter) and
+                isinstance(value[1], Parameter)):
+                self.real = value[0]
+                self.imag = value[1]
 
-        self._parameters = Parameters(name=name)
-        self._parameters.extend([self.real, self.imag])
+            self._parameters = Parameters(name=name)
+            self._parameters.extend([self.real, self.imag])
 
     def __repr__(self):
         return ("SLD([{real!r}, {imag!r}],"
@@ -1078,14 +1145,22 @@ class Slab(Component):
                                                name=f'{name} - thick')
         if isinstance(sld, Scatterer):
             self.sld = sld
+            ##TFerron Edits 05/20/2020 *Pass the tensor attribute into the slab and make a separate attribute to indicate using the anisotropic calculation
+            if hasattr(sld, 'tensor'):
+                self.tensor = sld.tensor #Pass through the tensor calculated with the parameter values
+                self.isAnisotropic = True #Current method to store the idea that it is a tensor with a quick logic check -- Might be better ways to do this
+            else:
+                self.tensor = 0 #Just a placeholder tensor so later functions don't fail if you try and pass a scalar
         else:
             self.sld = SLD(sld)
+            self.tensor = 0 #Just a placeholder value so later functions don't fail if you try and pass a scalar
+
         self.rough = possibly_create_parameter(rough,
                                                name=f'{name} - rough')
         self.vfsolv = (
             possibly_create_parameter(vfsolv,
-                                      name=f'{name} - volfrac solvent',
-                                      bounds=(0., 1.)))
+                                      name=f'{name} - volfrac solvent'
+                                      ,bounds=(0., 1.)))
 
         p = Parameters(name=self.name)
         p.extend([self.thick])
@@ -1127,7 +1202,15 @@ class Slab(Component):
                           sldc.real,
                           sldc.imag,
                           self.rough.value,
-                          self.vfsolv.value]])
+                          self.vfsolv.value]]) 
+                          
+    def dielectric_tensor(self, structure=None): ##TFerron Edits 05/20/2020 *Add in a new element that stores the tensor for the individual slab
+        """
+        Stored information pertaining to the tensor dielectric properties of the slab.
+        The trace of the layer is stored in the .slabs() attribute as the real and imaginary component of the SLD
+        """
+        
+        return np.array([self.tensor])
 
 
 class MixedSlab(Component):
