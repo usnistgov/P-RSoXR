@@ -25,8 +25,6 @@ DEALINGS IN THIS SOFTWARE.
 """
 import abc
 import math
-import time
-from functools import lru_cache
 import numbers
 import warnings
 
@@ -37,6 +35,7 @@ from scipy.interpolate import splrep, splev
 
 from refnx.analysis import (Parameters, Parameter, possibly_create_parameter,
                             Transform)
+from refnx.reflect.ani_reflect_model import * ##TFerron Edits 05/20/2020 *Include model for anisotropic calculation
 
 
 # some definitions for resolution smearing
@@ -54,15 +53,12 @@ Implementation notes
    more than one datapoint. One can't use Gaussian quadrature, Simpsons rule is
    needed. Technically the approach works, but turns out to be no faster than
    the Gaussian quadrature with the x17 oversampling (even if everything is
-   vectorised). There are a couple of reasons:
-   a) calculating the Gaussian weights has to be re-done for all the resolution
-   smearing points for every datapoint. For Gaussian quadrature that
-   calculation only needs to be done once, because the oversampling points are
-   at constant locations around the mean. I experimented with using a cached
-   spline to evaluate the Gaussian weights (rather than explicit calculation),
-   but this is no faster.
-   b) in the implementation I tried the Simpsons rule had to integrate
-   e.g. 700 odd points instead of the fixed 17 for the Gaussian quadrature.
+   vectorised). There are a couple of reasons: a) calculating the Gaussian
+   weights has to be re-done for all the resolution smearing points for every
+   datapoint. For Gaussian quadrature that calculation only needs to be done
+   once, because the oversampling points are at constant locations around the
+   mean. b) in the implementation I tried the Simpsons rule had to integrate
+   e.g. 700 odd points instead of the fixed 17 for the Gaussin quadrature.
 """
 
 
@@ -127,8 +123,9 @@ class ReflectModel(object):
            a constant dQ/Q resolution smearing is employed.  For 5% resolution
            smearing supply 5.
 
-        This value is turned into a Parameter during the construction of this
-        object.
+        However, if `x_err` is supplied to the `model` method, then that
+        overrides any setting given here. This value is turned into
+        a Parameter during the construction of this object.
     threads: int, optional
         Specifies the number of threads for parallel calculation. This
         option is only applicable if you are using the ``_creflect``
@@ -144,19 +141,19 @@ class ReflectModel(object):
         time. BUT it won't necessarily work across all samples. For
         example, 13 points may be fine for a thin layer, but will be
         atrocious at describing a multilayer with bragg peaks.
-    dq_type: {'pointwise', 'constant'}, optional
-        Chooses whether pointwise or constant dQ/Q resolution smearing (see
-        `dq` keyword) is used. To use pointwise smearing the `x_err` keyword
-        provided to `Objective.model` method must be an array, otherwise the
-        smearing falls back to 'constant'.
+
     """
     def __init__(self, structure, scale=1, bkg=1e-7, name='', dq=5.,
-                 threads=-1, quad_order=17, dq_type='pointwise'):
+                 threads=-1, quad_order=17,Energy = None,phi = 0): ##Tferron Edits 05/28/2020 Added a energy property to the reflectivity model to carry through to Anisotropic reflectivity (can be an array)
+                                                                      ##Tferron Edits 05/28/2020 Added an angle phi representing the azimuthal angle of incidence with respect to the surface normal (for biaxial tensor properties)
+                                                                      
         self.name = name
         self._parameters = None
         self.threads = threads
         self.quad_order = quad_order
-
+        ##Tferron Edits 05/28/2020 Added the energy property to carry through to anisotropic calculations /// And the angle phi for the angle of incidence 
+        self.Energy = Energy
+        self.phi = phi
         # to make it more like a refnx.analysis.Model
         self.fitfunc = None
 
@@ -167,7 +164,6 @@ class ReflectModel(object):
         # we can optimize the resolution (but this is always overridden by
         # x_err if supplied. There is therefore possibly no dependence on it.
         self._dq = possibly_create_parameter(dq, name='dq - resolution')
-        self.dq_type = dq_type
 
         self._structure = None
         self.structure = structure
@@ -193,10 +189,10 @@ class ReflectModel(object):
         return self.model(x, p=p, x_err=x_err)
 
     def __repr__(self):
-        return (f"ReflectModel({self._structure!r}, name={self.name!r},"
-                f" scale={self.scale!r}, bkg={self.bkg!r},"
-                f" dq={self.dq!r}, threads={self.threads},"
-                f" quad_order={self.quad_order!r}, dq_type={self.dq_type!r})")
+        return ("ReflectModel({_structure!r}, name={name!r},"
+                " scale={_scale!r}, bkg={_bkg!r},"
+                " dq={_dq!r}, threads={threads},"
+                " quad_order={quad_order})".format(**self.__dict__))
 
     @property
     def dq(self):
@@ -244,7 +240,7 @@ class ReflectModel(object):
     def bkg(self, value):
         self._bkg.value = value
 
-    def model(self, x, p=None, x_err=None):
+    def model(self, x, p=None, x_err=None, EFI=False):
         r"""
         Calculate the reflectivity of this model
 
@@ -256,6 +252,8 @@ class ReflectModel(object):
             parameters required to calculate the model
         x_err : np.ndarray
             dq resolution smearing values for the dataset being considered.
+        EFI : True/False
+            Set True if you are using self.model to calculate EFI
 
         Returns
         -------
@@ -265,17 +263,154 @@ class ReflectModel(object):
         """
         if p is not None:
             self.parameters.pvals = np.array(p)
-        if x_err is None or self.dq_type == 'constant':
+        if x_err is None:
             # fallback to what this object was constructed with
             x_err = float(self.dq)
+            
+        if self.structure.isAnisotropic is True:
+            if EFI:
+                kx,ky,kz,Dpol,D,Di,P,W,Refl,Tran = polarized_reflectivity(x, self.structure.slabs(),
+                                            self.structure.dielectric_tensor(),
+                                            self.Energy,
+                                            self.phi,
+                                            scale=self.scale.value,
+                                            bkg=self.bkg.value,
+                                            dq=x_err,
+                                            threads=self.threads,
+                                            quad_order=self.quad_order,
+                                            EFI=EFI)
+                return [kx,ky,kz,Dpol,D,Di,P,W,Refl,Tran]
+            else:
+                Refl, Tran =  polarized_reflectivity(x, self.structure.slabs(),
+                                            self.structure.dielectric_tensor(),
+                                            self.Energy,
+                                            self.phi,
+                                            scale=self.scale.value,
+                                            bkg=self.bkg.value,
+                                            dq=x_err,
+                                            threads=self.threads,
+                                            quad_order=self.quad_order,
+                                            EFI=EFI)
+                return Refl[0,0,:,0]#, Tran
+        else:
+            return reflectivity(x, self.structure.slabs()[..., :4],
+                                scale=self.scale.value,
+                                bkg=self.bkg.value,
+                                dq=x_err,
+                                threads=self.threads,
+                                quad_order=self.quad_order)
 
-        return reflectivity(x, self.structure.slabs()[..., :4],
-                            scale=self.scale.value,
-                            bkg=self.bkg.value,
-                            dq=x_err,
-                            threads=self.threads,
-                            quad_order=self.quad_order)
+    def EFI(self, x, dz = 1, POI=[0.,1.,0.]):
+        """
+        Calculate the internal electric field of this model
 
+        Parameters
+        ----------
+        x : float or np.ndarray
+            q values for the calculation.
+        dz : step size along the depth dimension
+
+
+        Returns
+        -------
+        EFI : [ film depth , q ] np.ndarray
+            Calculated electric field as a function of depth
+
+        """
+        ### --- Calculate the Reflectivity based on the input model --- ###
+        ##DImensionality of outputs for later use ~~
+        ##((4,4), layer, q, wavelength)
+        kx, ky, kz, Dpol, D, Di, P, W, Refl, Tran = self.model(x, EFI=True)
+        print(kz.shape)
+        print(Dpol.shape)
+        numpnts = Refl.shape[2]
+        numwls = Refl.shape[3]
+
+        #Number of layers to consider
+        numLayers = len(self.structure.slabs()[:,0])-2
+        zInterface = np.zeros(numLayers + 2)
+        zInterface[0:1] = 0
+        for i in range(2,numLayers+1):
+            zInterface[i] = zInterface[i-1] - self.structure.slabs()[-i,0]
+        zInterface[-1] = zInterface[-2] - self.structure.slabs()[1,0]
+
+
+        # E-Field Amplitude functions for each layer
+        Amp_EField = np.zeros((4, len(zInterface),numpnts,numwls), dtype=complex)
+        T = np.zeros((4,4),dtype=complex) ##Temporary matrix for generating the amplitude waves
+        
+        #Amplitude scale factors for Ex and Ey based on the 
+        ##Currently these don't do anything. May need them if we start mixing polarization states.
+        spol = (1,0)
+        ppol = (0,1)
+        
+        ##Generate the amplitude functions for E
+        # start with substrate
+        #zInterface[0] = 0.0  # self.substrate.d   # set the substrate layer z to zero to get the correct amplitudes
+        Amp_EField[0,0,:,:] = Tran[1,1,:,:] + Tran[1,0,:,:]
+        Amp_EField[1,0,:,:] = Tran[0,1,:,:] + Tran[0,0,:,:]
+        Amp_EField[2,0,:,:] = 0
+        Amp_EField[3,0,:,:] = 0
+        
+        for i in range(numwls):
+            for j in range(numpnts):
+                T[:,:] = np.dot(Di[:,:,-2,j,i],D[:,:,-1,j,i]) * W[:,:,-1,j,i]
+                Amp_EField[:,1,j,i] = np.dot(T[:,:],Amp_EField[:,0,j,i])
+                
+                for k in range(2,numLayers+1):
+                    T[:,:] = np.dot(np.dot(Di[:,:,-k-1,j,i], D[:,:,-k,j,i]) * W[:,:,-k,j,i] , P[:,:,-k,j,i])
+                    Amp_EField[:,k,j,i] = np.dot(T[:,:],Amp_EField[:,k-1,j,i])
+                
+                T[:,:] = np.dot(np.dot(Di[:,:,0,j,i], D[:,:,1,j,i])*W[:,:,1,j,i], P[:,:,1,j,i])
+                Amp_EField[:,-1,j,i] = np.dot(T[:,:],Amp_EField[:,-2,j,i])
+        #return [D, Di, P, W, Refl, Tran]
+        zInterface = zInterface - zInterface[-1]
+        ##Calculate the E-Field
+        print(zInterface)
+        
+        zpos = np.arange(-50,zInterface[0] + 50,dz)
+        EField = np.zeros((3,len(zpos),numpnts,numwls), dtype=np.complex128)
+        current_layer = numLayers + 1
+        for i in range(numwls):
+            for j in range(numpnts):
+                current_layer = numLayers + 1
+                #print(j)
+                for k, z in enumerate(zpos):
+                    #Check current layer
+                    #print('z', z)
+                    #print('z change', zInterface[current_layer])
+                    if z > zInterface[current_layer] and current_layer > 0:
+                        current_layer -= 1
+                        #print('change layer', current_layer+1, 'to', current_layer)
+                        #if current_layer == 0:
+                        #    print('zero')
+                        #else:
+                        #    print('not zero')
+                    #Calculate Field 
+                    EField[:,k,j,i] = np.dot(Amp_EField[:,current_layer,j,i]* np.exp(1j*(kz[:,-current_layer-1,j,i] * (z - zInterface[current_layer]))),Dpol[:,:,-current_layer-1,j,i])
+
+        
+        return zpos, EField, zInterface[1:]
+        """
+        # calculate first layer manually
+        zInterface[1] = 0.0
+        T = np.dot(self.layers[0].Di, self.substrate.D)
+        # ignore the substrate P-matrix as the amplitudes are for the last interface
+        An[1] = np.dot(T, An[0])
+
+        # calculate intermediate layers in loop
+        for i in range(2, N + 1):
+            zn[i] = zn[i - 1] - self.layers[i - 2].d
+            T = np.dot(self.layers[i - 1].Di, np.dot(self.layers[i - 2].D, self.layers[i - 2].P))
+            An[i] = np.dot(T, An[i - 1])
+
+        # calculate last layer / superstrate manually again
+        zInterface[-1] = zInterface[-2] - self.layers[-1].d
+
+        T = np.dot(self.superstrate.Di, np.dot(self.layers[-1].D, self.layers[-1].P))
+        An[-1] = np.dot(T, An[-2])
+
+        """    
     def logp(self):
         r"""
         Additional log-probability terms for the reflectivity model. Do not
@@ -440,11 +575,11 @@ def reflectivity(q, slabs, scale=1., bkg=0., dq=5., quad_order=17,
         # fixed order quadrature
         else:
             smeared_rvals = (scale *
-                             _smeared_abeles_pointwise(qvals_flat,
-                                                       slabs,
-                                                       dqvals_flat,
-                                                       quad_order=quad_order,
-                                                       threads=threads) +
+                             _smeared_abeles_fixed(qvals_flat,
+                                                   slabs,
+                                                   dqvals_flat,
+                                                   quad_order=quad_order,
+                                                   threads=threads) +
                              bkg)
             return np.reshape(smeared_rvals, q.shape)
 
@@ -573,7 +708,7 @@ def _smeared_abeles_adaptive(qvals, w, dqvals, threads=-1):
     return smeared_rvals
 
 
-def _smeared_abeles_pointwise(qvals, w, dqvals, quad_order=17, threads=-1):
+def _smeared_abeles_fixed(qvals, w, dqvals, quad_order=17, threads=-1):
     """
     Resolution smearing that uses fixed order Gaussian quadrature integration
     for the convolution.
@@ -680,11 +815,11 @@ def _smeared_abeles_constant(q, w, resolution, threads=-1):
     finish = np.log10(highq * (1 + 6 * resolution / _FWHM))
     interpnum = np.round(np.abs(1 * (np.abs(start - finish)) /
                          (1.7 * resolution / _FWHM / gaussgpoint)))
-    xtemp = _cached_linspace(start, finish, int(interpnum))
+    xtemp = np.linspace(start, finish, int(interpnum))
     xlin = np.power(10., xtemp)
 
     # resolution smear over [-4 sigma, 4 sigma]
-    gauss_x = _cached_linspace(-1.7 * resolution, 1.7 * resolution, gaussnum)
+    gauss_x = np.linspace(-1.7 * resolution, 1.7 * resolution, gaussnum)
     gauss_y = gauss(gauss_x, resolution / _FWHM)
 
     rvals = abeles(xlin, w, threads=threads)
@@ -699,14 +834,6 @@ def _smeared_abeles_constant(q, w, resolution, threads=-1):
     smeared_output = splev(q, tck)
 
     return smeared_output
-
-
-@lru_cache(maxsize=128)
-def _cached_linspace(start, stop, num):
-    # calculates linspace for _smeared_abeles_constant
-    # this deserves a cache because it's called a lot with
-    # the same parameters
-    return np.linspace(start, stop, num)
 
 
 class MixedReflectModel(object):
@@ -758,14 +885,10 @@ class MixedReflectModel(object):
         time. BUT it won't necessarily work across all samples. For
         example, 13 points may be fine for a thin layer, but will be
         atrocious at describing a multilayer with bragg peaks.
-    dq_type: {'pointwise', 'constant'}, optional
-        Chooses whether pointwise or constant dQ/Q resolution smearing (see
-        `dq` keyword) is used. To use pointwise smearing the `x_err` keyword
-        provided to `Objective.model` method must be an array, otherwise the
-        smearing falls back to 'constant'.
+
     """
     def __init__(self, structures, scales=None, bkg=1e-7, name='', dq=5.,
-                 threads=-1, quad_order=17, dq_type='pointwise'):
+                 threads=-1, quad_order=17):
         self.name = name
         self._parameters = None
         self.threads = threads
@@ -793,17 +916,14 @@ class MixedReflectModel(object):
         # we can optimize the resolution (but this is always overridden by
         # x_err if supplied. There is therefore possibly no dependence on it.
         self._dq = possibly_create_parameter(dq, name='dq - resolution')
-        self.dq_type = dq_type
 
         self._structures = structures
 
     def __repr__(self):
-        s = (f"MixedReflectModel({self._structures!r},"
-             f" scales={self._scales!r}, bkg={self._bkg!r},"
-             f" name={self.name!r}, dq={self._dq!r},"
-             f" threads={self.threads!r}, quad_order={self.quad_order!r},"
-             f" dq_type={self.dq_type!r})")
-        return s
+        s = ("MixedReflectModel({_structures!r}, scales={_scales!r},"
+             " bkg={_bkg!r}, name={name!r}, dq={_dq!r}, threads={threads!r},"
+             " quad_order={quad_order!r})")
+        return s.format(**self.__dict__)
 
     def __call__(self, x, p=None, x_err=None):
         r"""
@@ -887,7 +1007,7 @@ class MixedReflectModel(object):
         """
         if p is not None:
             self.parameters.pvals = np.array(p)
-        if x_err is None or self.dq_type == 'constant':
+        if x_err is None:
             # fallback to what this object was constructed with
             x_err = float(self.dq)
 
@@ -1055,56 +1175,3 @@ class FresnelTransform(Transform):
             return yt, None
         else:
             return yt, y_err / fresnel
-
-
-def choose_dq_type(objective):
-    """
-    Chooses which resolution smearing approach has the
-    fastest calculation time.
-
-    Parameters
-    ----------
-    objective: Objective
-        The objective being calculated
-
-    Returns
-    -------
-    method: str
-        One of {'pointwise', 'constant'}. If 'pointwise' then using
-        the resolution information from the datafile is the fastest mode
-        of calculation. If 'constant', then a constant dq/q (expressed as
-        a percentage) Q resolution is quicker.
-    """
-    # choose which resolution smearing approach to use
-    if (objective.data.x_err is None or
-            not isinstance(objective.model,
-                           (ReflectModel, MixedReflectModel))):
-        return 'pointwise'
-
-    original_method = objective.model.dq_type
-
-    # time how long point-by-point takes
-    objective.model.dq_type = 'pointwise'
-    start = time.time()
-    for i in range(100):
-        objective.generative()
-    time_pp = time.time() - start
-
-    x_err = objective.data.x_err
-    objective.data.x_err = None
-    dq = 10. * x_err / objective.data.x
-    objective.model.dq.value = np.mean(dq)
-    objective.model.dq_type = 'constant'
-    start = time.time()
-    for i in range(10):
-        objective.generative()
-    const_pp = time.time() - start
-
-    # replace original state
-    objective.data.x_err = x_err
-    objective.model.dq_type = original_method
-    #     print(f"Constant: {const_pp}, point-by-point: {time_pp}")
-    if const_pp < time_pp:
-        # if constant resolution smearing better.
-        return 'constant'
-    return 'pointwise'
