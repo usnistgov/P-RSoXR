@@ -522,7 +522,7 @@ class ani_Structure(UserList):
         abeles = get_reflect_backend()
         return abeles(q, self.slabs()[..., :4], threads=threads)
 
-    def sld_profile(self, z=None, align=0):
+    def sld_profile(self, type=None, z=None, align=0):
         """
         Calculates an SLD profile, as a function of distance through the
         interface.
@@ -570,8 +570,10 @@ class ani_Structure(UserList):
                 offset = np.sum(slabs[:align + 1, 0])
             else:
                 offset = np.sum(slabs[:align, 0])
-
-        return zed - offset, prof, dielectric_prof
+        if type is None:
+            return zed - offset, prof, dielectric_prof
+        else:
+            return zed - offset, prof[type,:]
 
     def __ior__(self, other):
         """
@@ -666,6 +668,74 @@ class ani_Structure(UserList):
             logp += component.logp()
 
         return logp
+        
+    def plot(self, type=0, pvals=None, samples=0, fig=None, align=0):
+        """
+        Plot the structure.
+
+        Requires matplotlib be installed.
+
+        Parameters
+        ----------
+        type: integer, optional
+            Pick the type of plot that you would like to display from sld_profile
+            Tensor trace  (real) - 0
+            Tensor trace  (imag) - 1
+            Birefringence (real) - 2
+            Birefringence (imag) - 3
+        pvals : np.ndarray, optional
+            Numeric values for the Parameter's that are varying
+        samples: number
+            If this structures constituent parameters have been sampled, how
+            many samples you wish to plot on the graph.
+        fig: Figure instance, optional
+            If `fig` is not supplied then a new figure is created. Otherwise
+            the graph is created on the current axes on the supplied figure.
+        align: int, optional
+            Aligns the plotted structures around a specified interface in the
+            slab representation of a Structure. This interface will appear at
+            z = 0 in the sld plot. Note that Components can consist of more
+            than a single slab, so some thought is required if the interface to
+            be aligned around lies in the middle of a Component. Python
+            indexing is allowed, e.g. supplying -1 will align at the backing
+            medium.
+
+        Returns
+        -------
+        fig, ax : :class:`matplotlib.Figure`, :class:`matplotlib.Axes`
+          `matplotlib` figure and axes objects.
+
+        """
+        import matplotlib.pyplot as plt
+
+        params = self.parameters
+
+        if pvals is not None:
+            params.pvals = pvals
+
+        if fig is None:
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+        else:
+            ax = fig.gca()
+
+        if samples > 0:
+            saved_params = np.array(params)
+            # Get a number of chains, chosen randomly, and plot the model.
+            for pvec in self.parameters.pgen(ngen=samples):
+                params.pvals = pvec
+
+                ax.plot(*self.sld_profile(type=type,align=align),
+                        color="k", alpha=0.01)
+
+            # put back saved_params
+            params.pvals = saved_params
+
+        ax.plot(*self.sld_profile(type=type,align=align), color='red', zorder=20)
+        ax.set_ylabel('SLD / 1e-6 $\\AA^{-2}$')
+        ax.set_xlabel("z / $\\AA$")
+
+        return fig, ax
 
 class ani_Scatterer(object):
     """
