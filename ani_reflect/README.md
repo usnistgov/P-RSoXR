@@ -1,5 +1,5 @@
 # Anisotropic refnx
-Installation: relocate files inside refnx.reflect
+Installation: relocate 'ani_reflect' folder inside refnx directory
 
 Included packages:
 
