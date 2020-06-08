@@ -100,6 +100,8 @@ def yeh_4x4_reflectivity(q, layers, tensor, Energy, phi, scale=1., bkg=0, thread
     wl = hc/Energy  ##calculate the wavelength array in Aangstroms for layer calculations
     k0 = 2*np.pi/wl
     
+    tensor = np.conj(np.eye(3) - 2*tensor[:])
+    
     #freq = 2*np.pi * c/wls #Angular frequency
     theta_exp = np.zeros(numpnts,dtype=float)
     theta_exp = np.pi/2 - np.arcsin(flatq[:]  / (2*k0))

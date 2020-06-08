@@ -920,6 +920,7 @@ class ani_MaterialSLD(ani_Scatterer):
         self.probe = probe.lower()
         self.energy = Energy ## In eV
         self.wavelength = hc/Energy ## Convert to Angstroms
+        self.tensor = np.eye(3)*(1 - pt.xsf.index_of_refraction(self.__formula, density=self.density.value,wavelength=self.wavelength))
 
         self._parameters = Parameters(name=name)
         self._parameters.extend([self.density])
