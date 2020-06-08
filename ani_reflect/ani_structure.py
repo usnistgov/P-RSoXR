@@ -43,6 +43,10 @@ from refnx.reflect.reflect_model import get_reflect_backend
 # contracting the SLD profile can greatly speed a reflectivity calculation up.
 contract_by_area = refcalc._contract_by_area
 
+speed_of_light = 299792458 #m/s
+plank_constant = 4.135667697e-15 #ev*s
+hc = (speed_of_light * plank_constant)*1e10# ev*A
+
 
 class ani_Structure(UserList):
     """
@@ -848,8 +852,8 @@ class ani_SLD(ani_Scatterer):
             self.tensor = np.array([[self.xx.value + 1j*self.ixx.value, 0, 0],
                                    [0, self.yy.value + 1j*self.iyy.value, 0],
                                    [0, 0, self.zz.value + 1j*self.izz.value]],dtype=complex)
-        elif isinstance(value, NEXAFS):
-            raise RuntimeError("Not currenlt implemented")
+        #elif isinstance(value, NEXAFS):
+        #    raise RuntimeError("Not currenlt implemented")
 
     def __repr__(self):
         return ("SLD([{real!r}, {imag!r}],"
@@ -874,7 +878,8 @@ class ani_SLD(ani_Scatterer):
 
 class ani_MaterialSLD(ani_Scatterer):
     """
-    Object representing SLD of a chemical formula.
+    Object representing complex index of refraction of a chemical formula.
+    Only works for an isotropic material, convenient for substrate and superstrate materials
     You can fit the mass density of the material.
 
     Parameters
@@ -883,10 +888,8 @@ class ani_MaterialSLD(ani_Scatterer):
         Chemical formula
     density : float or Parameter
         mass density of compound in g / cm**3
-    probe : {'x-ray', 'neutron'}, optional
-        Are you using neutrons or X-rays?
-    wavelength : float, optional
-        wavelength of radiation (Angstrom)
+    Energy : float, optional
+        Energy of radiation (ev) ~ Converted to Angstrom in function
     name : str, optional
         Name of material
 
@@ -903,10 +906,11 @@ class ani_MaterialSLD(ani_Scatterer):
     >>> # g/cm**3
     >>> sio2.density.setp(vary=True, bounds=(2.1, 2.3))
     """
-    def __init__(self, formula, density, probe='neutron', wavelength=1.8,
+    def __init__(self, formula, density, probe='x-ray', Energy=250,
                  name=''):
         import periodictable as pt
-        super(MaterialSLD, self).__init__(name=name)
+        from periodictable import xsf
+        super(ani_MaterialSLD, self).__init__(name=name)
 
         self.__formula = pt.formula(formula)
         self._compound = formula
@@ -914,7 +918,8 @@ class ani_MaterialSLD(ani_Scatterer):
         if probe.lower() not in ['x-ray', 'neutron']:
             raise RuntimeError("'probe' must be one of 'x-ray' or 'neutron'")
         self.probe = probe.lower()
-        self.wavelength = wavelength
+        self.energy = Energy ## In eV
+        self.wavelength = hc/Energy ## Convert to Angstroms
 
         self._parameters = Parameters(name=name)
         self._parameters.extend([self.density])
@@ -922,11 +927,12 @@ class ani_MaterialSLD(ani_Scatterer):
     def __repr__(self):
         d = {'compound': self._compound,
              'density': self.density,
+             'Energy': self.energy,
              'wavelength': self.wavelength,
              'probe': self.probe,
              'name': self.name}
         return ("MaterialSLD({compound!r}, {density!r}, probe={probe!r},"
-                " wavelength={wavelength!r}, name={name!r})".format(**d))
+                " Energy={energy!r}, wavelength={wavelength!r}, name={name!r})".format(**d))
 
     @property
     def formula(self):
@@ -944,10 +950,10 @@ class ani_MaterialSLD(ani_Scatterer):
             sldc = pt.neutron_sld(self.__formula, density=self.density.value,
                                   wavelength=self.wavelength)
         elif self.probe == 'x-ray':
-            sldc = pt.xray_sld(self.__formula, density=self.density.value,
+            sldc = pt.xsf.index_of_refraction(self.__formula, density=self.density.value,
                                wavelength=self.wavelength)
-        return complex(sldc[0], sldc[1])
-
+        return 1 - sldc
+        
     @property
     def parameters(self):
         return self._parameters
