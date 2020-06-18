@@ -35,7 +35,7 @@ from scipy.interpolate import splrep, splev
 
 from refnx.analysis import (Parameters, Parameter, possibly_create_parameter,
                             Transform)
-from refnx.reflect._ani_reflect import * ##TFerron Edits 05/20/2020 *Include model for anisotropic calculation
+from refnx.ani_reflect._ani_reflect import * ##TFerron Edits 05/20/2020 *Include model for anisotropic calculation
 
 
 # some definitions for resolution smearing
@@ -110,8 +110,8 @@ class ani_ReflectModel(object):
 
         self._structure = None
         self.structure = structure
-        ##Generate information from the 4x4 reflectivity calculation...These will be stored 
-
+        ##Generate information from the 4x4 reflectivity calculation...These will be stored if requested
+        
     def __call__(self, x, p=None, x_err=None):
         r"""
         Calculate the generative model
@@ -186,7 +186,7 @@ class ani_ReflectModel(object):
     def bkg(self, value):
         self._bkg.value = value
 
-    def model(self, x, p=None, x_err=None):
+    def model(self, x, p=None, x_err=None,save_components=None):
         r"""
         Calculate the reflectivity of this model
 
@@ -213,7 +213,7 @@ class ani_ReflectModel(object):
             # fallback to what this object was constructed with
             x_err = float(self.dq)
             
-        ##loop over energy here ~~~
+        ##loop over energy here ~~~            
         Refl, Tran =  ani_reflectivity(x, self.structure.slabs(),
                                     self.structure.dielectric_tensor(),
                                     self.Energy[0],
@@ -252,11 +252,19 @@ class ani_ReflectModel(object):
         ### --- Calculate the Reflectivity based on the input model --- ###
         ##DImensionality of outputs for later use ~~
         ##((4,4), layer, q, wavelength)
-        kx, ky, kz, Dpol, D, Di, P, W, Refl, Tran = self.model(x)
-        print(kz.shape)
-        print(Dpol.shape)
-        numpnts = Refl.shape[2]
-        numwls = Refl.shape[3]
+
+            
+        kx, ky, kz, Dpol, D, Di, P, W, Refl, Tran = yeh_4x4_reflectivity(x, self.structure.slabs(),
+                                    self.structure.dielectric_tensor(),
+                                    self.Energy[0],
+                                    self.phi,
+                                    scale=self.scale.value,
+                                    bkg=self.bkg.value,
+                                    threads=self.threads,
+                                    save_components=True)
+        #print(kz.shape)
+        #print(Dpol.shape)
+        numpnts = Refl.shape[0]
 
         #Number of layers to consider
         numLayers = len(self.structure.slabs()[:,0])-2
@@ -266,9 +274,8 @@ class ani_ReflectModel(object):
             zInterface[i] = zInterface[i-1] - self.structure.slabs()[-i,0]
         zInterface[-1] = zInterface[-2] - self.structure.slabs()[1,0]
 
-
         # E-Field Amplitude functions for each layer
-        Amp_EField = np.zeros((4, len(zInterface),numpnts,numwls), dtype=complex)
+        Amp_EField = np.zeros((numpnts, len(zInterface),4), dtype=complex)
         T = np.zeros((4,4),dtype=complex) ##Temporary matrix for generating the amplitude waves
         
         #Amplitude scale factors for Ex and Ey based on the 
@@ -279,47 +286,45 @@ class ani_ReflectModel(object):
         ##Generate the amplitude functions for E
         # start with substrate
         #zInterface[0] = 0.0  # self.substrate.d   # set the substrate layer z to zero to get the correct amplitudes
-        Amp_EField[0,0,:,:] = Tran[1,1,:,:] + Tran[1,0,:,:]
-        Amp_EField[1,0,:,:] = Tran[0,1,:,:] + Tran[0,0,:,:]
-        Amp_EField[2,0,:,:] = 0
-        Amp_EField[3,0,:,:] = 0
+        Amp_EField[:,0,0] = Tran[:,1,1] + Tran[:,1,0] # ppol transmittance
+        Amp_EField[:,0,1] = 0
+        Amp_EField[:,0,2] = Tran[:,0,1] + Tran[:,0,0] # spol transmittance
+        Amp_EField[:,0,3] = 0
         
-        for i in range(numwls):
-            for j in range(numpnts):
-                T[:,:] = np.dot(Di[:,:,-2,j,i],D[:,:,-1,j,i]) * W[:,:,-1,j,i]
-                Amp_EField[:,1,j,i] = np.dot(T[:,:],Amp_EField[:,0,j,i])
+        for i in range(numpnts):
+            T[:,:] = np.dot(Di[i,-2,:,:],D[i,-1,:,:]) * W[i,-1,:,:]
+            Amp_EField[i,1,:] = np.dot(T[:,:],Amp_EField[i,0,:])
                 
-                for k in range(2,numLayers+1):
-                    T[:,:] = np.dot(np.dot(Di[:,:,-k-1,j,i], D[:,:,-k,j,i]) * W[:,:,-k,j,i] , P[:,:,-k,j,i])
-                    Amp_EField[:,k,j,i] = np.dot(T[:,:],Amp_EField[:,k-1,j,i])
+            for j in range(2,numLayers+1):
+                T[:,:] = np.dot(np.dot(Di[i,-j-1,:,:], D[i,-j,:,:]) * W[i,-j,:,:] , P[i,-j,:,:])
+                Amp_EField[i,j,:] = np.dot(T[:,:],Amp_EField[i,j-1,:])
                 
-                T[:,:] = np.dot(np.dot(Di[:,:,0,j,i], D[:,:,1,j,i])*W[:,:,1,j,i], P[:,:,1,j,i])
-                Amp_EField[:,-1,j,i] = np.dot(T[:,:],Amp_EField[:,-2,j,i])
+            T[:,:] = np.dot(np.dot(Di[i,0,:,:], D[i,1,:,:])*W[i,1,:,:], P[i,1,:,:])
+            Amp_EField[i,-1,:] = np.dot(T[:,:],Amp_EField[i,-2,:])
         #return [D, Di, P, W, Refl, Tran]
         zInterface = zInterface - zInterface[-1]
         ##Calculate the E-Field
-        print(zInterface)
+        #print(zInterface)
         
-        zpos = np.arange(-50,zInterface[0] + 50,dz)
-        EField = np.zeros((3,len(zpos),numpnts,numwls), dtype=np.complex128)
-        current_layer = numLayers + 1
-        for i in range(numwls):
-            for j in range(numpnts):
-                current_layer = numLayers + 1
-                #print(j)
-                for k, z in enumerate(zpos):
-                    #Check current layer
-                    #print('z', z)
-                    #print('z change', zInterface[current_layer])
-                    if z > zInterface[current_layer] and current_layer > 0:
-                        current_layer -= 1
-                        #print('change layer', current_layer+1, 'to', current_layer)
-                        #if current_layer == 0:
-                        #    print('zero')
-                        #else:
-                        #    print('not zero')
-                    #Calculate Field 
-                    EField[:,k,j,i] = np.dot(Amp_EField[:,current_layer,j,i]* np.exp(1j*(kz[:,-current_layer-1,j,i] * (z - zInterface[current_layer]))),Dpol[:,:,-current_layer-1,j,i])
+        zpos = np.arange(-100,zInterface[0] + 100,dz)
+        EField = np.zeros((numpnts,len(zpos),3), dtype=np.complex128)
+        #current_layer = numLayers + 1
+        for i in range(numpnts):
+            current_layer = numLayers + 1
+            #print(j)
+            for j, z in enumerate(zpos):
+                #Check current layer
+                #print('z', z)
+                #print('z change', zInterface[current_layer])
+                if z > zInterface[current_layer] and current_layer > 0:
+                    current_layer -= 1
+                    #print('change layer', current_layer+1, 'to', current_layer)
+                    #if current_layer == 0:
+                    #    print('zero')
+                    #else:
+                    #    print('not zero')
+                #Calculate Field 
+                EField[i,j,:] = np.dot(Amp_EField[i,current_layer,:]* np.exp(1j*(kz[i,-current_layer-1,:] * (z - zInterface[current_layer]))),Dpol[i,-current_layer-1,:])
 
         
         return zpos, EField, zInterface[1:]
@@ -387,7 +392,7 @@ class ani_ReflectModel(object):
 
 
 def ani_reflectivity(q, slabs, tensor, Energy = np.array([250]), phi = np.array([0]), scale=1., bkg=0., dq=5., quad_order=17,
-                 threads=-1):
+                 threads=-1,save_components=None):
     r"""
     Full biaxial tensor calculation for calculating reflectivity from a stratified medium.
 
@@ -508,7 +513,7 @@ def ani_reflectivity(q, slabs, tensor, Energy = np.array([250]), phi = np.array(
     
     # constant dq/q smearing
     if isinstance(dq, numbers.Real) and float(dq) == 0:
-            Refl, Tran = yeh_4x4_reflectivity(q, slabs, tensor, Energy, phi, scale=scale, bkg=bkg, threads=threads)
+            Refl, Tran = yeh_4x4_reflectivity(q, slabs, tensor, Energy, phi, scale=scale, bkg=bkg, threads=threads,save_components=None)
             return [Refl, Tran]
             
     elif isinstance(dq, numbers.Real):
@@ -518,7 +523,7 @@ def ani_reflectivity(q, slabs, tensor, Energy = np.array([250]), phi = np.array(
                                          slabs,
                                          tensor, Energy, phi,
                                          dq,
-                                         threads=threads)) + bkg
+                                         threads=threads,save_components=None)) + bkg
     """ ##None of this functionality exists currently for anisotropic calculation
     # point by point resolution smearing (each q point has different dq/q)
     if isinstance(dq, np.ndarray) and dq.size == q.size:
@@ -627,7 +632,7 @@ def _smearkernel(x, w, q, dq, threads):
     return abeles(localq, w, threads=threads) * gauss
 
 
-def _smeared_yeh_4x4_reflectivity(q, w, tensor, Energy, phi, resolution, threads=-1):
+def _smeared_yeh_4x4_reflectivity(q, w, tensor, Energy, phi, resolution, threads=-1,save_components=None):
     """
     Fast resolution smearing for constant dQ/Q.
 
@@ -651,7 +656,7 @@ def _smeared_yeh_4x4_reflectivity(q, w, tensor, Energy, phi, resolution, threads
     """
 
     if resolution < 0.5:
-        return yeh_4x4_reflectivity(q, w, tensor, Energy, phi, threads=threads)
+        return yeh_4x4_reflectivity(q, w, tensor, Energy, phi, threads=threads,save_components=None)
 
     resolution /= 100
     gaussnum = 51
@@ -676,7 +681,7 @@ def _smeared_yeh_4x4_reflectivity(q, w, tensor, Energy, phi, resolution, threads
     gauss_x = np.linspace(-1.7 * resolution, 1.7 * resolution, gaussnum)
     gauss_y = gauss(gauss_x, resolution / _FWHM)
 
-    rvals, rvals = yeh_4x4_reflectivity(xlin, w, tensor, Energy, phi, threads=threads)
+    rvals, rvals = yeh_4x4_reflectivity(xlin, w, tensor, Energy, phi, threads=threads,save_components=None)
     smeared_rvals = np.convolve(rvals, gauss_y, mode='same')
     smeared_rvals *= gauss_x[1] - gauss_x[0]
 

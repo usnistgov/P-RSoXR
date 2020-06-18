@@ -48,7 +48,7 @@ mu0 = 4. * np.pi * 1e-7
 ep0 = 1. / (c**2 * mu0)
     
 
-def yeh_4x4_reflectivity(q, layers, tensor, Energy, phi, scale=1., bkg=0, threads=0):
+def yeh_4x4_reflectivity(q, layers, tensor, Energy, phi, scale=1., bkg=0, threads=0,save_components=None):
     """
     EMpy implementation of the biaxial 4x4 matrix formalism for calculating reflectivity from a stratified
     medium.
@@ -131,13 +131,15 @@ def yeh_4x4_reflectivity(q, layers, tensor, Energy, phi, scale=1., bkg=0, thread
     Hpol = np.zeros((numpnts,nlayers,4,3),dtype=complex) ##The polarization of the magnetic field
 
     #kz = calculate_kz(tensor[None],kx[:,None,None],ky[:,None,None],k0)
-    kz[:,:,:] = kz_vecfunc(tensor[None,:],kx[:,None],ky[:,None],k0)
+    #kz[:,:,:] = kz_vecfunc(tensor[None,:],kx[:,None],ky[:,None],k0)
+    #print('True kz -', kz)
 
     #for i, theta in enumerate(theta_exp): ##Cycle over each incident angle (kx and ky)
     #    for j, epsilon in enumerate(tensor): #Each layer will have a different epsilon and subsequent kz
     #        kz[i,j,:] = calculate_kz(epsilon,kx[i],ky[i],k0)
     #        Dpol[i,j,:,:], Hpol[i,j,:,:] = calculate_Dpol(epsilon, kx[i], ky[i], kz[i,j,:], k0)
     for j, epsilon in enumerate(tensor): #Each layer will have a different epsilon and subsequent kz
+        kz[:,j,:] = calculate_kz(epsilon,kx,ky,k0)
         Dpol[:,j,:,:], Hpol[:,j,:,:] = calculate_Dpol_q(epsilon, kx, ky, kz[:,j,:], k0)
     #K = np.array([kx,ky,kz],dtype=complex)
     #Hpol = np.cross(K,Dpol) / k0
@@ -191,7 +193,10 @@ def yeh_4x4_reflectivity(q, layers, tensor, Energy, phi, scale=1., bkg=0, thread
         Tran[i,1,0] = scale * np.abs(t_ps)**2 + bkg
         Tran[i,1,1] = scale * np.abs(t_pp)**2 + bkg
 
-    return [Refl, Tran]
+    if save_components:
+        return (kx, ky, kz, Dpol, D, Di, P, W, Refl, Tran)
+    else:
+        return [Refl, Tran]
 
 
 
@@ -215,7 +220,46 @@ The following functions were adapted from FSRSTools copyright Daniel Dietze ~~
 
    Copyright 2015 Daniel Dietze <daniel.dietze@berkeley.edu>.
 """
-def calculate_kz(ep,kx,ky,omega):
+def calculate_kz(ep, kx, ky, w):
+
+    """Calculate propagation constants g along z-axis for current layer.
+
+    :param complex 3x3 tensor ep: optical tensor for the specific layer in question
+    :param complex kx: In-plane propagation constant along x-axis
+        Can be a 1D array for reflectivity
+    :param complex ky: In-plane propagation constant along y-axis.
+        Can be a 1D array for reflectivity
+        
+    :returns: Propagation constants along z-axis.
+        """
+    gsigns = [1, -1, 1, -1]
+    
+    kz_out = np.zeros((len(kx),4),dtype=complex)
+       
+    for k in range(len(kx)):
+        kz_temp = solv_kz(ep,kx[k],ky[k],w)
+        for i in range(3):
+            mysign = np.sign(np.real(kz_temp[i]))
+            if mysign != gsigns[i]:
+                for j in range(i + 1, 4):
+                    if mysign != np.sign(np.real(kz_temp[j])):
+                        kz_temp[i], kz_temp[j] = kz_temp[j], kz_temp[i]         # swap values
+                        break
+        kz_out[k,:] = kz_temp
+    
+    return kz_out
+    
+@jit(complex128[:](complex128[:,:],complex128,complex128,complex128))          
+def solv_kz(ep,kx,ky,w):
+    p0 = w**2 * ep[2, 2]
+    p1 = w**2 * ep[2, 0] * kx + ky * w**2 * ep[2, 1] + kx * w**2 * ep[0, 2] + w**2 * ep[1, 2] * ky
+    p2 = w**2 * ep[0, 0] * kx**2 + w**2 * ep[1, 0] * ky * kx - w**4 * ep[0, 0] * ep[2, 2] + w**2 * ep[1, 1] * ky**2 + w**4 * ep[1, 2] * ep[2, 1] + ky**2 * w**2 * ep[2, 2] + w**4 * ep[2, 0] * ep[0, 2] + kx**2 * w**2 * ep[2, 2] + kx * w**2 * ep[0, 1] * ky - w**4 * ep[1, 1] * ep[2, 2]
+    p3 = -w**4 * ep[0, 0] * ep[1, 2] * ky + w**2 * ep[2, 0] * kx * ky**2 - w**4 * ep[0, 0] * ky * ep[2, 1] - kx * w**4 * ep[1, 1] * ep[0, 2] + w**4 * ep[1, 0] * ky * ep[0, 2] + kx**2 * ky * w**2 * ep[1, 2] + kx**3 * w**2 * ep[0, 2] + w**4 * ep[1, 0] * ep[2, 1] * kx + ky**3 * w**2 * ep[2, 1] + kx * ky**2 * w**2 * ep[0, 2] - w**4 * ep[2, 0] * ep[1, 1] * kx + ky**3 * w**2 * ep[1, 2] + w**4 * ep[2, 0] * ep[0, 1] * ky + w**2 * ep[2, 0] * kx**3 + kx**2 * ky * w**2 * ep[2, 1] + kx * w**4 * ep[0, 1] * ep[1, 2]
+    p4 = w**6 * ep[2, 0] * ep[0, 1] * ep[1, 2] - w**6 * ep[2, 0] * ep[1, 1] * ep[0, 2] + w**4 * ep[2, 0] * kx**2 * ep[0, 2] + w**6 * ep[0, 0] * ep[1, 1] * ep[2, 2] - w**4 * ep[0, 0] * ep[1, 1] * kx**2 - w**4 * ep[0, 0] * ep[1, 1] * ky**2 - w**4 * ep[0, 0] * kx**2 * ep[2, 2] + w**2 * ep[0, 0] * kx**2 * ky**2 - w**6 * ep[0, 0] * ep[1, 2] * ep[2, 1] - ky**2 * w**4 * ep[1, 1] * ep[2, 2] + ky**2 * w**2 * ep[1, 1] * kx**2 + ky**2 * w**4 * ep[1, 2] * ep[2, 1] + w**6 * ep[1, 0] * ep[2, 1] * ep[0, 2] - w**6 * ep[1, 0] * ep[0, 1] * ep[2, 2] + w**4 * ep[1, 0] * ep[0, 1] * kx**2 + w**4 * ep[1, 0] * ep[0, 1] * ky**2 + w**2 * ep[1, 0] * kx**3 * ky + w**2 * ep[1, 0] * kx * ky**3 + kx**3 * ky * w**2 * ep[0, 1] + kx * ky**3 * w**2 * ep[0, 1] - w**4 * ep[1, 0] * kx * ky * ep[2, 2] + kx * ky * w**4 * ep[2, 1] * ep[0, 2] - kx * ky * w**4 * ep[0, 1] * ep[2, 2] + w**4 * ep[2, 0] * kx * ky * ep[1, 2] + w**2 * ep[0, 0] * kx**4 + ky**4 * w**2 * ep[1, 1]
+
+    return np.roots(np.array([p0,p1,p2,p3,p4]))
+
+def calculate_kz_old(ep,kx,ky,omega):
         """Calculate propagation constants g along z-axis for current layer.
 
         :param complex 3x3 tensor ep: optical tensor for the specific layer in question
@@ -228,7 +272,7 @@ def calculate_kz(ep,kx,ky,omega):
         # set up the coefficients for the fourth-order polynomial that yields the z-propagation constant as the four roots
         # these terms are taken from my Maple calculation of the determinant of the matrix in Eq. 4 of Yeh's paper
         """
-        PREVIOUS METHOD BY DIETZE
+        #PREVIOUS METHOD BY DIETZE
         p = np.zeros(5, dtype=complex)
         p[0] = w**2 * ep[2, 2]
         p[1] = w**2 * ep[2, 0] * kx + ky * w**2 * ep[2, 1] + kx * w**2 * ep[0, 2] + w**2 * ep[1, 2] * ky
@@ -240,7 +284,7 @@ def calculate_kz(ep,kx,ky,omega):
         # these four solutions are not yet in the right order!!
         kz_temp = np.roots(p)
         """
-        kz_temp = solve_kz(ep[0,0],ep[1,1],ep[2,2],kx,ky,omega)
+        kz_temp = solve_kz_vec(ep[0,0],ep[1,1],ep[2,2],kx,ky,omega)
         
         for i in range(3):
             mysign = np.sign(np.real(kz_temp[i]))
@@ -252,7 +296,7 @@ def calculate_kz(ep,kx,ky,omega):
         return kz_temp
 
 @jit(complex128[:](complex128,complex128,complex128,complex128,complex128,complex128))        
-def solve_kz(exx, eyy, ezz, kx, ky, k0):
+def solve_kz_vec(exx, eyy, ezz, kx, ky, k0):
     #p = np.zeros(5, dtype=complex)
     p0 = k0**2 * ezz
     p2 = k0**2 * exx * kx**2 - k0**4 * exx * ezz + k0**2 * eyy * ky**2 + ky**2 * k0**2 * ezz + kx**2 * k0**2 * ezz - k0**4 * eyy * ezz
@@ -354,6 +398,7 @@ def calculate_Dpol(ep, kx, ky, kz, omega, POI = [0.,1.,0.]):
             hpol_temp[i] = np.cross(K, dpol_temp[i]) * c / (w * mu)
             
         return [dpol_temp,hpol_temp]
+        
 def calculate_Dpol_q(ep, kx, ky, kz, w, POI = [0.,1.,0.]):
         """Calculate the electric and magnetic polarization vectors p and q for the four solutions of `kz`.
 
@@ -375,8 +420,9 @@ def calculate_Dpol_q(ep, kx, ky, kz, w, POI = [0.,1.,0.]):
         """
         mu = 1
         c=1
-        has_to_sort = False
         numpnts =kz.shape[0]
+
+        has_to_sort = np.full(numpnts,True)
         eps = 1e-4
 
         dpol_temp = np.zeros((numpnts,4,3),dtype=complex)
@@ -399,8 +445,8 @@ def calculate_Dpol_q(ep, kx, ky, kz, w, POI = [0.,1.,0.]):
                 P = np.compress(s[j] <= eps * np.amax(s[j]), vh[j], axis=0)
                 # directions have to be calculated according to plane of incidence ( defined by (a, b, 0) and (0, 0, 1) )
                 # or normal to that ( defined by (a, b, 0) x (0, 0, 1) )
-                if(len(s) == 1):    # single component
-                    has_to_sort = True
+                if(P.shape[0] == 1):    # single component
+                    has_to_sort[j] = True
                     dpol_temp[j,i,:] = P[0]/np.linalg.norm(P[0])
                 else:
                     if(i < 2):  # should be p pol
@@ -429,11 +475,12 @@ def calculate_Dpol_q(ep, kx, ky, kz, w, POI = [0.,1.,0.]):
 
         # if solutions were unique, sort the polarization vectors according to p and s polarization
         # the sign of Re(g) has been taken care of already
-        if has_to_sort:
-            for i in range(2):
-                if(np.absolute(np.dot(POI, dpol_temp[:,i])) > 1e-3):
-                    kz[:,i], kz[:,i + 2] = kz[:,i + 2], kz[:,i]
-                    dpol_temp[:,[i, i + 2]] = dpol_temp[:, [i + 2, i]]                 # IMPORTANT! standard python swapping does not work for 2d numpy arrays; use advanced indexing instead
+        for j in range(numpnts):
+            if has_to_sort[j]:
+                for i in range(2):
+                    if(np.absolute(np.dot(POI, dpol_temp[j,i])) > 1e-3):
+                        kz[j,i], kz[j,i + 2] = kz[j,i + 2], kz[j,i]
+                        dpol_temp[j,[i, i + 2]] = dpol_temp[j, [i + 2, i]]                 # IMPORTANT! standard python swapping does not work for 2d numpy arrays; use advanced indexing instead
 
         for i in range(4):
             # select right orientation or p vector - see Born, Wolf, pp 39
