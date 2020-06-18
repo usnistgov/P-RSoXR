@@ -1,4 +1,4 @@
-version = '0.1.01'
+version = '0.1.02'
 
 """
 Basic functionality of ani_reflect has been implemented
