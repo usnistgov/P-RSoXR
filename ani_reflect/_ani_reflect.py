@@ -523,10 +523,12 @@ def calculate_D(Dpol, Hpol):
     D_Temp[3, 2] = Hpol[2, 0]
     D_Temp[3, 3] = Hpol[3, 0]
     
-    Di_Temp = np.linalg.inv(D_Temp)
-
+    #try:
+    Di_Temp = np.linalg.pinv(D_Temp)
+    #except:
+    #    Di_Temp = 0#np.eye(4)#np.linalg.inv(D_temp.round(5))
+        ##Reject the solution
     return [D_Temp, Di_Temp]
-    
     
 def calculate_P(kz,d):
     """Calculate the propagation matrix using the previously calculated values for kz.

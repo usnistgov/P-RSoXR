@@ -228,6 +228,8 @@ class ani_ReflectModel(object):
             return Refl[:,0,0]#,0]
         elif self.pol == 'p':
             return Refl[:,1,1]#,0]
+        elif self.pol == 'fit':
+            return np.concatenate([Refl[:,0,0],Refl[:,1,1]])
         else:
             return Refl
             
