@@ -213,8 +213,12 @@ class ani_ReflectModel(object):
             # fallback to what this object was constructed with
             x_err = float(self.dq)
             
+        if self.pol == 'fit': ##Data was concatenated so we need to make an input thats half the length
+            qvals = np.linspace(np.min(x),np.max(x),400) ##400 is an arbitrary number for now.
+        else:  
+            qvals = x
         ##loop over energy here ~~~            
-        Refl, Tran =  ani_reflectivity(x, self.structure.slabs(),
+        Refl, Tran =  ani_reflectivity(qvals, self.structure.slabs(),
                                     self.structure.dielectric_tensor(),
                                     self.Energy[0],
                                     self.phi,
@@ -229,7 +233,14 @@ class ani_ReflectModel(object):
         elif self.pol == 'p':
             return Refl[:,1,1]#,0]
         elif self.pol == 'fit':
-            return np.concatenate([Refl[:,0,0],Refl[:,1,1]])
+            #Find the location that the spol and ppol data are split
+            pol_swap_loc = np.argmax(np.abs(np.diff(x))) ##Where does it swap from the maximum Q of spol to the minimum Q at ppol
+            spol_qvals = x[:pol_swap_loc+1]
+            ppol_qvals = x[pol_swap_loc+1:]
+            spol_fit = np.interp(spol_qvals,qvals,Refl[:,0,0])
+            ppol_fit = np.interp(ppol_qvals,qvals,Refl[:,1,1])
+                  
+            return np.concatenate([spol_fit,ppol_fit])
         else:
             return Refl
             
