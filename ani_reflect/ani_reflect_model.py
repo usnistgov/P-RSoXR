@@ -531,12 +531,12 @@ def ani_reflectivity(q, slabs, tensor, Energy = np.array([250]), phi = np.array(
             
     elif isinstance(dq, numbers.Real):
         dq = float(dq)
-        return (scale *
-                _smeared_yeh_4x4_reflectivity(q,
+        smear_Refl, smear_Tran = _smeared_yeh_4x4_reflectivity(q,
                                          slabs,
                                          tensor, Energy, phi,
                                          dq,
-                                         threads=threads,save_components=None)) + bkg
+                                         threads=threads,save_components=None)
+        return [(scale *smear_Refl + bkg), smear_Tran]
     """ ##None of this functionality exists currently for anisotropic calculation
     # point by point resolution smearing (each q point has different dq/q)
     if isinstance(dq, np.ndarray) and dq.size == q.size:
@@ -694,16 +694,33 @@ def _smeared_yeh_4x4_reflectivity(q, w, tensor, Energy, phi, resolution, threads
     gauss_x = np.linspace(-1.7 * resolution, 1.7 * resolution, gaussnum)
     gauss_y = gauss(gauss_x, resolution / _FWHM)
 
-    rvals, rvals = yeh_4x4_reflectivity(xlin, w, tensor, Energy, phi, threads=threads,save_components=None)
-    smeared_rvals = np.convolve(rvals, gauss_y, mode='same')
-    smeared_rvals *= gauss_x[1] - gauss_x[0]
+    Refl, Tran = yeh_4x4_reflectivity(xlin, w, tensor, Energy, phi, threads=threads,save_components=None)
+    ##Convolve each solution independently
+    smeared_ss = np.convolve(Refl[:,0,0], gauss_y, mode='same') * (gauss_x[1] - gauss_x[0])
+    smeared_pp = np.convolve(Refl[:,1,1], gauss_y, mode='same') * (gauss_x[1] - gauss_x[0])
+    smeared_sp = np.convolve(Refl[:,0,1], gauss_y, mode='same') * (gauss_x[1] - gauss_x[0])
+    smeared_ps = np.convolve(Refl[:,1,0], gauss_y, mode='same') * (gauss_x[1] - gauss_x[0])
+
+    #smeared_rvals *= gauss_x[1] - gauss_x[0]
 
     # interpolator = InterpolatedUnivariateSpline(xlin, smeared_rvals)
     #
     # smeared_output = interpolator(q)
+    ##Re-interpolate and organize the results wave following spline interpolation
+    tck_ss = splrep(xlin, smeared_ss)
+    smeared_output_ss = splev(q, tck_ss)
+    
+    tck_sp = splrep(xlin, smeared_sp)
+    smeared_output_sp = splev(q, tck_sp)
+    
+    tck_ps = splrep(xlin, smeared_ps)
+    smeared_output_ps = splev(q, tck_ps)
+    
+    tck_pp = splrep(xlin, smeared_pp)
+    smeared_output_pp = splev(q, tck_pp)
+    
+    ##Organize the output wave with the appropriate outputs
+    smeared_output = np.rollaxis(np.array([[smeared_output_ss,smeared_output_sp],[smeared_output_ps,smeared_output_pp]]),2,0)
 
-    tck = splrep(xlin, smeared_rvals)
-    smeared_output = splev(q, tck)
-
-    return smeared_output
+    return smeared_output, Tran
     
