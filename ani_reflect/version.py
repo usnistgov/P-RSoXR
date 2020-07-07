@@ -1,7 +1,9 @@
-version = '0.1.02'
+version = '0.1.03'
 
 """
 Basic functionality of ani_reflect has been implemented
+
+0.1.03 - Cleaned up '_ani_reflect' and added numba functionality to speed up matrix calculations
 
 0.1.02 - Updated ani_structure with 'ani_NexafsSLD'
     Allows for an SLD object to be generated form an external NEXAFS file

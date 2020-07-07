@@ -100,6 +100,7 @@ def yeh_4x4_reflectivity(q, layers, tensor, Energy, phi, scale=1., bkg=0, thread
     wl = hc/Energy  ##calculate the wavelength array in Aangstroms for layer calculations
     k0 = 2*np.pi/wl
     
+    #Convert optical constants into dielectric tensor
     tensor = np.conj(np.eye(3) - 2*tensor[:])
     
     #freq = 2*np.pi * c/wls #Angular frequency
@@ -146,13 +147,14 @@ def yeh_4x4_reflectivity(q, layers, tensor, Energy, phi, scale=1., bkg=0, thread
     Tran = np.zeros((numpnts,2,2),dtype=float)
     
     
-    ##Calculate dynamic matrices
+    ##Calculate propagation and roughness matrices
     for i in range(numpnts):
         for j in range(nlayers):
-            D[i,j,:,:], Di[i,j,:,:] = calculate_D(Dpol[i,j,:,:], Hpol[i,j,:,:])
             P[i,j,:,:] = calculate_P(kz[i,j,:],layers[j,0]) ##layers[k,0] is the thicknes of layer k
             W[i,j,:,:] = calculate_W(kz[i,j,:],kz[i,j-1,:],layers[j,3])
-
+    #calculate the Dynamical matrices  
+    D[:,:,:,:], Di[:,:,:,:] = calculate_D(numpnts,nlayers,Dpol[:,:,:,:], Hpol[:,:,:,:])
+  
     ##Calculate the full system transfer matrix
     ##Dimensionality ##
     ##(Matrix (4,4),angle,wavelength)
@@ -208,6 +210,7 @@ def calculate_kz(ep, kx, ky, w):
     for k in range(len(kx)):
         kz_temp = np.sort(solv_kz(ep,kx[k],ky[k],w)) ##Calculate the roots of the characteristic equation and sort in ascending order
         #Reorder based on sign and magnitude (+, -, +, -)
+        #Order of polarization will be determined later
         kz_temp[0], kz_temp[3] = kz_temp[3], kz_temp[0]
         kz_temp[1], kz_temp[3] = kz_temp[3], kz_temp[1]
         kz_out[k,:] = kz_temp ##Append to output wave
@@ -262,10 +265,7 @@ def calculate_Dpol(ep, kx, ky, kz, w, POI = [0.,1.,0.]):
 
         # iterate over the four solutions of the z-propagation constant kz
         for i in range(4):
-            # this idea is partly based on Reider's book, as the explanation in the papers is misleading
 
-            # define the matrix for getting the co-factors
-            # use the complex conjugate to get the phases right!!
             #M = np.rollaxis(np.conj(np.array([[w**2 * mu * ep[0, 0] - ky[:]**2 - kz[:,i]**2, w**2 * mu * ep[0, 1] + kx[:] * ky[:], w**2 * mu * ep[0, 2] + kx[:] * kz[:,i]],
             #[w**2 * mu * ep[0, 1] + kx[:] * ky[:], w**2 * mu * ep[1, 1] - kx[:]**2 - kz[:,i]**2, w**2 * mu * ep[1, 2] + ky[:] * kz[:,i]],
             #[w**2 * mu * ep[0, 2] + kx[:] * kz[:,i], w**2 * mu * ep[1, 2] + ky[:] * kz[:,i], w**2 * mu * ep[2, 2] - ky[:]**2 - kx[:]**2]],
@@ -338,9 +338,12 @@ def calculate_Dpol(ep, kx, ky, kz, w, POI = [0.,1.,0.]):
 
 """       
 def solve_polarization_vectors(ep, kx, ky, kz, w):
+    # this idea is partly based on Reider's book, as the explanation in the papers is misleading
 
-    #Calculate characteristic matrix
-    mu = 1
+    # define the matrix for getting the co-factors
+    # use the complex conjugate to get the phases right!!
+    # Calculate characteristic matrix
+    mu = 1 #legacy variable...kept around to better reflect references not using gaussian units.
     M = np.rollaxis(np.conj(np.array([[w**2 * mu * ep[0, 0] - ky[:]**2 - kz[:]**2, w**2 * mu * ep[0, 1] + kx[:] * ky[:], w**2 * mu * ep[0, 2] + kx[:] * kz[:]],
             [w**2 * mu * ep[0, 1] + kx[:] * ky[:], w**2 * mu * ep[1, 1] - kx[:]**2 - kz[:]**2, w**2 * mu * ep[1, 2] + ky[:] * kz[:]],
             [w**2 * mu * ep[0, 2] + kx[:] * kz[:], w**2 * mu * ep[1, 2] + ky[:] * kz[:], w**2 * mu * ep[2, 2] - ky[:]**2 - kx[:]**2]],
@@ -350,39 +353,39 @@ def solve_polarization_vectors(ep, kx, ky, kz, w):
     return [u,s,vh]
 
 
-    # calculate the dynamic matrix and its inverse
-    
-@njit
-def calculate_D(Dpol, Hpol):
+# calculate the dynamic matrix and its inverse    
+def calculate_D(numpnts,nlayers, Dpol, Hpol):
     """Calculate the dynamic matrix and its inverse using the previously calculated values for p and q.
 
     returns: :math:`D`, :math`D^{-1}`
 
      .. important:: Requires prior execution of :py:func:`calculate_p_q`.
     """
-    D_Temp = np.zeros((4,4), dtype=np.complex_)
-    Di_Temp = np.zeros((4,4), dtype=np.complex_)
+    D_Temp = np.zeros((numpnts,nlayers,4,4), dtype=np.complex_)
+    Di_Temp = np.zeros((numpnts,nlayers,4,4), dtype=np.complex_)
     
-    D_Temp[0, 0] = Dpol[0, 0]
-    D_Temp[0, 1] = Dpol[1, 0]
-    D_Temp[0, 2] = Dpol[2, 0]
-    D_Temp[0, 3] = Dpol[3, 0]
-    D_Temp[1, 0] = Hpol[0, 1]
-    D_Temp[1, 1] = Hpol[1, 1]
-    D_Temp[1, 2] = Hpol[2, 1]
-    D_Temp[1, 3] = Hpol[3, 1]
-    D_Temp[2, 0] = Dpol[0, 1]
-    D_Temp[2, 1] = Dpol[1, 1]
-    D_Temp[2, 2] = Dpol[2, 1]
-    D_Temp[2, 3] = Dpol[3, 1]
-    D_Temp[3, 0] = Hpol[0, 0]
-    D_Temp[3, 1] = Hpol[1, 0]
-    D_Temp[3, 2] = Hpol[2, 0]
-    D_Temp[3, 3] = Hpol[3, 0]
+    D_Temp[:, :, 0, 0] = Dpol[:, :, 0, 0]
+    D_Temp[:, :, 0, 1] = Dpol[:, :, 1, 0]
+    D_Temp[:, :, 0, 2] = Dpol[:, :, 2, 0]
+    D_Temp[:, :, 0, 3] = Dpol[:, :, 3, 0]
+    D_Temp[:, :, 1, 0] = Hpol[:, :, 0, 1]
+    D_Temp[:, :, 1, 1] = Hpol[:, :, 1, 1]
+    D_Temp[:, :, 1, 2] = Hpol[:, :, 2, 1]
+    D_Temp[:, :, 1, 3] = Hpol[:, :, 3, 1]
+    D_Temp[:, :, 2, 0] = Dpol[:, :, 0, 1]
+    D_Temp[:, :, 2, 1] = Dpol[:, :, 1, 1]
+    D_Temp[:, :, 2, 2] = Dpol[:, :, 2, 1]
+    D_Temp[:, :, 2, 3] = Dpol[:, :, 3, 1]
+    D_Temp[:, :, 3, 0] = Hpol[:, :, 0, 0]
+    D_Temp[:, :, 3, 1] = Hpol[:, :, 1, 0]
+    D_Temp[:, :, 3, 2] = Hpol[:, :, 2, 0]
+    D_Temp[:, :, 3, 3] = Hpol[:, :, 3, 0]
     
     Di_Temp = np.linalg.pinv(D_Temp)
 
     return [D_Temp, Di_Temp]
+
+
 
 @njit  
 def calculate_P(kz,d):
@@ -440,7 +443,8 @@ def calculate_W(kz1,kz2,r):
     W_temp[3, 3] = eminus[3]
     
     return W_temp
-#@njit
+    
+@njit
 def calulate_TMM(numpnts,nlayers,D,Di,P,W):
 
     M = np.zeros((numpnts,4,4), dtype=np.complex_)
@@ -484,3 +488,37 @@ def calculate_output(numpnts, scale, bkg, M_full):
         Tran[i,1,1] = scale * np.abs(t_pp)**2 + bkg
         
     return Refl, Tran
+    
+    
+    
+@njit
+def calculate_D_old(Dpol, Hpol):
+    """Calculate the dynamic matrix and its inverse using the previously calculated values for p and q.
+
+    returns: :math:`D`, :math`D^{-1}`
+
+     .. important:: Requires prior execution of :py:func:`calculate_p_q`.
+    """
+    D_Temp = np.zeros((4,4), dtype=np.complex_)
+    Di_Temp = np.zeros((4,4), dtype=np.complex_)
+    
+    D_Temp[0, 0] = Dpol[0, 0]
+    D_Temp[0, 1] = Dpol[1, 0]
+    D_Temp[0, 2] = Dpol[2, 0]
+    D_Temp[0, 3] = Dpol[3, 0]
+    D_Temp[1, 0] = Hpol[0, 1]
+    D_Temp[1, 1] = Hpol[1, 1]
+    D_Temp[1, 2] = Hpol[2, 1]
+    D_Temp[1, 3] = Hpol[3, 1]
+    D_Temp[2, 0] = Dpol[0, 1]
+    D_Temp[2, 1] = Dpol[1, 1]
+    D_Temp[2, 2] = Dpol[2, 1]
+    D_Temp[2, 3] = Dpol[3, 1]
+    D_Temp[3, 0] = Hpol[0, 0]
+    D_Temp[3, 1] = Hpol[1, 0]
+    D_Temp[3, 2] = Hpol[2, 0]
+    D_Temp[3, 3] = Hpol[3, 0]
+    
+    Di_Temp = np.linalg.pinv(D_Temp)
+
+    return [D_Temp, Di_Temp]

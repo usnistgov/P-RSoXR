@@ -830,7 +830,7 @@ class ani_SLD(ani_Scatterer):
         #    raise RuntimeError("Not currenlt implemented")
 
     def __repr__(self):
-        return ("SLD([{real!r}, {imag!r}],"
+        return ("IoR([{delta!r}, {beta!r}],"
                 " name={name!r})".format(**self.__dict__))
 
     def __complex__(self):
@@ -907,12 +907,12 @@ class ani_MaterialSLD(ani_Scatterer):
     def __repr__(self):
         d = {'compound': self._compound,
              'density': self.density,
-             'Energy': self.energy,
+             'energy': self.energy,
              'wavelength': self.wavelength,
              'probe': self.probe,
              'name': self.name}
         return ("MaterialSLD({compound!r}, {density!r}, probe={probe!r},"
-                " Energy={energy!r}, wavelength={wavelength!r}, name={name!r})".format(**d))
+                " energy={energy!r}, wavelength={wavelength!r}, name={name!r})".format(**d))
 
     @property
     def formula(self):

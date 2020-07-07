@@ -267,7 +267,7 @@ class ani_ReflectModel(object):
         ##((4,4), layer, q, wavelength)
 
             
-        kx, ky, kz, Dpol, D, Di, P, W, Refl, Tran = yeh_4x4_reflectivity(x, self.structure.slabs(),
+        kx, ky, kz, Dpol, Hpol, D, Di, P, W, Refl, Tran = yeh_4x4_reflectivity(x, self.structure.slabs(),
                                     self.structure.dielectric_tensor(),
                                     self.Energy[0],
                                     self.phi,
@@ -293,15 +293,16 @@ class ani_ReflectModel(object):
         
         #Amplitude scale factors for Ex and Ey based on the 
         ##Currently these don't do anything. May need them if we start mixing polarization states.
-        spol = (1,0)
-        ppol = (0,1)
+        pol=np.array([1,0])
+        A_spol = pol[0]/np.sqrt(pol[0]**2 + pol[1]**2) 
+        A_ppol = pol[1]/np.sqrt(pol[0]**2 + pol[1]**2)
         
         ##Generate the amplitude functions for E
         # start with substrate
         #zInterface[0] = 0.0  # self.substrate.d   # set the substrate layer z to zero to get the correct amplitudes
-        Amp_EField[:,0,0] = Tran[:,1,1] + Tran[:,1,0] # ppol transmittance
+        Amp_EField[:,0,0] = Tran[:,1,1] * A_ppol + Tran[:,0,1] * A_spol# ppol transmittance
         Amp_EField[:,0,1] = 0
-        Amp_EField[:,0,2] = Tran[:,0,1] + Tran[:,0,0] # spol transmittance
+        Amp_EField[:,0,2] = Tran[:,1,0] * A_ppol + Tran[:,0,0] * A_spol # spol transmittance
         Amp_EField[:,0,3] = 0
         
         for i in range(numpnts):
