@@ -11,11 +11,17 @@ import pickle
 #required modules from refnx
 from refnx.analysis import Transform, CurveFitter, Objective, GlobalObjective, Parameter, integrated_time
 from refnx.analysis import process_chain, load_chain, autocorrelation_chain
+from refnx.ani_reflect.ani_reflect_model import ani_ReflectModel
 
 
 
 ###This is the function you want -- 
-def postprocess_fit(nburn=0, nthin=1):
+def postprocess_fit(objective, nburn=0, nthin=1):
+
+    model_en1 = objective.objectives[0].model
+    model_en2 = objective.objectives[1].model
+    data_en1 = objective.objectives[0].data
+    data_en2 = objective.objectives[1].data
 
     #Build a new objective to reload data and keep the previous one the same
     objective_post_en1 = Objective(model_en1, data_en1, transform = Transform('logY'), name = 'en1')
@@ -32,19 +38,16 @@ def postprocess_fit(nburn=0, nthin=1):
     save_fitresults(objective_processed)
     
     
-    
 
-
-def plot_MCMC(objective, chain, name='MCMC_Chain'):
+def plot_MCMC(objective, input_chain, name='MCMC_Chain_process'):
     labels = objective.varying_parameters().names()
     num = len(labels)
     chain_fig, chain_axes = plt.subplots(num, figsize=(10, 14), sharex=True)
-    
     for i in range(num):
         ax = chain_axes[i]
-        temp_chain = chain[i].chain
-        ax.plot(chain, alpha=0.3)
-        ax.set_xlim(0, len(chain))
+        temp_chain = input_chain[i].chain
+        ax.plot(temp_chain, alpha=0.3)
+        ax.set_xlim(0, len(temp_chain))
         ax.set_ylabel(labels[i],rotation=0,fontsize=12)
         ax.ticklabel_format(axis='y',style='sci',scilimits=(0,0))
         ax.tick_params(axis='y',labelsize=12)
@@ -56,7 +59,7 @@ def plot_MCMC(objective, chain, name='MCMC_Chain'):
     plt.savefig(name + '.png', dpi=300)
     plt.close()
 
-def plot_PSoXR(objective)
+def plot_PSoXR(objective):
 
     for objective in objective.objectives:
     
@@ -74,15 +77,15 @@ def plot_PSoXR(objective)
         ##Split s and p pol
         swap_loc = np.argmax(np.abs(np.diff(data.data[0]))) ##Where does it swap from the maximum Q of spol to the minimum Q at ppol
         
-        spol_q = data.data[0][:pol_swap_loc1+1]
-        spol_data = data.data[1][:pol_swap_loc1+1]
-        spol_u = data.data[2][:pol_swap_loc1+1]
-        spol_res = res[:pol_swap_loc1+1]
+        spol_qvals = data.data[0][:swap_loc+1]
+        spol_data = data.data[1][:swap_loc+1]
+        spol_u = data.data[2][:swap_loc+1]
+        spol_res = res[:swap_loc+1]
         
-        ppol_q = data.data[0][pol_swap_loc1+1:]
-        ppol_data = data.data[1][pol_swap_loc1+1:]
-        ppol_u = data.data[2][pol_swap_loc1+1:]
-        ppol_res = res[pol_swap_loc1+1:]
+        ppol_qvals = data.data[0][swap_loc+1:]
+        ppol_data = data.data[1][swap_loc+1:]
+        ppol_u = data.data[2][swap_loc+1:]
+        ppol_res = res[swap_loc+1:]
 
         ##Plot stuff
         fig = plt.figure(constrained_layout=True,figsize=(12,9))
@@ -90,8 +93,8 @@ def plot_PSoXR(objective)
         refl_ax = fig.add_subplot(grid[1:,:])
         res_ax = fig.add_subplot(grid[0,:],sharex=refl_ax)
         
-        res_spol = res_ax.scatter(fit_qvals, spol_res,color='#FE6100',marker='o',s=5,label='s-pol')
-        res_ppol = res_ax.scatter(fit_qvals, ppol_res,color='#785EF0',marker='o',s=5,label='p-pol')
+        res_spol = res_ax.scatter(spol_qvals, spol_res,color='#FE6100',marker='o',s=5,label='s-pol')
+        res_ppol = res_ax.scatter(ppol_qvals, ppol_res,color='#785EF0',marker='o',s=5,label='p-pol')
         
         res_ax.set_ylabel('Res [%]',fontsize=14)
         res_ax.tick_params(axis='both',labelsize=14)
@@ -151,17 +154,18 @@ def plot_psoxr_corner(objective):
 
 
 
-def save_integratedtime(objective, chain, name='auto_correlation_time'):
+def save_integratedtime(objective, input_chain, name='auto_correlation_time'):
     import numpy as np
-    list = objective.varying_parameters().names()
+    list_name = objective.varying_parameters().names()
     
-    labels = np.full(len(list) ,'',dtype=object)
-    auto = np.full(len(list) ,0 ,dtype=Float)
+    labels = np.full(len(list_name) ,'',dtype=object)
+    auto = np.full(len(list_name) ,0 ,dtype=float)
 
     
-    for i in range(len(list)):
-        labels[i] = list[i].name
-        auto[i] = integrated_time(chain,quiet=True)
+    for i in range(len(list_name)):
+        labels[i] = list_name[i]
+        temp_chain = input_chain[i].chain
+        auto[i] = integrated_time(temp_chain[i],quiet=True)
     
     out = np.rollaxis(np.array([labels,auto]),1,0)
     np.savetxt(name + '.txt',out,fmt="%s, %f",delimiter=',')
