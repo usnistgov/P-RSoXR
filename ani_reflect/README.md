@@ -16,4 +16,5 @@ Required packages:
 =============================
 
 Based on the work by Daniel Dietze in FSRStools (https://github.com/ddietze/FSRStools)
+
 Uniaxial reflectivity based on the work by Pavel Dmitriev in PyATMM (https://github.com/kitchenknif/PyATMM)
