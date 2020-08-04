@@ -36,6 +36,7 @@ from scipy.interpolate import splrep, splev
 from refnx.analysis import (Parameters, Parameter, possibly_create_parameter,
                             Transform)
 from refnx.ani_reflect._ani_reflect import * ##TFerron Edits 05/20/2020 *Include model for anisotropic calculation
+from refnx.ani_reflect._uniaxial_reflect import *
 
 
 # some definitions for resolution smearing
@@ -85,16 +86,19 @@ class ani_ReflectModel(object):
         atrocious at describing a multilayer with bragg peaks.
 
     """
-    def __init__(self, structure, scale=1, bkg=1e-7, name='', dq=5.,
-                 threads=-1, quad_order=17,Energy = None,phi = 0,pol='s'): ##Tferron Edits 05/28/2020 Added a energy property to the reflectivity model to carry through to Anisotropic reflectivity (can be an array)
+    def __init__(self, structure, scale=1, bkg=1e-7, name='', dq=0.,
+                 threads=-1, quad_order=17, energy = None, qval = None, phi = 0, pol='s', backend = 'uni'): ##Tferron Edits 05/28/2020 Added a energy property to the reflectivity model to carry through to Anisotropic reflectivity (can be an array)
                                                                       ##Tferron Edits 05/28/2020 Added an angle phi representing the azimuthal angle of incidence with respect to the surface normal (for biaxial tensor properties)
                                                                       
         self.name = name
         self._parameters = None
         self.threads = threads
         self.quad_order = quad_order
+        self.backend = backend
         ##Tferron Edits 05/28/2020 Added the energy property to carry through to anisotropic calculations /// And the angle phi for the angle of incidence 
-        self.Energy = Energy
+        if type(energy) is list: energy = np.array(energy)
+        self._energy = energy if type(energy) is np.ndarray else np.array([energy])## In eV
+        self._qval = qval #Set to any value if you want to run an energy scan
         self.phi = phi
         self.pol = pol
         # to make it more like a refnx.analysis.Model
@@ -185,6 +189,28 @@ class ani_ReflectModel(object):
     @bkg.setter
     def bkg(self, value):
         self._bkg.value = value
+        
+    @property
+    def energy(self):
+        """
+        Series of energies to model in this particular model, must match the dimension of the dataset if used in an objective
+        
+        """
+        return self._energy
+
+    @energy.setter
+    def energy(self,energy):
+        if type(energy) is list: energy = np.array(energy)
+        self._energy = energy if type(energy) is np.ndarray else np.array([energy])
+        
+    @property
+    def qval(self):
+        return self._qval
+    
+    @qval.setter
+    def qval(self, qval):
+        self._qval = qval
+
 
     def model(self, x, p=None, x_err=None,save_components=None):
         r"""
@@ -193,7 +219,8 @@ class ani_ReflectModel(object):
         Parameters
         ----------
         x : float or np.ndarray
-            q values for the calculation.
+            q or E values for the calculation.
+            specifiy self.qval to be any value to fit energy-space
         p : refnx.analysis.Parameters, optional
             parameters required to calculate the model
         x_err : np.ndarray
@@ -213,36 +240,49 @@ class ani_ReflectModel(object):
             # fallback to what this object was constructed with
             x_err = float(self.dq)
             
-        if self.pol == 'fit': ##Data was concatenated so we need to make an input thats half the length
-            qvals = np.linspace(np.min(x),np.max(x),400) ##400 is an arbitrary number for now.
-        else:  
-            qvals = x
-        ##loop over energy here ~~~            
-        Refl, Tran =  ani_reflectivity(qvals, self.structure.slabs(),
-                                    self.structure.dielectric_tensor(),
-                                    self.Energy[0],
-                                    self.phi,
-                                    scale=self.scale.value,
-                                    bkg=self.bkg.value,
-                                    dq=x_err,
-                                    threads=self.threads,
-                                    quad_order=self.quad_order)
+        #Determine if its an energy scan or qscan
+        if self.qval is not None: #A single qval has been specified 
+            if self.pol == 'fit':
+                self.energy = np.linspace(np.min(x), np.max(x), 300)   
+            else:
+                self.energy = x
+            qvals = self.qval
+        else:
+            if self.pol == 'fit': ##Data was concatenated so we need to make an input thats half the length
+                qvals = np.linspace(np.min(x),np.max(x),400) ##400 is an arbitrary number for now.
+            else:  
+                qvals = x     
+           
+        ##loop over energy here ~~~ ?
+        refl = np.zeros((len(self.energy),len(x),2,2),dtype=float)
+        tran = np.zeros((len(self.energy),len(x),2,2),dtype=float)
+        for i, energy in enumerate(self.energy):
+            refl[i,:,:,:], tran[i,:,:,:] =  ani_reflectivity(qvals, self.structure.slabs(),
+                                        self.structure.tensor(energy=energy),
+                                        energy,
+                                        self.phi,
+                                        scale=self.scale.value,
+                                        bkg=self.bkg.value,
+                                        dq=x_err,
+                                        threads=self.threads,
+                                        quad_order=self.quad_order,
+                                        ani_backend=self.backend)
         ## Check what the output is looking for (required to specify polarization for fitting)                            
         if self.pol == 's':
-            return Refl[:,0,0]#,0]
+            return refl[0,:,1,1]#,0]
         elif self.pol == 'p':
-            return Refl[:,1,1]#,0]
+            return refl[0,:,0,0]#,0]
         elif self.pol == 'fit':
             #Find the location that the spol and ppol data are split
             pol_swap_loc = np.argmax(np.abs(np.diff(x))) ##Where does it swap from the maximum Q of spol to the minimum Q at ppol
             spol_qvals = x[:pol_swap_loc+1]
             ppol_qvals = x[pol_swap_loc+1:]
-            spol_fit = np.interp(spol_qvals,qvals,Refl[:,0,0])
-            ppol_fit = np.interp(ppol_qvals,qvals,Refl[:,1,1])
+            spol_fit = np.interp(spol_qvals,qvals,refl[0,:,1,1])
+            ppol_fit = np.interp(ppol_qvals,qvals,refl[0,:,0,0])
                   
             return np.concatenate([spol_fit,ppol_fit])
         else:
-            return Refl
+            return refl
             
             
     def EFI(self, x, dz = 1, POI=[0.,1.,0.]):
@@ -268,8 +308,8 @@ class ani_ReflectModel(object):
 
             
         kx, ky, kz, Dpol, Hpol, D, Di, P, W, Refl, Tran = yeh_4x4_reflectivity(x, self.structure.slabs(),
-                                    self.structure.dielectric_tensor(),
-                                    self.Energy[0],
+                                    self.structure.tensor(energy=self.energy),
+                                    self.energy,
                                     self.phi,
                                     scale=self.scale.value,
                                     bkg=self.bkg.value,
@@ -405,8 +445,8 @@ class ani_ReflectModel(object):
         return self._parameters
 
 
-def ani_reflectivity(q, slabs, tensor, Energy = np.array([250]), phi = np.array([0]), scale=1., bkg=0., dq=5., quad_order=17,
-                 threads=-1,save_components=None):
+def ani_reflectivity(q, slabs, tensor, energy = np.array([250]), phi = np.array([0]), scale=1., bkg=0., dq=5., quad_order=17,
+                 threads=-1,ani_backend='uni'):
     r"""
     Full biaxial tensor calculation for calculating reflectivity from a stratified medium.
 
@@ -527,17 +567,20 @@ def ani_reflectivity(q, slabs, tensor, Energy = np.array([250]), phi = np.array(
     
     # constant dq/q smearing
     if isinstance(dq, numbers.Real) and float(dq) == 0:
-            Refl, Tran = yeh_4x4_reflectivity(q, slabs, tensor, Energy, phi, scale=scale, bkg=bkg, threads=threads,save_components=None)
-            return [Refl, Tran]
+        if ani_backend == 'uni':
+            Refl, Tran = uniaxial_reflectivity(q, slabs, tensor, energy, phi, scale=scale, bkg=bkg, threads=threads, save_components=None)
+        else:
+            Refl, Tran = yeh_4x4_reflectivity(q, slabs, tensor, energy, phi, scale=scale, bkg=bkg, threads=threads, save_components=None)
+        return [Refl, Tran]
             
     elif isinstance(dq, numbers.Real):
         dq = float(dq)
-        smear_Refl, smear_Tran = _smeared_yeh_4x4_reflectivity(q,
+        smear_refl, smear_tran = _smeared_yeh_4x4_reflectivity(q,
                                          slabs,
-                                         tensor, Energy, phi,
+                                         tensor, energy, phi,
                                          dq,
                                          threads=threads,save_components=None)
-        return [(scale *smear_Refl + bkg), smear_Tran]
+        return [(scale*smear_tefl + bkg), smear_tran]
     """ ##None of this functionality exists currently for anisotropic calculation
     # point by point resolution smearing (each q point has different dq/q)
     if isinstance(dq, np.ndarray) and dq.size == q.size:

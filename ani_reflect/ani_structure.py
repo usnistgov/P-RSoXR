@@ -136,7 +136,7 @@ class ani_Structure(UserList):
 
     """
     def __init__(self, components=(), name='', solvent=None,
-                 reverse_structure=False, contract=0, isAnisotropic = True): ##TFerron Edit 05/20/2020 *Adds an attribute to make the entire film use the anisotropic calculation
+                 reverse_structure=False, contract=0):#, isAnisotropic = True): ##TFerron Edit 05/20/2020 *Adds an attribute to make the entire film use the anisotropic calculation
         super(ani_Structure, self).__init__()
         self._name = name
         self._solvent = solvent
@@ -150,6 +150,7 @@ class ani_Structure(UserList):
         # if you provide a list of components to start with, then initialise
         # the structure from that
         self.data = [c for c in components if isinstance(c, Component)]
+        
 
     def __copy__(self):
         s = Structure(name=self.name, solvent=self._solvent)
@@ -226,7 +227,15 @@ class ani_Structure(UserList):
         else:
             solv = SLD(sld)
             self._solvent = solv
-
+            
+    @property
+    def energy(self):
+        return self._energy
+    
+    @energy.setter
+    def energy(self, energy):
+        self._energy = energy
+        
     @property
     def reverse_structure(self):
         """
@@ -326,20 +335,20 @@ class ani_Structure(UserList):
         else:
             return slabs
             
-    def dielectric_tensor(self):
-        
-        d1 = [c.dielectric_tensor(structure=self) for c in self.components]
+    def tensor(self, energy=None):
+        #Bring together the dielectric tensor from each slab into an array with dimension (num-slabs, num-energy, 3,3)
+        d1 = [c.tensor(structure=self, energy=energy) for c in self.components]
         try:
-            dielectric_tensor = np.concatenate(d1)
+            structure_tensor = np.stack(d1,axis=0)
         except ValueError:
             # some of slabs may be None. np can't concatenate arr and None
-            dielectric_tensor = np.concatenate([s for s in d1 if s is not None])
+            structure_tensor = np.stack([s for s in d1 if s is not None], axis=0)
             
-        reverse = self.reverse_structure
+        reverse = self.reverse_structure #This absolutely does not work --- 07/29/2020 ##Might work now --- 07/29/2020 Later in the afternoon
         if reverse:
-            dielectric_tensor = np.flipud(dielectric_tensor)   
+            structure_tensor = np.flip(structure_tensor,axis=0)   
             
-        return dielectric_tensor
+        return structure_tensor
         
         
         
@@ -522,7 +531,7 @@ class ani_Structure(UserList):
         This can be called in vectorised fashion.
         """
         slabs = self.slabs()
-        tensor = self.dielectric_tensor()
+        tensor = self.tensor()
         if ((slabs is None) or
                 (len(slabs) < 2) or
                 (not isinstance(self.data[0], ani_Slab)) or
@@ -792,10 +801,10 @@ class ani_SLD(ani_Scatterer):
     >>> sio2 = SLD(re)
     >>> sio2 = SLD([re, im])
     """
-    def __init__(self, value, name=''):
+    def __init__(self, value, name='',energy=np.array([250])):
         super(ani_SLD, self).__init__(name=name)
         self.imag = Parameter(0, name='%s - isld' % name)
-        
+        self._energy = energy
         ##if given a single value it will turn it into an isotropic tensor
         if (isinstance(value, numbers.Real) or isinstance(value, numbers.Complex)):
             value = value * np.eye(3)
@@ -809,23 +818,24 @@ class ani_SLD(ani_Scatterer):
             self.delta = Parameter((np.trace(value).real)/3, name='%s - dt' % name) ##Save the trace to use SLD_profile functionality
             self.beta = Parameter((np.trace(value).imag)/3, name='%s - bt' % name) 
             
-            self.birefringence = Parameter(0, name='%s - bire' % name)
-            self.dichroism = Parameter(0,name='%s - dichro' % name)
-            
             #Create tensor attributes //Just brute force it right now? Need a better method in the future if more energies want to be fit
             #Each element of the tensor becomes its own fit parameter in the Refnx machinary.
             ##Only considering diagonal matrices right now.
-            self.xx = Parameter(value.item((0,0)).real, name='%s - d%s'%(name, TensorStr.item((0,0))))
-            self.ixx = Parameter(value.item((0,0)).imag, name='%s - b%s'%(name, TensorStr.item((0,0))))
-            self.yy = Parameter(value.item((1,1)).real, name='%s - d%s'%(name, TensorStr.item((1,1))))
-            self.iyy = Parameter(value.item((1,1)).imag, name='%s - b%s'%(name, TensorStr.item((1,1))))
-            self.zz = Parameter(value.item((2,2)).real, name='%s - d%s'%(name, TensorStr.item((2,2))))
-            self.izz = Parameter(value.item((2,2)).imag, name='%s - b%s'%(name, TensorStr.item((2,2))))
-            self._parameters.extend([self.delta,self.beta,self.birefringence,self.dichroism,self.xx,self.ixx,self.yy,self.iyy,self.zz,self.izz])
+            self.xx = Parameter(value[0,0].real, name='%s - d%s'%(name, TensorStr.item((0,0))))
+            self.ixx = Parameter(value[0,0].imag, name='%s - b%s'%(name, TensorStr.item((0,0))))
+            self.yy = Parameter(value[1,1].real, name='%s - d%s'%(name, TensorStr.item((1,1))))
+            self.iyy = Parameter(value[1,1].imag, name='%s - b%s'%(name, TensorStr.item((1,1))))
+            self.zz = Parameter(value[2,2].real, name='%s - d%s'%(name, TensorStr.item((2,2))))
+            self.izz = Parameter(value[2,2].imag, name='%s - b%s'%(name, TensorStr.item((2,2))))
             ##Store the values of the parameters in the form of a tensor object for easier calculations later
-            self.tensor = np.array([[self.xx.value + 1j*self.ixx.value, 0, 0],
+            self._tensor = np.array([[self.xx.value + 1j*self.ixx.value, 0, 0],
                                    [0, self.yy.value + 1j*self.iyy.value, 0],
                                    [0, 0, self.zz.value + 1j*self.izz.value]],dtype=complex)
+                                   
+            self.birefringence = Parameter(-(self.xx.value - self.zz.value), name='%s - bire' % name)
+            self.dichroism = Parameter((self.ixx.value - self.izz.value),name='%s - dichro' % name)
+            self._parameters.extend([self.delta,self.birefringence,self.xx,self.ixx,self.yy,self.iyy,self.zz,self.izz,self.beta,self.dichroism])
+           
         #elif isinstance(value, NEXAFS):
         #    raise RuntimeError("Not currenlt implemented")
 
@@ -849,12 +859,28 @@ class ani_SLD(ani_Scatterer):
         # p.extend([self.real, self.imag])
         # return p
         
+    @property
+    def energy(self):
+        return self._energy
+    
+    @energy.setter
+    def energy(self, energy):
+        if type(energy) is list: energy = np.array(energy)
+        self._energy = energy if type(energy) is np.ndarray else np.array([energy])
+    
+    @property
+    def tensor(self):
+        self._tensor = np.array([np.array([[self.xx.value + 1j*self.ixx.value, 0, 0],
+                                [0, self.yy.value + 1j*self.iyy.value, 0],
+                                [0, 0, self.zz.value + 1j*self.izz.value]],dtype=complex) for _ in self._energy])
+        return self._tensor
+    """
     def updatetensor(self):
         self.tensor = np.array([[self.xx.value + 1j*self.ixx.value, 0, 0],
                                    [0, self.yy.value + 1j*self.iyy.value, 0],
                                    [0, 0, self.zz.value + 1j*self.izz.value]],dtype=complex)
         return self.tensor
-
+    """
 
 class ani_MaterialSLD(ani_Scatterer):
     """
@@ -886,8 +912,7 @@ class ani_MaterialSLD(ani_Scatterer):
     >>> # g/cm**3
     >>> sio2.density.setp(vary=True, bounds=(2.1, 2.3))
     """
-    def __init__(self, formula, density, probe='x-ray', Energy=250,
-                 name=''):
+    def __init__(self, formula, density, energy=np.array([250]), name=''):
         import periodictable as pt
         from periodictable import xsf
         super(ani_MaterialSLD, self).__init__(name=name)
@@ -896,10 +921,10 @@ class ani_MaterialSLD(ani_Scatterer):
         self._compound = formula
         self.density = possibly_create_parameter(density, name='rho')
 
-        self.probe = probe.lower()
-        self.energy = Energy ## In eV
-        self.wavelength = hc/Energy ## Convert to Angstroms
-        self.tensor = np.eye(3)*(1 - pt.xsf.index_of_refraction(self.__formula, density=self.density.value,wavelength=self.wavelength))
+        if type(energy) is list: energy = np.array(energy)
+        self._energy = energy if type(energy) is np.ndarray else np.array([energy])## In eV
+        self._wavelength = hc/self._energy if type(hc/self._energy) is np.ndarray else np.array([hc/self._energy]) ## Convert to Angstroms
+        self._tensor = None #Build this when its called based in parameter values
 
         self._parameters = Parameters(name=name)
         self._parameters.extend([self.density])
@@ -909,10 +934,9 @@ class ani_MaterialSLD(ani_Scatterer):
              'density': self.density,
              'energy': self.energy,
              'wavelength': self.wavelength,
-             'probe': self.probe,
              'name': self.name}
-        return ("MaterialSLD({compound!r}, {density!r}, probe={probe!r},"
-                " energy={energy!r}, wavelength={wavelength!r}, name={name!r})".format(**d))
+        return ("MaterialSLD({compound!r}, {density!r},"
+                "energy={energy!r}, wavelength={wavelength!r}, name={name!r})".format(**d))
 
     @property
     def formula(self):
@@ -923,23 +947,52 @@ class ani_MaterialSLD(ani_Scatterer):
         import periodictable as pt
         self.__formula = pt.formula(formula)
         self._compound = formula
-
+        
+    @property
+    def energy(self):
+        return self._energy
+    
+    @energy.setter
+    def energy(self, energy):
+        if type(energy) is list: energy = np.array(energy)
+        self._energy = energy if type(energy) is np.ndarray else np.array([energy])
+        self._wavelength = hc/self._energy if type(hc/self._energy) is np.ndarray else np.array([hc/self._energy]) ## Convert to Angstroms
+        
+    @property
+    def wavelength(self):
+        return self._wavelength
+        
+    @wavelength.setter
+    def wavelength(self, wavelength):
+        if type(wavelength) is list: wavelength = np.array(wavelength)
+        self._wavelength = wavelength if type(wavelength) is np.ndarray else np.array([wavelength])
+        self._energy = hc/self._wavelength if type(hc/self._wavelength) is np.ndarray else np.array([hc/self._wavelength])
+        
     def __complex__(self):
         import periodictable as pt
         from periodictable import xsf
         sldc = pt.xsf.index_of_refraction(self.__formula, density=self.density.value,
-                               wavelength=self.wavelength)
+                               wavelength=self.wavelength[0])
         return 1 - sldc
         
     @property
     def parameters(self):
         return self._parameters
-
+        
+    @property
+    def tensor(self):
+        import periodictable as pt
+        from periodictable import xsf
+        self._tensor = np.array([np.eye(3)*(1 - pt.xsf.index_of_refraction(self.__formula, density=self.density.value, wavelength=wl)) for wl in self._wavelength])
+        return self._tensor
+        
+    """
     def updatetensor(self):
         import periodictable as pt
         from periodictable import xsf
-        self.tensor = np.eye(3)*(1 - pt.xsf.index_of_refraction(self.__formula, density=self.density.value,wavelength=self.wavelength))
+        self.tensor = np.eye(3)*(1 - pt.xsf.index_of_refraction(self.__formula, density=self.density.value, wavelength=self.wavelength))
         return self.tensor
+    """
 
 class ani_NexafsSLD(ani_Scatterer):
     """
@@ -949,7 +1002,7 @@ class ani_NexafsSLD(ani_Scatterer):
     Parameters
     ----------
     nexafs : ndarray
-        nuimpy array holding NEXAFS data that has been previously loaded into python
+        numpy array holding NEXAFS data that has been previously loaded into python
         column order should be - Energy, complex(delta,beta)
     Energy : float
         Energy of radiation (ev)
@@ -962,12 +1015,13 @@ class ani_NexafsSLD(ani_Scatterer):
     To Do:
         Build a new class of object that is a 'nexafs spectra' in order to store data
     """
-    def __init__(self, nexafs, energy=250, name='', filetype=None):
+    def __init__(self, nexafs, energy=np.array([250]), name='', filetype=None):
         super(ani_NexafsSLD, self).__init__(name=name)
 
         self.name = name
-        self.energy = energy ## In eV
-        self.wavelength = hc/energy ## Convert to Angstroms
+        if type(energy) is list: energy = np.array(energy)
+        self._energy = energy if type(energy) is np.ndarray else np.array([energy])## In eV
+        self._wavelength = hc/self._energy if type(hc/self._energy) is np.ndarray else np.array([hc/self._energy]) ## Convert to Angstroms
         
         self._parameters = Parameters(name=name) ##Generates the parameters for the SLD object 
         TensorStr = np.array([["xx","xy","xz"],["yx","yy","yz"],["zx","zy","zz"]]) ##Name of the tensor elements
@@ -999,15 +1053,15 @@ class ani_NexafsSLD(ani_Scatterer):
             self.zz = possibly_create_parameter(np.interp(self.energy,self.nexafs.en,np.real(self.nexafs.tensor[:,2,2])), name='%s - d%s' % (name, TensorStr.item((2,2))))
             self.izz = possibly_create_parameter(np.interp(self.energy,self.nexafs.en,np.imag(self.nexafs.tensor[:,2,2])), name='%s - b%s' % (name, TensorStr.item((2,2))))
             ##Store the values of the parameters in the form of a tensor object for easier calculations later
-            self.tensor = np.array([[self.xx.value + 1j*self.ixx.value, 0, 0],
+            self._tensor = np.array([[self.xx.value + 1j*self.ixx.value, 0, 0],
                                    [0, self.yy.value + 1j*self.iyy.value, 0],
                                    [0, 0, self.zz.value + 1j*self.izz.value]],dtype=complex)
             ##Save the trace of the tensor as a fit parameter
             self.delta = Parameter((np.trace(self.tensor).real)/3, name='%s - dt' % name) ##Save the trace to use SLD_profile functionality
             self.beta = Parameter((np.trace(self.tensor).imag)/3, name='%s - dt' % name) 
             
-            self.birefringence = Parameter(0, name='%s - bire' % name)
-            self.dichroism = Parameter(0,name='%s - dichro' % name)
+            self.birefringence = Parameter(-(self.xx - self.zz), name='%s - bire' % name)
+            self.dichroism = Parameter((self.ixx - self.izz),name='%s - dichro' % name)
             ##Save parameters in the list of parameters
             self._parameters.extend([self.delta,self.beta,self.birefringence,self.dichroism,self.xx,self.ixx,self.yy,self.iyy,self.zz,self.izz])          
         
@@ -1032,13 +1086,31 @@ class ani_NexafsSLD(ani_Scatterer):
     @property
     def parameters(self):
         return self._parameters
+    
+    @property
+    def energy(self):
+        return self._energy
         
+    @energy.setter
+    def energy(self, energy):
+        if type(energy) is list: energy = np.array(energy)
+        self._energy = energy if type(energy) is np.ndarray else np.array([energy])## In eV
+        self._wavelength = hc/self._energy if type(hc/self._energy) is np.ndarray else np.array([hc/self._energy]) ## Convert to Angstroms
+        
+    @property
+    def tensor(self):
+        self._tensor = np.array([[self.xx.value + 1j*self.ixx.value, 0, 0],
+                                   [0, self.yy.value + 1j*self.iyy.value, 0],
+                                   [0, 0, self.zz.value + 1j*self.izz.value]], dtype=complex)
+                                   
+        return self._tensor
+    """
     def updatetensor(self):
         self.tensor = np.array([[self.xx.value + 1j*self.ixx.value, 0, 0],
                                    [0, self.yy.value + 1j*self.iyy.value, 0],
                                    [0, 0, self.zz.value + 1j*self.izz.value]],dtype=complex)
         return self.tensor
-
+    """
 
 class ani_Component(object):
     """
@@ -1234,11 +1306,8 @@ class ani_Slab(ani_Component):
                                                name=f'{name} - thick')
         if isinstance(sld, ani_Scatterer):
             self.sld = sld 
-            self.tensor = sld.tensor #Pass through the tensor calculated with the parameter values
-            self.isAnisotropic = True #Current method to store the idea that it is a tensor with a quick logic check -- Might be better ways to do this
         else:
-            self.sld = SLD(sld)
-            self.tensor = 0 #Just a placeholder value so later functions don't fail if you try and pass a scalar
+            self.sld = ani_SLD(sld)
 
         self.rough = possibly_create_parameter(rough,
                                                name=f'{name} - rough')
@@ -1289,13 +1358,17 @@ class ani_Slab(ani_Component):
                           self.rough.value,
                           self.vfsolv.value]]) 
                           
-    def dielectric_tensor(self, structure=None): ##TFerron Edits 05/20/2020 *Add in a new element that stores the tensor for the individual slab
+    def tensor(self, structure=None,energy=None): ##TFerron Edits 05/20/2020 *Add in a new element that stores the tensor for the individual slab
         """
         Stored information pertaining to the tensor dielectric properties of the slab.
+        Value of the tensor can be updated by changing the energy encoded into the SLD object.
+        self.sld.energy = ()
+        If a series of energies is used this will return an array of dimension (x,3,3)
         The trace of the layer is stored in the .slabs() attribute as the real and imaginary component of the SLD
         """
-        self.tensor = self.sld.updatetensor()
-        return np.array([self.tensor])
+        if energy is not None:
+            self.sld.energy = energy
+        return self.sld.tensor
 
 ##NOT CURRENTLY IMPLEMENTED!!
 class ani_MixedSlab(ani_Component):

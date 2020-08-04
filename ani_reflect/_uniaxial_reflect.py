@@ -46,9 +46,10 @@ hc = 12398.4193 ##ev*Angstroms
 c = 299792458.
 mu0 = 4. * np.pi * 1e-7
 ep0 = 1. / (c**2 * mu0)
+TINY = 1e-30
     
 
-def yeh_4x4_reflectivity(q, layers, tensor, energy, phi, scale=1., bkg=0, threads=0,save_components=None):
+def uniaxial_reflectivity(q, layers, tensor, energy, phi, scale=1., bkg=0, threads=0,save_components=None):
     """
     EMpy implementation of the biaxial 4x4 matrix formalism for calculating reflectivity from a stratified
     medium.
@@ -89,26 +90,28 @@ def yeh_4x4_reflectivity(q, layers, tensor, energy, phi, scale=1., bkg=0, thread
     Reflectivity: np.ndarray
         Calculated reflectivity values for each q value.
     """
+    #Plane of incidence - required to define polarization vectors
+    OpticAxis = np.array([0.,0.,1.])
 
     ##Organize qvals into proper order
     qvals = np.asfarray(q)
     flatq = qvals.ravel()
-    numpnts = flatq.size
+    numpnts = flatq.size #Number of q-points
     
     ##Grab the number of layers
     nlayers = layers.shape[0]
    
                         ##hc has been converted into eV*Angstroms
     wl = hc/energy  ##calculate the wavelength array in Aangstroms for layer calculations
-    k0 = 2*np.pi/wl
+    k0 = 2*np.pi/(wl)
     
     #Convert optical constants into dielectric tensor
     tensor = np.conj(np.eye(3) - 2*tensor[:,0,:,:])
-
+    
     #freq = 2*np.pi * c/wls #Angular frequency
     theta_exp = np.zeros(numpnts,dtype=float)
     theta_exp = np.pi/2 - np.arcsin(flatq[:]  / (2*k0))
-
+    
     ##Generate arrays of data for calculating transfer matrix
     ##Scalar values ~~
     ## Special cases!
@@ -116,10 +119,10 @@ def yeh_4x4_reflectivity(q, layers, tensor, energy, phi, scale=1., bkg=0, thread
     ## Dimensionality ## 
     ## (angle, wavelength)
     kx = np.zeros(numpnts, dtype=complex)
-    ky = np.zeros(numpnts, dtype=complex)
+    ky = np.zeros(numpnts, dtype=complex) #Used to keep the k vectors three components later on for cross / dot products
     kx = k0 * np.sin(theta_exp) * np.cos(phi)
-    ky = k0 * np.sin(theta_exp) * np.sin(phi)
-    
+    #ky = k0 * np.sin(theta_exp) * np.sin(phi)
+
     ## Calculate the eigenvalues corresponding to kz ~~ Each one has 4 solutions
     ## Dimensionality ##
     ## (angle, #layer, solution)
@@ -133,8 +136,8 @@ def yeh_4x4_reflectivity(q, layers, tensor, energy, phi, scale=1., bkg=0, thread
 
     #Cycle through the layers and calculate kz
     for j, epsilon in enumerate(tensor): #Each layer will have a different epsilon and subsequent kz
-        kz[:,j,:] = calculate_kz(epsilon,kx,ky,k0)
-        Dpol[:,j,:,:], Hpol[:,j,:,:] = calculate_Dpol(epsilon, kx, ky, kz[:,j,:], k0)
+        kz[:,j,:] = calculate_kz_uni(epsilon,kx,ky,k0,opticaxis=OpticAxis)
+        Dpol[:,j,:,:], Hpol[:,j,:,:] = calculate_Dpol_uni(epsilon, kx, ky, kz[:,j,:], k0,opticaxis=OpticAxis)
 
     ##Make matrices for the transfer matrix calculation
     ##Dimensionality ##
@@ -147,20 +150,19 @@ def yeh_4x4_reflectivity(q, layers, tensor, energy, phi, scale=1., bkg=0, thread
     Refl = np.zeros((numpnts,2,2),dtype=float)
     Tran = np.zeros((numpnts,2,2),dtype=float)
     
-    
-    ##Calculate propagation and roughness matrices
-    for i in range(numpnts):
-        for j in range(nlayers):
-            P[i,j,:,:] = calculate_P(kz[i,j,:],layers[j,0]) ##layers[k,0] is the thicknes of layer k
-            W[i,j,:,:] = calculate_W(kz[i,j,:],kz[i,j-1,:],layers[j,3])
+    #calculate the propagation matrices
+    P[:,:,:,:] = calculate_P(numpnts, nlayers, kz[:,:,:], layers[:,0]) ##layers[k,0] is the thicknes of layer k
+    #calculate the roughness matrices
+    W[:,:,:,:] = calculate_W(numpnts, nlayers, kz[:,:,:], kz[:,:,:], layers[:,3])
     #calculate the Dynamical matrices  
     D[:,:,:,:], Di[:,:,:,:] = calculate_D(numpnts,nlayers,Dpol[:,:,:,:], Hpol[:,:,:,:])
-  
+    
     ##Calculate the full system transfer matrix
     ##Dimensionality ##
-    ##(Matrix (4,4),angle,wavelength)
-   
-    M = calulate_TMM(numpnts,nlayers,D,Di,P,W)
+    ##(Matrix (4,4),wavelength)
+    M = np.ones((numpnts,4,4),dtype=complex)
+    M = np.einsum('...ij,ij->...ij',M,np.identity(4))#Make a numpnts x 4x4 identity matrix for the TMM
+    M = calulate_TMM(numpnts,nlayers,M,D,Di,P,W)
     
     ##Calculate the final outputs and organize into the appropriate waves for later
     Refl, Tran = calculate_output(numpnts, scale, bkg, M)
@@ -170,7 +172,105 @@ def yeh_4x4_reflectivity(q, layers, tensor, energy, phi, scale=1., bkg=0, thread
     else:
         return [Refl, Tran]
 
+"""
+The following functions were adapted from PyATMM copyright Pavel Dmitriev
 
+
+
+
+"""
+#@njit
+def calculate_kz_uni(ep, kx, ky, k0, opticaxis=([0., 1., 0.])):
+
+    #Calculate ordinary and extraordinary components from the tensor
+
+    e_o = ep[0,0]
+    e_e = ep[2,2]
+    nu = (e_e - e_o) / e_o #intermediate birefringence from reference
+    k_par = np.sqrt(kx**2 + ky**2) #Magnitude of parallel component
+    #l = [kx/k_par, ky/k_par, 0]
+    
+    kz_ord = np.zeros(len(kx), dtype=np.complex_)
+    kz_extraord = np.zeros(len(kx), dtype=np.complex_)
+    kz_out = np.zeros((len(kx),4), dtype=np.complex_)
+
+    
+    #n = [0, 0, 1] #Normal vector
+    #if not numpy.isclose(k_par, 0):
+    #    l = [kx/k_par, ky/k_par, 0]
+    #    assert numpy.isclose(numpy.dot(l, l), 1)
+    #else:
+    #    l = [0, 0, 0]
+
+    #Dot product between optical axis and vector normal and perpindicular component
+    na = 1 #numpy.dot(n, opticAxis)
+    la = 0 #numpy.dot(l, opticAxis)
+
+    kz_ord = np.sqrt(e_o * k0**2 - k_par[:]**2)#, dtype=np.complex128)
+
+    kz_extraord = (1 / (1 + nu * na**2)) * (-nu * k_par[:] * na*la
+                                                + np.sqrt(e_o * k0**2 * (1 + nu) * (1 + nu * na**2)
+                                                            - k_par[:]**2 * (1 + nu * (la**2 + na**2))))
+
+    kz_out[:,2] = kz_ord 
+    kz_out[:,3] = -kz_ord
+    kz_out[:,0] = kz_extraord
+    kz_out[:,1] = -kz_extraord
+    return kz_out
+
+#@njit
+def calculate_Dpol_uni(ep, kx, ky, kz, k0, opticaxis=([0., 1., 0.])):
+
+    # For now optic axis should be aligned to main axes
+    #assert numpy.allclose(opticAxis, [0, 0, 1]) \
+    #       or numpy.allclose(opticAxis, [0, 1, 0]) \
+    #       or numpy.allclose(opticAxis, [1, 0, 0])
+    # In general, as long as k-vector and optic axis are not colinear, this should work
+    
+    #assert all(not np.allclose(opticaxis, [kx, ky, np.abs(g)]) for g in kz)
+    #assert np.isclose(np.dot(opticaxis, opticaxis), 1.)
+
+    e_o = ep[0,0]
+    e_e = ep[2,2]
+    nu = (e_e - e_o) / e_o #intermediate birefringence from reference
+
+    kvec = np.zeros((len(kx), 4,3), dtype=np.complex_)
+    kdiv = np.zeros((len(kx), 4), dtype=np.complex_)
+    dpol_temp = np.zeros((len(kx), 4, 3), dtype=np.complex_)
+    hpol_temp = np.zeros((len(kx), 4, 3), dtype=np.complex_)
+    
+    #create k-vector
+    kvec[:,:,0] = kx[:,None]
+    kvec[:,:,1] = ky[:,None]
+    kvec[:,:,2] = kz
+
+    #'normalize' k-vector not the magnitude norm...some confusion here
+    #for i in range(len(kx)):
+    #    for j in range(4):
+    #        kdiv[i,j] = np.sqrt(np.dot(kvec[i,j],kvec[i,j]))
+    
+    kdiv = np.sqrt(np.einsum('ijk,ijk->ij',kvec,kvec)) #Performs the commented out dot product calculation
+    
+    knorm = kvec / kdiv [:,:,None]#(np.linalg.norm(kvec,axis=-1)[:,:,None])
+
+
+    #calc propogation of k along optical axis
+    kpol = np.dot(knorm,opticaxis)
+
+    #kap = [numpy.asarray([kx, ky, g]) for g in kz]
+    #kap = [numpy.divide(kap_i, numpy.sqrt(numpy.dot(kap_i, kap_i))) for kap_i in kap]
+    #ka = [numpy.dot(opticAxis, kap_i) for kap_i in kap]
+
+    dpol_temp[:,2,:] = np.cross(opticaxis[None, :], knorm[:, 2, :])
+    dpol_temp[:,3,:] = np.cross(opticaxis[None, :], knorm[:, 3, :])
+    dpol_temp[:,0,:] = np.subtract(opticaxis[None, :], ((1 + nu)/(1+nu*kpol[:, 0, None]**2))*kpol[:, 0, None] * knorm[:, 0, :])
+    dpol_temp[:,1,:] = np.subtract(opticaxis[None, :], ((1 + nu)/(1+nu*kpol[:, 1, None]**2))*kpol[:, 1, None] * knorm[:, 1, :])
+
+       
+    dpol_norm = np.linalg.norm(dpol_temp,axis=-1)
+    dpol_temp /= dpol_norm[:,:,None]
+    hpol_temp = np.cross(kvec, dpol_temp) * (1/k0)
+    return dpol_temp, hpol_temp
 
 """
 The following functions were adapted from FSRSTools copyright Daniel Dietze ~~
@@ -192,157 +292,7 @@ The following functions were adapted from FSRSTools copyright Daniel Dietze ~~
 
    Copyright 2015 Daniel Dietze <daniel.dietze@berkeley.edu>.
 """
-def calculate_kz(ep, kx, ky, w):
 
-    """Calculate propagation constants g along z-axis for current layer.
-
-    :param complex 3x3 tensor ep: optical tensor for the specific layer in question
-    :param complex kx: In-plane propagation constant along x-axis
-        Can be a 1D array for reflectivity
-    :param complex ky: In-plane propagation constant along y-axis.
-        Can be a 1D array for reflectivity
-        
-    :returns: Propagation constants along z-axis.
-        """
-        
-    gsigns = [1, -1, 1, -1]
-    kz_out = np.zeros((len(kx),4),dtype=complex) ## Outwave
- 
-    #for k in range(len(kx)):
-    #    kz_temp = np.sort(solv_kz(ep,kx[k],ky[k],w)) ##Calculate the roots of the characteristic equation and sort in ascending order
-    #    #Reorder based on sign and magnitude (+, -, +, -)
-    #    #Order of polarization will be determined later
-    #    kz_temp[0], kz_temp[3] = kz_temp[3], kz_temp[0]
-    #    kz_temp[1], kz_temp[3] = kz_temp[3], kz_temp[1]
-    #    kz_out[k,:] = kz_temp ##Append to output wave
-        
-        
-    for k in range(len(kx)):
-        kz_temp = solv_kz(ep,kx[k],ky[k],w)
-        for i in range(3):
-            mysign = np.sign(np.real(kz_temp[i]))
-            if mysign != gsigns[i]:
-                for j in range(i + 1, 4):
-                    if mysign != np.sign(np.real(kz_temp[j])):
-                        kz_temp[i], kz_temp[j] = kz_temp[j], kz_temp[i]         # swap values
-                        break
-        kz_out[k,:] = kz_temp
-        
-    return kz_out
-    
-    
-#@jit(complex128[:](complex128[:,:],complex128,complex128,complex128))          
-@njit
-def solv_kz(ep,kx,ky,w):
-
-    p0 = w**2 * ep[2, 2]
-    p1 = w**2 * ep[2, 0] * kx + ky * w**2 * ep[2, 1] + kx * w**2 * ep[0, 2] + w**2 * ep[1, 2] * ky
-    p2 = w**2 * ep[0, 0] * kx**2 + w**2 * ep[1, 0] * ky * kx - w**4 * ep[0, 0] * ep[2, 2] + w**2 * ep[1, 1] * ky**2 + w**4 * ep[1, 2] * ep[2, 1] + ky**2 * w**2 * ep[2, 2] + w**4 * ep[2, 0] * ep[0, 2] + kx**2 * w**2 * ep[2, 2] + kx * w**2 * ep[0, 1] * ky - w**4 * ep[1, 1] * ep[2, 2]
-    p3 = -w**4 * ep[0, 0] * ep[1, 2] * ky + w**2 * ep[2, 0] * kx * ky**2 - w**4 * ep[0, 0] * ky * ep[2, 1] - kx * w**4 * ep[1, 1] * ep[0, 2] + w**4 * ep[1, 0] * ky * ep[0, 2] + kx**2 * ky * w**2 * ep[1, 2] + kx**3 * w**2 * ep[0, 2] + w**4 * ep[1, 0] * ep[2, 1] * kx + ky**3 * w**2 * ep[2, 1] + kx * ky**2 * w**2 * ep[0, 2] - w**4 * ep[2, 0] * ep[1, 1] * kx + ky**3 * w**2 * ep[1, 2] + w**4 * ep[2, 0] * ep[0, 1] * ky + w**2 * ep[2, 0] * kx**3 + kx**2 * ky * w**2 * ep[2, 1] + kx * w**4 * ep[0, 1] * ep[1, 2]
-    p4 = w**6 * ep[2, 0] * ep[0, 1] * ep[1, 2] - w**6 * ep[2, 0] * ep[1, 1] * ep[0, 2] + w**4 * ep[2, 0] * kx**2 * ep[0, 2] + w**6 * ep[0, 0] * ep[1, 1] * ep[2, 2] - w**4 * ep[0, 0] * ep[1, 1] * kx**2 - w**4 * ep[0, 0] * ep[1, 1] * ky**2 - w**4 * ep[0, 0] * kx**2 * ep[2, 2] + w**2 * ep[0, 0] * kx**2 * ky**2 - w**6 * ep[0, 0] * ep[1, 2] * ep[2, 1] - ky**2 * w**4 * ep[1, 1] * ep[2, 2] + ky**2 * w**2 * ep[1, 1] * kx**2 + ky**2 * w**4 * ep[1, 2] * ep[2, 1] + w**6 * ep[1, 0] * ep[2, 1] * ep[0, 2] - w**6 * ep[1, 0] * ep[0, 1] * ep[2, 2] + w**4 * ep[1, 0] * ep[0, 1] * kx**2 + w**4 * ep[1, 0] * ep[0, 1] * ky**2 + w**2 * ep[1, 0] * kx**3 * ky + w**2 * ep[1, 0] * kx * ky**3 + kx**3 * ky * w**2 * ep[0, 1] + kx * ky**3 * w**2 * ep[0, 1] - w**4 * ep[1, 0] * kx * ky * ep[2, 2] + kx * ky * w**4 * ep[2, 1] * ep[0, 2] - kx * ky * w**4 * ep[0, 1] * ep[2, 2] + w**4 * ep[2, 0] * kx * ky * ep[1, 2] + w**2 * ep[0, 0] * kx**4 + ky**4 * w**2 * ep[1, 1]
-
-    return np.roots(np.array([p0,p1,p2,p3,p4]))
-    
-  
-                 
-        
-def calculate_Dpol(ep, kx, ky, kz, w, POI = [0.,1.,0.]):
-        """Calculate the electric and magnetic polarization vectors p and q for the four solutions of `kz`.
-
-        .. versionchanged:: 02-05-2016
-
-            Removed a bug in sorting the polarization vectors.
-
-        :param complex 3x3 tensor ep: optical tensor for the specific layer in question
-        :param complex kx: In-plane propagation constant along x-axis.
-        :param complex ky: In-plane propagation constant along y-axis.
-        :param complex 4-entry kz: Eigenvalues for solving characteristic equation, 4 potentially degenerate inputs
-        :param float 3 component vector POI: Defines the plane of incidence through a normal vector. Used to define polarization vectors.
-
-        :returns: Electric and magnetic polarization vectors p and q sorted according to (x+, x-, y+, y-).
-
-        .. note:: This function also sorts the in-plane propagation constants according to their polarizations (x+, x-, y+, y-).
-
-        .. important:: Requires prior execution of :py:func:`calculate_g`.
-        """
-        ##Variables are used to keep track of the physical calculation
-        mu = 1
-        c=1
-        numpnts = len(kx) #Number of angles to calculate
-
-        has_to_sort = np.full(numpnts,False)
-        eps = 1e-4 ##Tolerance to determine vector orientation
-
-        dpol_temp = np.zeros((numpnts,4,3),dtype=complex)
-        hpol_temp = np.zeros((numpnts,4,3),dtype=complex)
-
-        # iterate over the four solutions of the z-propagation constant kz
-        for i in range(4):
-
-            #M = np.rollaxis(np.conj(np.array([[w**2 * mu * ep[0, 0] - ky[:]**2 - kz[:,i]**2, w**2 * mu * ep[0, 1] + kx[:] * ky[:], w**2 * mu * ep[0, 2] + kx[:] * kz[:,i]],
-            #[w**2 * mu * ep[0, 1] + kx[:] * ky[:], w**2 * mu * ep[1, 1] - kx[:]**2 - kz[:,i]**2, w**2 * mu * ep[1, 2] + ky[:] * kz[:,i]],
-            #[w**2 * mu * ep[0, 2] + kx[:] * kz[:,i], w**2 * mu * ep[1, 2] + ky[:] * kz[:,i], w**2 * mu * ep[2, 2] - ky[:]**2 - kx[:]**2]],
-            #dtype=np.complex)),2,0)
-            # get null space to find out which polarization is associated with g[i]
-            #u, s, vh = np.linalg.svd(M)
-            
-            u,s,vh = solve_polarization_vectors(ep, kx, ky, kz[:,i], w)
-            s_max = np.amax(s,axis=-1)
-            for j in range(numpnts):
-                P = np.compress(s[j] <= eps * s_max[j], vh[j], axis=0)
-                # directions have to be calculated according to plane of incidence ( defined by (a, b, 0) and (0, 0, 1) )
-                # or normal to that ( defined by (a, b, 0) x (0, 0, 1) )
-                if(P.shape[0] == 1):    # single component
-                    has_to_sort[j] = True
-                    dpol_temp[j,i,:] = P[0]
-                else:
-                    if(i < 2):  # should be p pol
-                        #   print("looking for p:", np.absolute(np.dot(nPOI, P[0])))
-                        if(np.absolute(np.dot(POI, P[0])) < 1e-3):
-                        # polarization lies in plane of incidence made up by vectors ax + by and z
-                        # => P[0] is p pol
-                            dpol_temp[j,i,:] = P[0]
-                    #   print("\t-> 0")
-                        else:
-                        # => P[1] has to be p pol
-                            dpol_temp[j,i,:] = P[1]
-                    #   print("\t-> 1")
-                    else:       # should be s pol
-                    #   print("looking for s:", np.absolute(np.dot(nPOI, P[0])))
-                        if(np.absolute(np.dot(POI, P[0])) < 1e-3):
-                        # polarization lies in plane of incidence made up by vectors ax + by and z
-                        # => P[1] is s pol
-                            dpol_temp[j,i,:] = P[1]
-                    #   print("\t-> 1")
-                        else:
-                        # => P[0] has to be s pol
-                            dpol_temp[j,i,:] = P[0]
-                    #   print("\t-> 0")
-            
-        ##Normalize the vectors
-        dpol_norm = np.linalg.norm(dpol_temp,axis=-1)
-        dpol_temp /= dpol_norm[:,:,None]
-
-
-        # if solutions were unique, sort the polarization vectors according to p and s polarization
-        # the sign of Re(g) has been taken care of already
-        for j in range(numpnts):
-            if has_to_sort[j]:
-                for i in range(2):
-                    if(np.absolute(np.dot(POI, dpol_temp[j,i])) > 1e-3):
-                        kz[j,i], kz[j,i + 2] = kz[j,i + 2], kz[j,i]
-                        dpol_temp[j,[i, i + 2]] = dpol_temp[j, [i + 2, i]]                 # IMPORTANT! standard python swapping does not work for 2d numpy arrays; use advanced indexing instead
-        for i in range(4):
-            # select right orientation or p vector - see Born, Wolf, pp 39
-            if((i == 0 and any(np.real(dpol_temp[:,i][0])) > 0.0) or (i == 1 and any(np.real(dpol_temp[:,i][0])) < 0.0) or (i >= 2 and any(np.real(dpol_temp[:,i][1])) < 0.0)):
-                dpol_temp[:,i] *= -1.0
-            # dpol_temp[i][2] = np.conj(dpol_temp[i][2])
-            # calculate the corresponding q-vectors by taking the cross product between the normalized propagation constant and p[i]
-        for i in range(4):
-            K = np.rollaxis(np.array([kx, ky, kz[:,i]], dtype=np.complex128),1,0)
-            hpol_temp[:,i,:] = np.cross(K, dpol_temp[:,i,:]) * c / (w * mu)
-        return [dpol_temp,hpol_temp]
-        
 """
 
 @njit only supports 2-D arrays for linalg.svd, broadcasting should be faster than iterating through each one. (maybe?) something to test in the future.
@@ -364,7 +314,8 @@ def solve_polarization_vectors(ep, kx, ky, kz, w):
     return [u,s,vh]
 
 
-# calculate the dynamic matrix and its inverse    
+# calculate the dynamic matrix and its inverse  
+#@njit  
 def calculate_D(numpnts,nlayers, Dpol, Hpol):
     """Calculate the dynamic matrix and its inverse using the previously calculated values for p and q.
 
@@ -392,6 +343,12 @@ def calculate_D(numpnts,nlayers, Dpol, Hpol):
     D_Temp[:, :, 3, 2] = Hpol[:, :, 2, 0]
     D_Temp[:, :, 3, 3] = Hpol[:, :, 3, 0]
     
+    """
+    for i in range(numpnts):
+        for j in range(nlayers):
+            Di_Temp[i,j,:,:] = np.linalg.pinv(D_Temp[i,j,:,:])
+    """
+    
     Di_Temp = np.linalg.pinv(D_Temp)
 
     return [D_Temp, Di_Temp]
@@ -399,7 +356,7 @@ def calculate_D(numpnts,nlayers, Dpol, Hpol):
 
 
 @njit  
-def calculate_P(kz,d):
+def calculate_P(numpnts, nlayers, kz, d):
     """Calculate the propagation matrix using the previously calculated values for kz.
     
         :param complex 4-entry kz: Eigenvalues for solving characteristic equation, 4 potentially degenerate inputs
@@ -409,13 +366,16 @@ def calculate_P(kz,d):
     .. important:: Requires prior execution of :py:func:`calculate_kz`.
     """
     
-    P_temp = np.zeros((4,4), dtype=np.complex_)
+    P_temp = np.zeros((numpnts,nlayers,4,4), dtype=np.complex_)
 
-    P_temp[:,:] = np.diag(np.exp(-1j * kz[:] * d))
+    for i in range(numpnts):
+        for j in range(nlayers):
+            P_temp[i,j,:,:] = np.diag(np.exp(-1j * kz[i,j,:] * d[j]))
     return P_temp
     
+    
 @njit
-def calculate_W(kz1,kz2,r):
+def calculate_W(numpnts, nlayers, kz1, kz2, r):
     """Calculate the roughness matrix usinfg previously caluclated values of kz for adjacent layers '1' and '2'
     
         :param complex 4-entry kz1: Eigenvalues of kz for current layer
@@ -426,9 +386,16 @@ def calculate_W(kz1,kz2,r):
     .. important:: Requires prior execution of :py:func:`calculate_kz`.
     """
     
-    W_temp = np.zeros((4,4), dtype=np.complex_)
-    eplus = np.exp(-(kz1[:] + kz2[:])**2 * r**2 / 2) 
-    eminus = np.exp(-(kz1[:] - kz2[:])**2 * r**2 / 2)
+    #W[i,j,:,:] = calculate_W(kz[i,j,:],kz[i,j-1,:],layers[j,3])
+    
+    W_temp = np.zeros((numpnts, nlayers, 4,4), dtype=np.complex_)
+    eplus = np.zeros((numpnts, nlayers, 4), dtype=np.complex_)
+    eminus = np.zeros((numpnts, nlayers, 4), dtype=np.complex_)
+    
+    for i in range(numpnts):
+        for j in range(nlayers):
+            eplus[i,j,:] = np.exp(-(kz1[i, j, :] + kz2[i, j-1, :])**2 * r[j]**2 / 2) 
+            eminus[i,j,:] = np.exp(-(kz1[i, j, :] - kz2[i, j-1, :])**2 * r[j]**2 / 2)
     """
     W_temp[:,:] = [[eminus[0],eplus[1],eminus[2],eplus[3]],
                     [eplus[0],eminus[1],eplus[2],eminus[3]],
@@ -436,32 +403,29 @@ def calculate_W(kz1,kz2,r):
                     [eplus[0],eminus[1],eplus[2],eminus[3]]
                     ]
     """
-    W_temp[0, 0] = eminus[0]
-    W_temp[0, 1] = eplus[1]
-    W_temp[0, 2] = eminus[2]
-    W_temp[0, 3] = eplus[3]
-    W_temp[1, 0] = eplus[0]
-    W_temp[1, 1] = eminus[1]
-    W_temp[1, 2] = eplus[2]
-    W_temp[1, 3] = eminus[3]
-    W_temp[2, 0] = eminus[0]
-    W_temp[2, 1] = eplus[1]
-    W_temp[2, 2] = eminus[2]
-    W_temp[2, 3] = eplus[3]
-    W_temp[3, 0] = eplus[0]
-    W_temp[3, 1] = eminus[1]
-    W_temp[3, 2] = eplus[2]
-    W_temp[3, 3] = eminus[3]
+    W_temp[:, :, 0, 0] = eminus[:, :, 0]
+    W_temp[:, :, 0, 1] = eplus[:, :, 1]
+    W_temp[:, :, 0, 2] = eminus[:, :, 2]
+    W_temp[:, :, 0, 3] = eplus[:, :, 3]
+    W_temp[:, :, 1, 0] = eplus[:, :, 0]
+    W_temp[:, :, 1, 1] = eminus[:, :, 1]
+    W_temp[:, :, 1, 2] = eplus[:, :, 2]
+    W_temp[:, :, 1, 3] = eminus[:, :, 3]
+    W_temp[:, :, 2, 0] = eminus[:, :, 0]
+    W_temp[:, :, 2, 1] = eplus[:, :, 1]
+    W_temp[:, :, 2, 2] = eminus[:, :, 2]
+    W_temp[:, :, 2, 3] = eplus[:, :, 3]
+    W_temp[:, :, 3, 0] = eplus[:, :, 0]
+    W_temp[:, :, 3, 1] = eminus[:, :, 1]
+    W_temp[:, :,3, 2] = eplus[:, :, 2]
+    W_temp[:, :, 3, 3] = eminus[:, :, 3]
     
     return W_temp
     
-#@njit
-def calulate_TMM(numpnts,nlayers,D,Di,P,W):
-
-    M = np.zeros((numpnts,4,4), dtype=np.complex_)
-        
+@njit
+def calulate_TMM(numpnts,nlayers,M,D,Di,P,W):
+    
     for i in range(numpnts):
-        M[i,:,:] = np.identity(4)
         for j in range(1,nlayers-1):
             M[i,:,:] = np.dot(M[i,:,:],np.dot((np.dot(Di[i,j-1,:,:],D[i,j,:,:])*W[i,j,:,:]) , P[i,j,:,:]))
         M[i,:,:] = np.dot(M[i,:,:],(np.dot(Di[i,-2,:,:],D[i,-1,:,:]) * W[i,-1,:,:]))
@@ -498,37 +462,4 @@ def calculate_output(numpnts, scale, bkg, M_full):
         Tran[i,1,1] = scale * np.abs(t_pp)**2 + bkg
         
     return Refl, Tran
-    
-    
-    
-@njit
-def calculate_D_old(Dpol, Hpol):
-    """Calculate the dynamic matrix and its inverse using the previously calculated values for p and q.
-
-    returns: :math:`D`, :math`D^{-1}`
-
-     .. important:: Requires prior execution of :py:func:`calculate_p_q`.
-    """
-    D_Temp = np.zeros((4,4), dtype=np.complex_)
-    Di_Temp = np.zeros((4,4), dtype=np.complex_)
-    
-    D_Temp[0, 0] = Dpol[0, 0]
-    D_Temp[0, 1] = Dpol[1, 0]
-    D_Temp[0, 2] = Dpol[2, 0]
-    D_Temp[0, 3] = Dpol[3, 0]
-    D_Temp[1, 0] = Hpol[0, 1]
-    D_Temp[1, 1] = Hpol[1, 1]
-    D_Temp[1, 2] = Hpol[2, 1]
-    D_Temp[1, 3] = Hpol[3, 1]
-    D_Temp[2, 0] = Dpol[0, 1]
-    D_Temp[2, 1] = Dpol[1, 1]
-    D_Temp[2, 2] = Dpol[2, 1]
-    D_Temp[2, 3] = Dpol[3, 1]
-    D_Temp[3, 0] = Hpol[0, 0]
-    D_Temp[3, 1] = Hpol[1, 0]
-    D_Temp[3, 2] = Hpol[2, 0]
-    D_Temp[3, 3] = Hpol[3, 0]
-    
-    Di_Temp = np.linalg.pinv(D_Temp)
-
-    return [D_Temp, Di_Temp]
+ 

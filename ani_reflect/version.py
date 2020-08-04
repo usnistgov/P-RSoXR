@@ -1,7 +1,9 @@
-version = '0.1.03'
+version = '0.1.04'
 
 """
 Basic functionality of ani_reflect has been implemented
+
+0.1.04 - Added a uniaxial approximation to the calculation, increased speed 8x
 
 0.1.03 - Cleaned up '_ani_reflect' and added numba functionality to speed up matrix calculations
 
