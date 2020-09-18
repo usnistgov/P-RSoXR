@@ -18,18 +18,17 @@ from refnx.ani_reflect.ani_reflect_model import ani_ReflectModel
 ###This is the function you want -- 
 def postprocess_fit(objective, nburn=0, nthin=1):
 
-    model_en1 = objective.objectives[0].model
-    model_en2 = objective.objectives[1].model
-    data_en1 = objective.objectives[0].data
-    data_en2 = objective.objectives[1].data
+    #Build new objective to postprocess the chain
+    if hasattr(objective, 'objectives'):
+        objective_processed = objective
+    else:
+        objective_processed = GlobalObjective([objective])
 
-    #Build a new objective to reload data and keep the previous one the same
-    objective_post_en1 = Objective(model_en1, data_en1, transform = Transform('logY'), name = 'en1')
-    objective_post_en2 = Objective(model_en2, data_en2, transform = Transform('logY'), name = 'en2')
-    objective_processed = GlobalObjective([objective_post_en1, objective_post_en2])
-
-    current_chain = load_chain('SaveChain.txt') ##Assuming that you are in the folder that this data is in
+    current_chain = load_chain('SaveChain.txt') ##Assuming that you are currently in the folder that this data is stored
     processed_chain = process_chain(objective_processed, current_chain, nburn=nburn, nthin=nthin)
+    
+    with open("objective_processed.txt", 'wb+') as f:
+        pickle.dump(objective_processed, f)
     
     plot_MCMC(objective_processed, processed_chain)
     save_integratedtime(objective_processed, processed_chain)
@@ -56,20 +55,20 @@ def plot_MCMC(objective, input_chain, name='MCMC_Chain_process'):
     #ax.yaxis.set_label_coords(-0.15, 0.5)
     chain_axes[num-1].set_xlabel('Generation [#]')
     
-    plt.savefig(name + '.png', dpi=300)
+    plt.savefig(name + '.png', dpi=100)
     plt.close()
 
-def plot_PSoXR(objective):
+def plot_PSoXR(objective,qlow=0.006,qhigh=0.26):
 
-    for objective in objective.objectives:
+    for i, objective in enumerate(objective.objectives):
     
-        name = objective.name
-        energy = objective.model.Energy
+        name = str(objective.name)
+        energy = objective.model.energy
         structure = objective.model.structure
         
-        fit_qvals = np.linspace(0.006,0.26,1000)
-        fit_spol = ani_ReflectModel(structure, scale=1,bkg=0,dq=0,Energy=energy,pol='s',name='spol')
-        fit_ppol = ani_ReflectModel(structure, scale=1,bkg=0,dq=0,Energy=energy,pol='p',name='spol')
+        fit_qvals = np.linspace(qlow,qhigh,1000)
+        fit_spol = ani_ReflectModel(structure, scale=1,bkg=0,dq=0,energy=energy,pol='s',name='spol')
+        fit_ppol = ani_ReflectModel(structure, scale=1,bkg=0,dq=0,energy=energy,pol='p',name='spol')
         
         data = objective.data
         res = objective.residuals()
@@ -88,33 +87,37 @@ def plot_PSoXR(objective):
         ppol_res = res[swap_loc+1:]
 
         ##Plot stuff
-        fig = plt.figure(constrained_layout=True,figsize=(12,9))
+        fig = plt.figure(constrained_layout=True,figsize=(4,3))
         grid = fig.add_gridspec(5, 5)
         refl_ax = fig.add_subplot(grid[1:,:])
         res_ax = fig.add_subplot(grid[0,:],sharex=refl_ax)
         
-        res_spol = res_ax.scatter(spol_qvals, spol_res,color='#FE6100',marker='o',s=5,label='s-pol')
-        res_ppol = res_ax.scatter(ppol_qvals, ppol_res,color='#785EF0',marker='o',s=5,label='p-pol')
+        res_spol = res_ax.scatter(spol_qvals, spol_res,color='w',marker='o',s=3, edgecolors='#FE6100', linewidth=0.5, label='s-pol')
+        res_ppol = res_ax.scatter(ppol_qvals, ppol_res,color='w',marker='o',s=3, edgecolors='#785EF0', linewidth=0.5, label='p-pol')
         
-        res_ax.set_ylabel('Res [%]',fontsize=14)
-        res_ax.tick_params(axis='both',labelsize=14)
+        res_ax.set_ylabel('Res [%]',fontsize=8)
+        res_ax.tick_params(axis='both',labelsize=8)
         res_ax.set_ylim(-10,10)
         plt.setp(res_ax.get_xticklabels(), visible=False)
 
 
-        spol_data_graph = refl_ax.errorbar(spol_qvals, spol_data, spol_u, color='#FE6100', marker='o', ms=8, ls="", markerfacecolor='w', markeredgewidth=2, zorder=10, label='s-pol')
-        ppol_data_graph = refl_ax.errorbar(ppol_qvals, ppol_data, ppol_u, color='#785EF0', marker='o', ms=8, ls="", markerfacecolor='w', markeredgewidth=2, zorder=10, label='p-pol')
-        fit_spol_graph = refl_ax.plot(fit_qvals, fit_spol.model(fit_qvals), color='0', lw=2,zorder=30, label='fit')
-        fit_ppol_graph = refl_ax.plot(fit_qvals, fit_ppol.model(fit_qvals), color='0', lw=2,zorder=30)
+        spol_data_graph = refl_ax.errorbar(spol_qvals, spol_data, spol_u, color='#FE6100', marker='o', ms=3, ls="", markerfacecolor='w', markeredgewidth=0.5, zorder=10, label='s-pol')
+        ppol_data_graph = refl_ax.errorbar(ppol_qvals, ppol_data, ppol_u, color='#785EF0', marker='o', ms=3, ls="", markerfacecolor='w', markeredgewidth=0.5, zorder=10, label='p-pol')
+        fit_spol_graph = refl_ax.plot(fit_qvals, fit_spol.model(fit_qvals), color='0', lw=1,zorder=30, label='fit')
+        fit_ppol_graph = refl_ax.plot(fit_qvals, fit_ppol.model(fit_qvals), color='0', lw=1,zorder=30)
         
-        refl_ax.legend(fontsize=14)
+        refl_ax.legend(fontsize=8)
         refl_ax.set_yscale('log')
-        refl_ax.set_ylabel('Reflectivity',fontsize=14)
-        refl_ax.set_xlabel('q [$\AA^{-1}$]',fontsize=14)
-        refl_ax.tick_params(axis='both',labelsize=14)
+        refl_ax.set_ylabel('Reflectivity',fontsize=8)
+        refl_ax.set_xlabel('q [$\AA^{-1}$]',fontsize=8)
+        refl_ax.tick_params(axis='both',labelsize=8)
 
-        plt.savefig('Profile_Fits_' + name + '.png',dpi=300)
+        plt.savefig('Profile_Fits_' + name + '.png',dpi=200)
         plt.close()
+        np.savetxt('model_qvals.txt',fit_qvals)
+        np.savetxt(('spol_fit_en'+str(i)+'.txt'),fit_spol.model(fit_qvals)) 
+        np.savetxt(('ppol_fit_en'+str(i)+'.txt'),fit_ppol.model(fit_qvals)) 
+ 
         
 def plot_corner(objective):
     labels = objective.varying_parameters().names()
@@ -141,7 +144,7 @@ def plot_corner(objective):
             ax.tick_params(axis='both', which='major', labelsize=10)
 
         
-    plt.savefig('corner_process.png',dpi=300)
+    plt.savefig('corner_process.png',dpi=100)
     plt.close()
     
 def plot_psoxr_corner(objective):
@@ -171,10 +174,93 @@ def save_integratedtime(objective, input_chain, name='auto_correlation_time'):
     np.savetxt(name + '.txt',out,fmt="%s, %f",delimiter=',')
     
 
-
-    
-
 def save_fitresults(objective, name='FitResults'):
+    import numpy as np
+    import pandas as pd
+    from scipy.stats import norm
+    
+    for objective in objective.objectives:
+        
+        objective_name = str(objective.name)
+        
+        params_with_chain = [
+            p for p in objective.parameters.flattened() if p.chain is not None
+        ]
+        save_columns = ['value', 'stderr', 'vary', 'norm_mu', 'norm_std']
+        save_output = pd.DataFrame(columns=save_columns)
+        index_list = []
+
+        hist_header_info = {}
+        hist_popdensity = {}
+        
+        corrDF = pd.DataFrame()
+        
+        for param in params_with_chain:
+            index_list.append(param.name)
+            value = param.value
+            stderr = param.stderr
+            vary = param.vary
+            mu, std = norm.fit(param.chain)
+            
+            save_output = save_output.append(pd.DataFrame([[value, stderr, vary, mu, std]], columns=save_columns))
+
+            vals, bins = np.histogram(param.chain, bins=75, density=True)
+            bin_min = bins[0]
+            bin_max = bins[-1]
+            bin_diff = bins[1] - bins[0]
+            
+            hist_header_info[param.name] = [bin_min, bin_max, bin_diff]
+            hist_popdensity[param.name] = vals
+            if vary or 'rough' in param.name or 'thick' in param.name:
+                corrDF[param.name] = param.chain
+        #Save Results
+        save_output.index = index_list
+        save_output.to_csv((objective_name+'_FitResults.csv'))
+        #Save Histogram
+        hist_stats = pd.DataFrame(hist_header_info)
+        hist_stats.index = ['bin_min', 'bin_max', 'bin_diff']
+        hist_vals = pd.DataFrame(hist_popdensity)
+        hist_output = hist_stats.append(hist_vals, ignore_index=False)
+        hist_output.to_csv((objective_name+'_HistogramResults.csv'))
+        #Save Correlation
+        corr = corrDF.corr(method='pearson').round(decimals=1)
+        corr.to_csv((objective_name + '_correlations.csv'))
+        save_correlation_diagram(corr, objective_name)
+        
+    return 0
+    
+def save_correlation_diagram(corr, name):
+    import seaborn as sns
+    fig, ax = plt.subplots(figsize=(10,10))
+    sns.heatmap(
+        corr.round(decimals=1), 
+        vmin=-1, vmax=1, center=0,
+        cmap=sns.diverging_palette(240, 10, n=200),
+        square=True,
+        linewidth=1.5,
+        annot=True,
+        ax=ax,
+        annot_kws={"size": 10},
+        cbar_kws={"shrink": 0.6}
+    )
+    ax.set_xticklabels(
+        ax.get_xticklabels(),
+        rotation=45,
+        horizontalalignment='right',
+        fontsize=10
+    )
+    ax.set_yticklabels(
+        ax.get_yticklabels(),
+        fontsize=10
+    )
+    #Got this from stackexchange...works by changing fontsize
+    cbar = ax.collections[0].colorbar
+    cbar.ax.tick_params(labelsize=10)
+    
+    plt.savefig((name + '_corr_plot.png'),dpi=200)
+    plt.close()
+    
+def save_fitresults_old(objective, name='FitResults'):
     import numpy as np
     
     for objective in objective.objectives:
@@ -195,19 +281,19 @@ def save_fitresults(objective, name='FitResults'):
     
     #cycle through the parameters to assign them 
         for i in range(numParams):
-            Param_names[i] = Param_list[i].name
+            Param_names[i] = str(Param_list[i].name)
             Param_vals[i] = Param_list[i].value
             Param_stderr[i] = Param_list[i].stderr
     
         for i in range(numConstraints):
-            Constraint_names[i] = Constraint_list[i].name
+            Constraint_names[i] = str(Constraint_list[i].name)
             Constraint_vals[i] = Constraint_list[i].value
             Constraint_stderr[i] = Constraint_list[i].stderr
         
         Param_results = np.rollaxis(np.array([Param_names,Param_vals,Param_stderr]),1,0)
         Constraint_results = np.rollaxis(np.array([Constraint_names,Constraint_vals,Constraint_stderr]),1,0)
-        np.savetxt('objective_'+ objective.name + '_vary_param.txt',Param_results,fmt="%s, %f, %f",delimiter=',')
-        np.savetxt('objective_'+ objective.name + 'constraint_param.txt',Constraint_results,fmt="%s, %f, %f",delimiter=',')
+        np.savetxt('objective_'+ str(objective.name) + '_vary_param.txt',Param_results,fmt="%s, %f, %f",delimiter=',')
+        np.savetxt('objective_'+ str(objective.name) + '_constraint_param.txt',Constraint_results,fmt="%s, %f, %f",delimiter=',')
     
     
     

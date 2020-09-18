@@ -254,8 +254,8 @@ class ani_ReflectModel(object):
                 qvals = x     
            
         ##loop over energy here ~~~ ?
-        refl = np.zeros((len(self.energy),len(x),2,2),dtype=float)
-        tran = np.zeros((len(self.energy),len(x),2,2),dtype=float)
+        refl = np.zeros((len(self.energy),len(qvals),2,2),dtype=float)
+        tran = np.zeros((len(self.energy),len(qvals),2,2),dtype=float)
         for i, energy in enumerate(self.energy):
             refl[i,:,:,:], tran[i,:,:,:] =  ani_reflectivity(qvals, self.structure.slabs(),
                                         self.structure.tensor(energy=energy),

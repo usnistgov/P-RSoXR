@@ -803,7 +803,7 @@ class ani_SLD(ani_Scatterer):
     """
     def __init__(self, value, name='',energy=np.array([250])):
         super(ani_SLD, self).__init__(name=name)
-        self.imag = Parameter(0, name='%s - isld' % name)
+        self.imag = Parameter(0, name='%s_isld' % name)
         self._energy = energy
         ##if given a single value it will turn it into an isotropic tensor
         if (isinstance(value, numbers.Real) or isinstance(value, numbers.Complex)):
@@ -815,25 +815,25 @@ class ani_SLD(ani_Scatterer):
             #Initialize the parameter wave                      ##May require an update for multi-energy considerations (later)
             self._parameters = Parameters(name=name) ##Generates the parameters for the SLD object 
             TensorStr = np.array([["xx","xy","xz"],["yx","yy","yz"],["zx","zy","zz"]]) ##Name of the tensor elements
-            self.delta = Parameter((np.trace(value).real)/3, name='%s - dt' % name) ##Save the trace to use SLD_profile functionality
-            self.beta = Parameter((np.trace(value).imag)/3, name='%s - bt' % name) 
+            self.delta = Parameter((np.trace(value).real)/3, name='%s_dt' % name) ##Save the trace to use SLD_profile functionality
+            self.beta = Parameter((np.trace(value).imag)/3, name='%s_bt' % name) 
             
             #Create tensor attributes //Just brute force it right now? Need a better method in the future if more energies want to be fit
             #Each element of the tensor becomes its own fit parameter in the Refnx machinary.
             ##Only considering diagonal matrices right now.
-            self.xx = Parameter(value[0,0].real, name='%s - d%s'%(name, TensorStr.item((0,0))))
-            self.ixx = Parameter(value[0,0].imag, name='%s - b%s'%(name, TensorStr.item((0,0))))
-            self.yy = Parameter(value[1,1].real, name='%s - d%s'%(name, TensorStr.item((1,1))))
-            self.iyy = Parameter(value[1,1].imag, name='%s - b%s'%(name, TensorStr.item((1,1))))
-            self.zz = Parameter(value[2,2].real, name='%s - d%s'%(name, TensorStr.item((2,2))))
-            self.izz = Parameter(value[2,2].imag, name='%s - b%s'%(name, TensorStr.item((2,2))))
+            self.xx = Parameter(value[0,0].real, name='%s_d%s'%(name, TensorStr.item((0,0))))
+            self.ixx = Parameter(value[0,0].imag, name='%s_b%s'%(name, TensorStr.item((0,0))))
+            self.yy = Parameter(value[1,1].real, name='%s_d%s'%(name, TensorStr.item((1,1))))
+            self.iyy = Parameter(value[1,1].imag, name='%s_b%s'%(name, TensorStr.item((1,1))))
+            self.zz = Parameter(value[2,2].real, name='%s_d%s'%(name, TensorStr.item((2,2))))
+            self.izz = Parameter(value[2,2].imag, name='%s_b%s'%(name, TensorStr.item((2,2))))
             ##Store the values of the parameters in the form of a tensor object for easier calculations later
             self._tensor = np.array([[self.xx.value + 1j*self.ixx.value, 0, 0],
                                    [0, self.yy.value + 1j*self.iyy.value, 0],
                                    [0, 0, self.zz.value + 1j*self.izz.value]],dtype=complex)
                                    
-            self.birefringence = Parameter(-(self.xx.value - self.zz.value), name='%s - bire' % name)
-            self.dichroism = Parameter((self.ixx.value - self.izz.value),name='%s - dichro' % name)
+            self.birefringence = Parameter(-(self.xx.value - self.zz.value), name='%s_bire' % name)
+            self.dichroism = Parameter((self.ixx.value - self.izz.value),name='%s_dichro' % name)
             self._parameters.extend([self.delta,self.birefringence,self.xx,self.ixx,self.yy,self.iyy,self.zz,self.izz,self.beta,self.dichroism])
            
         #elif isinstance(value, NEXAFS):
@@ -1035,8 +1035,8 @@ class ani_NexafsSLD(ani_Scatterer):
         
         ##Check if the file is anisotropic or not, and load parameters accordingly: 
         if ani == False:
-            self.delta = possibly_create_parameter(np.interp(self.energy,self.nexafs.en,self.nexafs.delta), name='%s - dt' % name)
-            self.beta = possibly_create_parameter(np.interp(self.energy,self.nexafs.en,self.nexafs.beta), name='%s - bt' % name)
+            self.delta = possibly_create_parameter(np.interp(self.energy,self.nexafs.en,self.nexafs.delta), name='%s_dt' % name)
+            self.beta = possibly_create_parameter(np.interp(self.energy,self.nexafs.en,self.nexafs.beta), name='%s_bt' % name)
             self.tensor = np.eye(3)*np.complex(self.delta.value,self.beta.value)
             ##Save parameters in the list of parameters
            
@@ -1046,22 +1046,22 @@ class ani_NexafsSLD(ani_Scatterer):
             #Create tensor attributes //Just brute force it right now? Need a better method in the future if more energies want to be fit
             #Each element of the tensor becomes its own fit parameter in the Refnx machinary.
             ##Only considering diagonal matrices right now.
-            self.xx = possibly_create_parameter(np.interp(self.energy,self.nexafs.en,np.real(self.nexafs.tensor[:,0,0])), name='%s - d%s' % (name, TensorStr.item((0,0))))
-            self.ixx = possibly_create_parameter(np.interp(self.energy,self.nexafs.en,np.imag(self.nexafs.tensor[:,0,0])), name='%s - b%s' % (name, TensorStr.item((0,0))))
-            self.yy = possibly_create_parameter(np.interp(self.energy,self.nexafs.en,np.real(self.nexafs.tensor[:,1,1])), name='%s - d%s' % (name, TensorStr.item((1,1))))
-            self.iyy = possibly_create_parameter(np.interp(self.energy,self.nexafs.en,np.imag(self.nexafs.tensor[:,1,1])), name='%s - b%s' % (name, TensorStr.item((1,1))))
-            self.zz = possibly_create_parameter(np.interp(self.energy,self.nexafs.en,np.real(self.nexafs.tensor[:,2,2])), name='%s - d%s' % (name, TensorStr.item((2,2))))
-            self.izz = possibly_create_parameter(np.interp(self.energy,self.nexafs.en,np.imag(self.nexafs.tensor[:,2,2])), name='%s - b%s' % (name, TensorStr.item((2,2))))
+            self.xx = possibly_create_parameter(np.interp(self.energy,self.nexafs.en,np.real(self.nexafs.tensor[:,0,0])), name='%s_d%s' % (name, TensorStr.item((0,0))))
+            self.ixx = possibly_create_parameter(np.interp(self.energy,self.nexafs.en,np.imag(self.nexafs.tensor[:,0,0])), name='%s_b%s' % (name, TensorStr.item((0,0))))
+            self.yy = possibly_create_parameter(np.interp(self.energy,self.nexafs.en,np.real(self.nexafs.tensor[:,1,1])), name='%s_d%s' % (name, TensorStr.item((1,1))))
+            self.iyy = possibly_create_parameter(np.interp(self.energy,self.nexafs.en,np.imag(self.nexafs.tensor[:,1,1])), name='%s_b%s' % (name, TensorStr.item((1,1))))
+            self.zz = possibly_create_parameter(np.interp(self.energy,self.nexafs.en,np.real(self.nexafs.tensor[:,2,2])), name='%s_d%s' % (name, TensorStr.item((2,2))))
+            self.izz = possibly_create_parameter(np.interp(self.energy,self.nexafs.en,np.imag(self.nexafs.tensor[:,2,2])), name='%s_b%s' % (name, TensorStr.item((2,2))))
             ##Store the values of the parameters in the form of a tensor object for easier calculations later
             self._tensor = np.array([[self.xx.value + 1j*self.ixx.value, 0, 0],
                                    [0, self.yy.value + 1j*self.iyy.value, 0],
                                    [0, 0, self.zz.value + 1j*self.izz.value]],dtype=complex)
             ##Save the trace of the tensor as a fit parameter
-            self.delta = Parameter((np.trace(self.tensor).real)/3, name='%s - dt' % name) ##Save the trace to use SLD_profile functionality
-            self.beta = Parameter((np.trace(self.tensor).imag)/3, name='%s - dt' % name) 
+            self.delta = Parameter((np.trace(self.tensor).real)/3, name='%s_dt' % name) ##Save the trace to use SLD_profile functionality
+            self.beta = Parameter((np.trace(self.tensor).imag)/3, name='%s_dt' % name) 
             
-            self.birefringence = Parameter(-(self.xx - self.zz), name='%s - bire' % name)
-            self.dichroism = Parameter((self.ixx - self.izz),name='%s - dichro' % name)
+            self.birefringence = Parameter(-(self.xx - self.zz), name='%s_bire' % name)
+            self.dichroism = Parameter((self.ixx - self.izz),name='%s_dichro' % name)
             ##Save parameters in the list of parameters
             self._parameters.extend([self.delta,self.beta,self.birefringence,self.dichroism,self.xx,self.ixx,self.yy,self.iyy,self.zz,self.izz])          
         
@@ -1303,17 +1303,17 @@ class ani_Slab(ani_Component):
     def __init__(self, thick, sld, rough, name='', vfsolv=0, interface=None):
         super(ani_Slab, self).__init__(name=name)
         self.thick = possibly_create_parameter(thick,
-                                               name=f'{name} - thick')
+                                               name=f'{name}_thick')
         if isinstance(sld, ani_Scatterer):
             self.sld = sld 
         else:
             self.sld = ani_SLD(sld)
 
         self.rough = possibly_create_parameter(rough,
-                                               name=f'{name} - rough')
+                                               name=f'{name}_rough')
         self.vfsolv = (
             possibly_create_parameter(vfsolv,
-                                      name=f'{name} - volfrac solvent'
+                                      name=f'{name}_volfrac solvent'
                                       ,bounds=(0., 1.)))
 
         p = Parameters(name=self.name)
@@ -1411,12 +1411,12 @@ class ani_MixedSlab(ani_Component):
                  interface=None):
         super(MixedSlab, self).__init__(name=name)
         self.thick = possibly_create_parameter(thick,
-                                               name='%s - thick' % name)
+                                               name='%s_thick' % name)
 
         self.sld = []
         self.vf = []
-        self._sld_parameters = Parameters(name=f"{name} - slds")
-        self._vf_parameters = Parameters(name=f"{name} - volfracs")
+        self._sld_parameters = Parameters(name=f"{name}_slds")
+        self._vf_parameters = Parameters(name=f"{name}_volfracs")
 
         i = 0
         for s, v in zip(sld_list, vf_list):
@@ -1428,7 +1428,7 @@ class ani_MixedSlab(ani_Component):
             self._sld_parameters.append(self.sld[-1].parameters)
 
             vf = possibly_create_parameter(v,
-                                           name=f'vf{i} - {name}',
+                                           name=f'vf{i}_{name}',
                                            bounds=(0., 1.))
             self.vf.append(vf)
             self._vf_parameters.append(vf)
@@ -1436,10 +1436,10 @@ class ani_MixedSlab(ani_Component):
 
         self.vfsolv = (
             possibly_create_parameter(vfsolv,
-                                      name=f'{name} - volfrac solvent',
+                                      name=f'{name}_volfrac solvent',
                                       bounds=(0., 1.)))
         self.rough = possibly_create_parameter(rough,
-                                               name=f'{name} - rough')
+                                               name=f'{name}_rough')
 
         p = Parameters(name=self.name)
         p.append(self.thick)
