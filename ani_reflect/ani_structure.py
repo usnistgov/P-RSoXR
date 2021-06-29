@@ -38,7 +38,7 @@ except ImportError:
 from refnx._lib import flatten
 from refnx.analysis import Parameters, Parameter, possibly_create_parameter
 from refnx.reflect.interface import Interface, Erf, Step
-from refnx.ani_reflect.ani_NEXAFSload import NexafsDataset
+from ani_reflect.ani_reflect_model import ani_reflectivity
 
 # contracting the SLD profile can greatly speed a reflectivity calculation up.
 contract_by_area = refcalc._contract_by_area
@@ -53,6 +53,9 @@ class ani_Structure(UserList):
     Represents the interfacial Structure of a reflectometry sample.
     Successive Components are added to the Structure to construct the
     interface.
+    
+    *ani_* prefix specifies a modified structure based on the refnx standard
+    that uses tensor components for the optical constants.
 
     Parameters
     ----------
@@ -80,25 +83,7 @@ class ani_Structure(UserList):
     -----
     If `Structure.reverse_structure is True` then the slab representation
     order is reversed.
-    If no solvent is specified then the volume fraction of solvent in each of
-    the Components is *assumed* to have the scattering length density of
-    `Structure[-1].slabs()[-1]` after any possible slab order reversal. This
-    slab corresponds to the scattering length density of the semi-infinite
-    backing medium.
-    Normally the reflectivity will be calculated using the Nevot-Croce
-    approximation for Gaussian roughness between different layers. However, if
-    individual components have non-Gaussian roughness (e.g. Tanh), then the
-    overall reflectivity and SLD profile are calculated by micro-slicing.
-    Micro-slicing involves calculating the specific SLD profile, dividing it
-    up into small-slabs, and calculating the reflectivity from those. This
-    normally takes much longer than the Nevot-Croce approximation. To speed
-    the calculation up the `Structure.contract` property can be used.
-    Contracting too far may mask the subtle differences between different
-    roughness types.
-    The profile contraction specified by this property can greatly improve
-    calculation time for Structures created with micro-slicing. If you use
-    this option it is recommended to check the reflectivity signal with and
-    without contraction to ensure they are comparable.
+    
 
     Example
     -------
@@ -139,7 +124,7 @@ class ani_Structure(UserList):
                  reverse_structure=False, contract=0):#, isAnisotropic = True): ##TFerron Edit 05/20/2020 *Adds an attribute to make the entire film use the anisotropic calculation
         super(ani_Structure, self).__init__()
         self._name = name
-        self._solvent = solvent
+        self._solvent = solvent #Legacy component since all p-RSoXR is currently done in air (solvent=VAC)
         
         self._reverse_structure = bool(reverse_structure)
         #: **float** if contract > 0 then an attempt to contract/shrink the
@@ -227,7 +212,7 @@ class ani_Structure(UserList):
         else:
             solv = SLD(sld)
             self._solvent = solv
-            
+    #A structure does not NEED AN energy....I may remove this.....
     @property
     def energy(self):
         return self._energy
@@ -304,8 +289,10 @@ class ani_Structure(UserList):
         else:
             # there is a non-default interfacial roughness, create a microslab
             # representation
-            slabs = self._micro_slabs()
-
+            #slabs = self._micro_slabs()
+            print("Current implementation does not support not Gaussian interfaces")
+            print("Please set all interfaces to 'None' and try again")
+            return 0
         # if the slab representation needs to be reversed.
         reverse = self.reverse_structure
         if reverse:
@@ -334,112 +321,50 @@ class ani_Structure(UserList):
             return contract_by_area(slabs, self.contract)
         else:
             return slabs
-            
+    
     def tensor(self, energy=None):
-        #Bring together the dielectric tensor from each slab into an array with dimension (num-slabs, num-energy, 3,3)
+        r"""
+        Parameters:
+        -------
+        energy: float
+            Photon energy that you would like to calculate the tensor for. This only applies to ani_Scatterer
+            objects that require a photon energy to read from a database. Used for substrates/superstrates
+
+        Returns
+        -------
+        tensors : :class:`np.ndarray`
+            Complimentary representation to Slabs that contains dielectric tensor components for each layer.
+            Has shape (N, 3,3).
+            N - number of slabs
+
+            - tensors[N, 1, 1]
+               dielectric component xx of layer N
+            - tensors[N, 2, 2]
+               dielectric component yy of layer N
+            - tensors[N, 3, 3]
+               dielectric component zz of layer N
+        Notes
+        -----
+        If `Structure.reversed is True` then the representation order is
+        reversed. Has not functionality with an added solvent. May not be
+        desireable since n(E) is difficult to calculate at resonance and 
+        a database currently does not exist.
+        Energy is required for energy-dependent slabs
+
+        """
         d1 = [c.tensor(structure=self, energy=energy) for c in self.components]
         try:
-            structure_tensor = np.stack(d1,axis=0)
+            tensors = np.stack(d1,axis=0)
         except ValueError:
             # some of slabs may be None. np can't concatenate arr and None
-            structure_tensor = np.stack([s for s in d1 if s is not None], axis=0)
+            tensors = np.stack([s for s in d1 if s is not None], axis=0)
             
         reverse = self.reverse_structure #This absolutely does not work --- 07/29/2020 ##Might work now --- 07/29/2020 Later in the afternoon
         if reverse:
-            structure_tensor = np.flip(structure_tensor,axis=0)   
+            tensors = np.flip(tensors,axis=0)   
             
-        return structure_tensor
+        return tensors
         
-        
-        
-        
-        """
-        NOT YET IMPLEMENTED!!! 06/03/2020
-        def _micro_slabs(self, slice_size=0.5):
-        """
-#        Creates a microslab representation of the Structure.
-#
-#        Parameters
-#        ----------
-#        slice_size : float
-#            Thickness of each slab in the micro-slab representation
-#
-#        Returns
-#        -------
-#        micro_slabs : np.ndarray
-#            The micro-slab representation of the model. See the
-#            `Structure.slabs` method for a description of the array.
-        """
-        # solvate the slabs from each component
-        sl = [c.slabs(structure=self) for c in self.components]
-        total_slabs = np.concatenate(sl)
-        total_slabs[1:-1] = self.overall_sld(total_slabs[1:-1],
-                                             self.solvent)
-
-        total_slabs[:, 0] = np.fabs(total_slabs[:, 0])
-        total_slabs[:, 3] = np.fabs(total_slabs[:, 3])
-
-        # interfaces between all the slabs
-        _interfaces = self.interfaces
-        erf_interface = Erf()
-        i = 0
-        # the default Interface is None.
-        # The Component.interfaces property may not have the same length as the
-        # Component.slabs. Expand it so it matches the number of slabs,
-        # otherwise the calculation of microslabs fails.
-        for _interface, _slabs in zip(_interfaces, sl):
-            if _interface is None or isinstance(_interface, Interface):
-                f = _interface or erf_interface
-                _interfaces[i] = [f] * len(_slabs)
-            i += 1
-
-        _interfaces = list(flatten(_interfaces))
-        _interfaces = [erf_interface if i is None else i for i in _interfaces]
-
-        # distance of each interface from the fronting interface
-        dist = np.cumsum(total_slabs[:-1, 0])
-
-        # workout how much space the SLD profile should encompass
-        zstart = -5. - 8 * total_slabs[1, 3]
-        zend = 5. + dist[-1] + 8 * total_slabs[-1, 3]
-        nsteps = int((zend - zstart) / slice_size + 1)
-        zed = np.linspace(zstart, zend, num=nsteps)
-
-        # the output arrays
-        sld = np.ones_like(zed, dtype=float) * total_slabs[0, 1]
-        isld = np.ones_like(zed, dtype=float) * total_slabs[0, 2]
-
-        # work out the step in SLD at an interface
-        delta_rho = total_slabs[1:, 1] - total_slabs[:-1, 1]
-        delta_irho = total_slabs[1:, 2] - total_slabs[:-1, 2]
-
-        # the RMS roughness of each step
-        sigma = total_slabs[1:, 3]
-        step = Step()
-
-        # accumulate the SLD of each step.
-        for i in range(len(total_slabs) - 1):
-            f = _interfaces[i + 1]
-            if sigma[i] == 0:
-                f = step
-
-            p = f(zed, scale=sigma[i], loc=dist[i])
-            sld += delta_rho[i] * p
-            isld += delta_irho[i] * p
-
-        sld[0] = total_slabs[0, 1]
-        isld[0] = total_slabs[0, 2]
-        sld[-1] = total_slabs[-1, 1]
-        isld[-1] = total_slabs[-1, 2]
-
-        micro_slabs = np.zeros((len(zed), 5), float)
-        micro_slabs[:, 0] = zed[1] - zed[0]
-        micro_slabs[:, 1] = sld
-        micro_slabs[:, 2] = isld
-
-        return micro_slabs
-        """
-
     @property
     def interfaces(self):
         """
@@ -476,7 +401,7 @@ class ani_Structure(UserList):
         slabs[..., 2] += solv.imag * slabs[..., 4]
         return slabs
 
-    def reflectivity(self, q, threads=0):
+    def reflectivity(self, q, energy=250.0, ani_backend='uni', threads=0, output='fit'):
         """
         Calculate theoretical reflectivity of this structure
 
@@ -484,28 +409,34 @@ class ani_Structure(UserList):
         ----------
         q : array-like
             Q values (Angstrom**-1) for evaluation
+        energy : float 
+            Photon energy (eV) for evaluation
+        ani_backend : 'uni' or 'biaxial'
+            Specifies if you want to run a uniaxial calculation or assume a full biaxial tensor.
+            Biaxial has NOT been verified through outside means
         threads : int, optional
             Specifies the number of threads for parallel calculation. This
             option is only applicable if you are using the ``_creflect``
             module. The option is ignored if using the pure python calculator,
             ``_reflect``. If `threads == 0` then all available processors are
             used.
+        output : 's', 'p', or 'fit'
+            's' - returns s-polarization
+            'p' - returns p-polarization
+            'fit' - returns a concatenatvd wave of s-pol and p-pol.
 
-        Notes
-        -----
-        Normally the reflectivity will be calculated using the Nevot-Croce
-        approximation for Gaussian roughness between different layers. However,
-        if individual components have non-Gaussian roughness (e.g. Tanh), then
-        the overall reflectivity and SLD profile are calculated by
-        micro-slicing. Micro-slicing involves calculating the specific SLD
-        profile, dividing it up into small-slabs, and calculating the
-        reflectivity from those. This normally takes much longer than the
-        Nevot-Croce approximation. To speed the calculation up the
-        `Structure.contract` property can be used.
-        """
-        abeles = get_reflect_backend()
-        return abeles(q, self.slabs()[..., :4], threads=threads)
-
+        """        
+        refl, tran = ani_reflectivity(q, self.slabs(), self.tensor(energy=energy), threads=threads, ani_backend='uni')
+        #Organize output for what you want:
+        if output == 's':
+            return refl[:,1,1]
+        elif output == 'p':
+            return refl[:,0,0]
+        elif output == 'fit':                 
+            return np.concatenate([refl[:,1,1],refl[:,0,0]])
+        else:
+            return refl
+        
     def sld_profile(self, type=None, z=None, align=0):
         """
         Calculates an SLD profile, as a function of distance through the
@@ -539,7 +470,7 @@ class ani_Structure(UserList):
             raise ValueError("Structure requires fronting and backing"
                              " Slabs in order to calculate.")
 
-        zed, prof, dielectric_prof  = birefringence_profile(slabs, tensor, z)
+        zed, prof, tensor_prof  = birefringence_profile(slabs, tensor, z)
 
         offset = 0
         if align != 0:
@@ -555,7 +486,7 @@ class ani_Structure(UserList):
             else:
                 offset = np.sum(slabs[:align, 0])
         if type is None:
-            return zed - offset, prof, dielectric_prof
+            return zed - offset, prof, tensor_prof
         else:
             return zed - offset, prof[type,:]
 
@@ -729,8 +660,8 @@ class ani_Scatterer(object):
         self.name = name
 
     def __str__(self):
-        sld = complex(self)
-        return 'SLD = {0} x10**-6 Å**-2'.format(sld)
+        sld = complex(self) #Returns optical constant
+        return 'n = {0}'.format(sld)
 
     def __complex__(self):
         raise NotImplementedError
@@ -741,7 +672,7 @@ class ani_Scatterer(object):
 
     def __call__(self, thick=0, rough=0):
         """
-        Create a :class:`Slab`.
+        Create a :class:`ani_Slab`.
 
         Parameters
         ----------
@@ -752,8 +683,8 @@ class ani_Scatterer(object):
 
         Returns
         -------
-        slab : refnx.reflect.Slab
-            The newly made Slab.
+        slab : refnx.ani_reflect.ani_Slab
+            The newly made Slab with a dielectric tensor.
 
         Example
         --------
@@ -771,6 +702,8 @@ class ani_Scatterer(object):
         slab = self()
         return slab | other
 
+##Definitions used for building SLD values
+TensorStr = np.array([["xx","xy","xz"],["yx","yy","yz"],["zx","zy","zz"]]) ##abbreviation for each the tensor elements
 
 class ani_SLD(ani_Scatterer):
     """
@@ -801,46 +734,41 @@ class ani_SLD(ani_Scatterer):
     >>> sio2 = SLD(re)
     >>> sio2 = SLD([re, im])
     """
-    def __init__(self, value, name='',energy=np.array([250])):
+    def __init__(self, value, name=''):
         super(ani_SLD, self).__init__(name=name)
         self.imag = Parameter(0, name='%s_isld' % name)
-        self._energy = energy
-        ##if given a single value it will turn it into an isotropic tensor
-        if (isinstance(value, numbers.Real) or isinstance(value, numbers.Complex)):
+        
+        ##if not directly given a tensor, convert value into a 3x3 matrix
+        if isinstance(value, (int,float,complex)):
             value = value * np.eye(3)
-        
-        
+                
         ##TFerron Edits 05/20/2020 *For anisotropic reflectivity implementation
-        if (isinstance(value, np.ndarray)) and value.shape==(3,3): ##Quick check to see if the scatterer is a tensor object 
-            #Initialize the parameter wave                      ##May require an update for multi-energy considerations (later)
+        if (isinstance(value, np.ndarray)) and value.shape==(3,3): ##Quick check to see if size is correct for assignment 
+            #Initialize the parameter wave
             self._parameters = Parameters(name=name) ##Generates the parameters for the SLD object 
-            TensorStr = np.array([["xx","xy","xz"],["yx","yy","yz"],["zx","zy","zz"]]) ##Name of the tensor elements
-            self.delta = Parameter((np.trace(value).real)/3, name='%s_dt' % name) ##Save the trace to use SLD_profile functionality
-            self.beta = Parameter((np.trace(value).imag)/3, name='%s_bt' % name) 
+            self.delta = Parameter((np.trace(value).real)/3, name='%s_dt' % name) ##'Magnitude' of the Real component *used in SLD_profile functionality
+            self.beta = Parameter((np.trace(value).imag)/3, name='%s_bt' % name)  ##'Magnitude' of the imaginary component *used in SLD_profile functionality
             
-            #Create tensor attributes //Just brute force it right now? Need a better method in the future if more energies want to be fit
+            #Create tensor attributes // Without robust method to determine components each one is an adjustable element.
             #Each element of the tensor becomes its own fit parameter in the Refnx machinary.
-            ##Only considering diagonal matrices right now.
+            ##Only considers tensors in the laboratory frame for now (diagonal). 
+            ###Recomment heavy use of parameter constraints during fitting to add physicality to the model
             self.xx = Parameter(value[0,0].real, name='%s_d%s'%(name, TensorStr.item((0,0))))
             self.ixx = Parameter(value[0,0].imag, name='%s_b%s'%(name, TensorStr.item((0,0))))
             self.yy = Parameter(value[1,1].real, name='%s_d%s'%(name, TensorStr.item((1,1))))
             self.iyy = Parameter(value[1,1].imag, name='%s_b%s'%(name, TensorStr.item((1,1))))
             self.zz = Parameter(value[2,2].real, name='%s_d%s'%(name, TensorStr.item((2,2))))
             self.izz = Parameter(value[2,2].imag, name='%s_b%s'%(name, TensorStr.item((2,2))))
-            ##Store the values of the parameters in the form of a tensor object for easier calculations later
-            self._tensor = np.array([[self.xx.value + 1j*self.ixx.value, 0, 0],
-                                   [0, self.yy.value + 1j*self.iyy.value, 0],
-                                   [0, 0, self.zz.value + 1j*self.izz.value]],dtype=complex)
                                    
-            self.birefringence = Parameter(-(self.xx.value - self.zz.value), name='%s_bire' % name)
-            self.dichroism = Parameter((self.ixx.value - self.izz.value),name='%s_dichro' % name)
-            self._parameters.extend([self.delta,self.birefringence,self.xx,self.ixx,self.yy,self.iyy,self.zz,self.izz,self.beta,self.dichroism])
+            self.birefringence = Parameter((self.xx.value - self.zz.value), name='%s_bire' % name) #Defined in terms of xx and zz
+            self.dichroism = Parameter((self.ixx.value - self.izz.value),name='%s_dichro' % name) #Defined in terms of xx and zz
+            self._parameters.extend([self.delta,self.beta,self.birefringence,self.dichroism,self.xx,self.ixx,self.yy,self.iyy,self.zz,self.izz])
            
         #elif isinstance(value, NEXAFS):
         #    raise RuntimeError("Not currenlt implemented")
 
     def __repr__(self):
-        return ("IoR([{delta!r}, {beta!r}],"
+        return ("Isotropic Index of Refraction = ([{delta!r}, {beta!r}],"
                 " name={name!r})".format(**self.__dict__))
 
     def __complex__(self):
@@ -860,27 +788,11 @@ class ani_SLD(ani_Scatterer):
         # return p
         
     @property
-    def energy(self):
-        return self._energy
-    
-    @energy.setter
-    def energy(self, energy):
-        if type(energy) is list: energy = np.array(energy)
-        self._energy = energy if type(energy) is np.ndarray else np.array([energy])
-    
-    @property
-    def tensor(self):
-        self._tensor = np.array([np.array([[self.xx.value + 1j*self.ixx.value, 0, 0],
+    def tensor(self, energy=None): #Energy does nothing, I call it elsewhere since other SLDs require an energy, not sure what I want to do with this.
+        self._tensor = np.array([[self.xx.value + 1j*self.ixx.value, 0, 0],
                                 [0, self.yy.value + 1j*self.iyy.value, 0],
-                                [0, 0, self.zz.value + 1j*self.izz.value]],dtype=complex) for _ in self._energy])
+                                [0, 0, self.zz.value + 1j*self.izz.value]],dtype=complex)
         return self._tensor
-    """
-    def updatetensor(self):
-        self.tensor = np.array([[self.xx.value + 1j*self.ixx.value, 0, 0],
-                                   [0, self.yy.value + 1j*self.iyy.value, 0],
-                                   [0, 0, self.zz.value + 1j*self.izz.value]],dtype=complex)
-        return self.tensor
-    """
 
 class ani_MaterialSLD(ani_Scatterer):
     """
@@ -912,18 +824,17 @@ class ani_MaterialSLD(ani_Scatterer):
     >>> # g/cm**3
     >>> sio2.density.setp(vary=True, bounds=(2.1, 2.3))
     """
-    def __init__(self, formula, density, energy=np.array([250]), name=''):
-        import periodictable as pt
-        from periodictable import xsf
+    def __init__(self, formula, density, energy=250.0, name=''):
+    
+        import periodictable as pt        
         super(ani_MaterialSLD, self).__init__(name=name)
 
         self.__formula = pt.formula(formula)
         self._compound = formula
         self.density = possibly_create_parameter(density, name='rho')
 
-        if type(energy) is list: energy = np.array(energy)
-        self._energy = energy if type(energy) is np.ndarray else np.array([energy])## In eV
-        self._wavelength = hc/self._energy if type(hc/self._energy) is np.ndarray else np.array([hc/self._energy]) ## Convert to Angstroms
+        self._energy = energy ## In eV
+        self._wavelength = hc/self._energy ## Convert to Angstroms
         self._tensor = None #Build this when its called based in parameter values
 
         self._parameters = Parameters(name=name)
@@ -954,9 +865,8 @@ class ani_MaterialSLD(ani_Scatterer):
     
     @energy.setter
     def energy(self, energy):
-        if type(energy) is list: energy = np.array(energy)
-        self._energy = energy if type(energy) is np.ndarray else np.array([energy])
-        self._wavelength = hc/self._energy if type(hc/self._energy) is np.ndarray else np.array([hc/self._energy]) ## Convert to Angstroms
+        self._energy = energy
+        self._wavelength = hc/self._energy  ## Convert to Angstroms
         
     @property
     def wavelength(self):
@@ -964,16 +874,17 @@ class ani_MaterialSLD(ani_Scatterer):
         
     @wavelength.setter
     def wavelength(self, wavelength):
-        if type(wavelength) is list: wavelength = np.array(wavelength)
-        self._wavelength = wavelength if type(wavelength) is np.ndarray else np.array([wavelength])
-        self._energy = hc/self._wavelength if type(hc/self._wavelength) is np.ndarray else np.array([hc/self._wavelength])
+        self._wavelength = wavelength 
+        self._energy = hc/self._wavelength ## Convert to eV
         
     def __complex__(self):
         import periodictable as pt
         from periodictable import xsf
         sldc = pt.xsf.index_of_refraction(self.__formula, density=self.density.value,
-                               wavelength=self.wavelength[0])
-        return 1 - sldc
+                               wavelength=self.wavelength)
+        if type(sldc).__module__ == np.__name__: #check if the type is accidently cast into numpy.
+            sldc = sldc.item()
+        return 1 - sldc ##pt.xsf makes the type numpy affiliated...__complex__ does not play nice so we reconvert with .item()
         
     @property
     def parameters(self):
@@ -981,136 +892,10 @@ class ani_MaterialSLD(ani_Scatterer):
         
     @property
     def tensor(self):
-        import periodictable as pt
-        from periodictable import xsf
-        self._tensor = np.array([np.eye(3)*(1 - pt.xsf.index_of_refraction(self.__formula, density=self.density.value, wavelength=wl)) for wl in self._wavelength])
+        self._tensor = np.eye(3)*complex(self)#(1 - pt.xsf.index_of_refraction(self.__formula, density=self.density.value, wavelength=self.wavelength))
         return self._tensor
-        
-    """
-    def updatetensor(self):
-        import periodictable as pt
-        from periodictable import xsf
-        self.tensor = np.eye(3)*(1 - pt.xsf.index_of_refraction(self.__formula, density=self.density.value, wavelength=self.wavelength))
-        return self.tensor
-    """
-
-class ani_NexafsSLD(ani_Scatterer):
-    """
-    Object representing complex index of refraction calculated from a NEXAFS spectra
-    Only works for an isotropic material, convenient for substrate and superstrate materials
-
-    Parameters
-    ----------
-    nexafs : ndarray
-        numpy array holding NEXAFS data that has been previously loaded into python
-        column order should be - Energy, complex(delta,beta)
-    Energy : float
-        Energy of radiation (ev)
-    name : str, optional
-        Name of material
-
-    Notes
-    -----
-    Currently you need to load a nexafs spectra prior to setting this SLD object.
-    To Do:
-        Build a new class of object that is a 'nexafs spectra' in order to store data
-    """
-    def __init__(self, nexafs, energy=np.array([250]), name='', filetype=None):
-        super(ani_NexafsSLD, self).__init__(name=name)
-
-        self.name = name
-        if type(energy) is list: energy = np.array(energy)
-        self._energy = energy if type(energy) is np.ndarray else np.array([energy])## In eV
-        self._wavelength = hc/self._energy if type(hc/self._energy) is np.ndarray else np.array([hc/self._energy]) ## Convert to Angstroms
-        
-        self._parameters = Parameters(name=name) ##Generates the parameters for the SLD object 
-        TensorStr = np.array([["xx","xy","xz"],["yx","yy","yz"],["zx","zy","zz"]]) ##Name of the tensor elements
-
-        if isinstance(nexafs, NexafsDataset):
-            self.nexafs = nexafs
-        else:
-            self.nexafs = NexafsDataset(nexafs)
-            
-        ani = self.nexafs.isAnisotropic
-        
-        ##Check if the file is anisotropic or not, and load parameters accordingly: 
-        if ani == False:
-            self.delta = possibly_create_parameter(np.interp(self.energy,self.nexafs.en,self.nexafs.delta), name='%s_dt' % name)
-            self.beta = possibly_create_parameter(np.interp(self.energy,self.nexafs.en,self.nexafs.beta), name='%s_bt' % name)
-            self.tensor = np.eye(3)*np.complex(self.delta.value,self.beta.value)
-            ##Save parameters in the list of parameters
-           
-            self._parameters.extend([self.beta, self.delta])
-
-        elif ani == True:   
-            #Create tensor attributes //Just brute force it right now? Need a better method in the future if more energies want to be fit
-            #Each element of the tensor becomes its own fit parameter in the Refnx machinary.
-            ##Only considering diagonal matrices right now.
-            self.xx = possibly_create_parameter(np.interp(self.energy,self.nexafs.en,np.real(self.nexafs.tensor[:,0,0])), name='%s_d%s' % (name, TensorStr.item((0,0))))
-            self.ixx = possibly_create_parameter(np.interp(self.energy,self.nexafs.en,np.imag(self.nexafs.tensor[:,0,0])), name='%s_b%s' % (name, TensorStr.item((0,0))))
-            self.yy = possibly_create_parameter(np.interp(self.energy,self.nexafs.en,np.real(self.nexafs.tensor[:,1,1])), name='%s_d%s' % (name, TensorStr.item((1,1))))
-            self.iyy = possibly_create_parameter(np.interp(self.energy,self.nexafs.en,np.imag(self.nexafs.tensor[:,1,1])), name='%s_b%s' % (name, TensorStr.item((1,1))))
-            self.zz = possibly_create_parameter(np.interp(self.energy,self.nexafs.en,np.real(self.nexafs.tensor[:,2,2])), name='%s_d%s' % (name, TensorStr.item((2,2))))
-            self.izz = possibly_create_parameter(np.interp(self.energy,self.nexafs.en,np.imag(self.nexafs.tensor[:,2,2])), name='%s_b%s' % (name, TensorStr.item((2,2))))
-            ##Store the values of the parameters in the form of a tensor object for easier calculations later
-            self._tensor = np.array([[self.xx.value + 1j*self.ixx.value, 0, 0],
-                                   [0, self.yy.value + 1j*self.iyy.value, 0],
-                                   [0, 0, self.zz.value + 1j*self.izz.value]],dtype=complex)
-            ##Save the trace of the tensor as a fit parameter
-            self.delta = Parameter((np.trace(self.tensor).real)/3, name='%s_dt' % name) ##Save the trace to use SLD_profile functionality
-            self.beta = Parameter((np.trace(self.tensor).imag)/3, name='%s_dt' % name) 
-            
-            self.birefringence = Parameter(-(self.xx - self.zz), name='%s_bire' % name)
-            self.dichroism = Parameter((self.ixx - self.izz),name='%s_dichro' % name)
-            ##Save parameters in the list of parameters
-            self._parameters.extend([self.delta,self.beta,self.birefringence,self.dichroism,self.xx,self.ixx,self.yy,self.iyy,self.zz,self.izz])          
-        
-        else:
-            raise RuntimeError('data not understood')
 
 
-    def __repr__(self):
-        d = {'energy': self.energy,
-             'wavelength': self.wavelength,
-             'beta': self.beta,
-             'delta': self.delta,
-             'name': self.name,
-             'tensor': self.tensor}
-        return ("MaterialSLD(Energy={energy!r}, wavelength={wavelength!r}, beta={beta!r}, delta={delta!r}, name={name!r}, tensor={tensor!r})".format(**d))
-
-
-    def __complex__(self):
-        sldc = np.complex(self.delta, self.beta)
-        return sldc
-        
-    @property
-    def parameters(self):
-        return self._parameters
-    
-    @property
-    def energy(self):
-        return self._energy
-        
-    @energy.setter
-    def energy(self, energy):
-        if type(energy) is list: energy = np.array(energy)
-        self._energy = energy if type(energy) is np.ndarray else np.array([energy])## In eV
-        self._wavelength = hc/self._energy if type(hc/self._energy) is np.ndarray else np.array([hc/self._energy]) ## Convert to Angstroms
-        
-    @property
-    def tensor(self):
-        self._tensor = np.array([[self.xx.value + 1j*self.ixx.value, 0, 0],
-                                   [0, self.yy.value + 1j*self.iyy.value, 0],
-                                   [0, 0, self.zz.value + 1j*self.izz.value]], dtype=complex)
-                                   
-        return self._tensor
-    """
-    def updatetensor(self):
-        self.tensor = np.array([[self.xx.value + 1j*self.ixx.value, 0, 0],
-                                   [0, self.yy.value + 1j*self.iyy.value, 0],
-                                   [0, 0, self.zz.value + 1j*self.izz.value]],dtype=complex)
-        return self.tensor
-    """
 
 class ani_Component(object):
     """
@@ -1123,9 +908,9 @@ class ani_Component(object):
 
     Notes
     -----
-    By setting the `Component.interfaces` property one can control the
+    By setting the `ani_Component.interfaces` property one can control the
     type of interfacial roughness between all the layers of an interfacial
-    profile.
+    profile. ##Currently only works for Gaussian interfaces
     """
     def __init__(self, name=''):
         self.name = name
@@ -1363,135 +1148,21 @@ class ani_Slab(ani_Component):
         Stored information pertaining to the tensor dielectric properties of the slab.
         Value of the tensor can be updated by changing the energy encoded into the SLD object.
         self.sld.energy = ()
-        If a series of energies is used this will return an array of dimension (x,3,3)
         The trace of the layer is stored in the .slabs() attribute as the real and imaginary component of the SLD
         """
-        if energy is not None:
+        if (energy is not None and hasattr(self.sld, 'energy')):
             self.sld.energy = energy
         return self.sld.tensor
 
-##NOT CURRENTLY IMPLEMENTED!!
-class ani_MixedSlab(ani_Component):
-    """
-    A slab component made of several components
 
-    Parameters
-    ----------
-    thick : refnx.analysis.Parameter or float
-        thickness of slab (Angstrom)
-    sld_list : sequence of {refnx.reflect.ani_Scatterer, complex, float}
-        Sequence of (complex) ani_SLDs that are contained in film
-    vf_list : sequence of refnx.analysis.Parameter or float
-        relative volume fractions of each of the materials contained in the
-        film.
-    rough : refnx.analysis.Parameter or float
-        roughness on top of this slab (Angstrom)
-    name : str
-        Name of this slab
-    vfsolv : refnx.analysis.Parameter or float
-        Volume fraction of solvent [0, 1]
-    interface : {:class:`Interface`, None}, optional
-        The type of interfacial roughness associated with the Slab.
-        If `None`, then the default interfacial roughness is an Error
-        function (also known as Gaussian roughness).
-
-    Notes
-    -----
-    The SLD of this Slab is calculated using the normalised volume fractions of
-    each of the constituent Scatterers:
-
-    >>> np.sum([complex(sld) * vf / np.sum(vf_list) for sld, vf in
-    ...         zip(sld_list, vf_list)]).
-
-    The overall SLD then takes into account the volume fraction of solvent,
-    `vfsolv`.
-    """
-
-    def __init__(self, thick, sld_list, vf_list, rough, name='', vfsolv=0,
-                 interface=None):
-        super(MixedSlab, self).__init__(name=name)
-        self.thick = possibly_create_parameter(thick,
-                                               name='%s_thick' % name)
-
-        self.sld = []
-        self.vf = []
-        self._sld_parameters = Parameters(name=f"{name}_slds")
-        self._vf_parameters = Parameters(name=f"{name}_volfracs")
-
-        i = 0
-        for s, v in zip(sld_list, vf_list):
-            if isinstance(s, Scatterer):
-                self.sld.append(s)
-            else:
-                self.sld.append(SLD(s))
-
-            self._sld_parameters.append(self.sld[-1].parameters)
-
-            vf = possibly_create_parameter(v,
-                                           name=f'vf{i}_{name}',
-                                           bounds=(0., 1.))
-            self.vf.append(vf)
-            self._vf_parameters.append(vf)
-            i += 1
-
-        self.vfsolv = (
-            possibly_create_parameter(vfsolv,
-                                      name=f'{name}_volfrac solvent',
-                                      bounds=(0., 1.)))
-        self.rough = possibly_create_parameter(rough,
-                                               name=f'{name}_rough')
-
-        p = Parameters(name=self.name)
-        p.append(self.thick)
-        p.extend(self._sld_parameters)
-        p.extend(self._vf_parameters)
-        p.extend([self.vfsolv, self.rough])
-
-        self._parameters = p
-        self.interfaces = interface
-
-    def __repr__(self):
-        return (f"MixedSlab({self.thick!r}, {self.sld!r}, {self.vf!r},"
-                f" {self.rough!r}, vfsolv={self.vfsolv!r}, name={self.name!r},"
-                f" interface={self.interfaces!r})")
-
-    def __str__(self):
-        return str(self.parameters)
-
-    @property
-    def parameters(self):
-        """
-        :class:`refnx.analysis.Parameters` associated with this component
-
-        """
-        self._parameters.name = self.name
-        return self._parameters
-
-    def slabs(self, structure=None):
-        """
-        Slab representation of this component. See :class:`Component.slabs`
-        """
-        vfs = np.array(self._vf_parameters)
-        sum_vfs = np.sum(vfs)
-
-        sldc = np.sum([complex(sld) * vf / sum_vfs for sld, vf in
-                       zip(self.sld, vfs)])
-
-        return np.array([[self.thick.value,
-                          sldc.real,
-                          sldc.imag,
-                          self.rough.value,
-                          self.vfsolv.value]])
-
-
-def birefringence_profile(slabs,tensor, z=None):
+def birefringence_profile(slabs, tensor, z=None):
     """
     Calculates a series of profiles corresponding to the tensor components and birefringence.
 
     Parameters
     ----------
-    slabs : Information regarding the layer stack, see Structure class
-    tensor : List of dielectric tensor corresponding for each layer stack, see Structure class
+    slabs : Information regarding the layer stack, see ani _Structure class
+    tensor : List of dielectric tensor corresponding for each layer stack, see ani_Structure class
     z : float
         Interfacial distance (Angstrom) measured from interface between the
         fronting medium and the first layer.
@@ -1535,32 +1206,32 @@ def birefringence_profile(slabs,tensor, z=None):
     # the output array(s)
     sld = np.ones_like(zed, dtype=float) * layers[0, 1]
     isld = np.ones_like(zed, dtype=float) * layers[0, 2]
-    # tensor components (if wanted for debuffing)
-    exx = np.ones_like(zed, dtype=float) * np.real(tensor[0][0,0])
-    iexx = np.ones_like(zed, dtype=float) * np.imag(tensor[0][0,0])
-    eyy = np.ones_like(zed, dtype=float) * np.real(tensor[0][1,1])
-    ieyy = np.ones_like(zed, dtype=float) * np.imag(tensor[0][1,1])
-    ezz = np.ones_like(zed, dtype=float) * np.real(tensor[0][2,2])
-    iezz = np.ones_like(zed, dtype=float) * np.imag(tensor[0][2,2])
+    # tensor components (if wanted for debugging)
+    xx = np.ones_like(zed, dtype=float) * np.real(tensor[0][0,0])
+    ixx = np.ones_like(zed, dtype=float) * np.imag(tensor[0][0,0])
+    yy = np.ones_like(zed, dtype=float) * np.real(tensor[0][1,1])
+    iyy = np.ones_like(zed, dtype=float) * np.imag(tensor[0][1,1])
+    zz = np.ones_like(zed, dtype=float) * np.real(tensor[0][2,2])
+    izz = np.ones_like(zed, dtype=float) * np.imag(tensor[0][2,2])
     #birefringence profiles (for analysis)
     bf = np.ones_like(zed, dtype=float) * np.real(tensor[0][0,0]) - np.real(tensor[0][2,2])
-    ibf = np.ones_like(zed, dtype=float) * np.imag(tensor[0][0,0]) - np.imag(tensor[0][2,2])
+    dc = np.ones_like(zed, dtype=float) * np.imag(tensor[0][0,0]) - np.imag(tensor[0][2,2])
     
     # work out the step in SLD at an interface
     delta_rho = layers[1:, 1] - layers[:-1, 1]
     delta_rhoi = layers[1:,2] - layers[:-1, 2]
     # work out the steps for the tensor components at an interface
-    delta_exx = np.real(tensor[1:][:,0][:,0] - tensor[:-1][:,0][:,0])
-    delta_eyy = np.real(tensor[1:][:,1][:,1] - tensor[:-1][:,1][:,1])
-    delta_ezz = np.real(tensor[1:][:,2][:,2] - tensor[:-1][:,2][:,2])
-    delta_iexx = np.imag(tensor[1:][:,0][:,0] - tensor[:-1][:,0][:,0])
-    delta_ieyy = np.imag(tensor[1:][:,1][:,1] - tensor[:-1][:,1][:,1])
-    delta_iezz = np.imag(tensor[1:][:,2][:,2] - tensor[:-1][:,2][:,2])
+    delta_xx = np.real(tensor[1:][:,0][:,0] - tensor[:-1][:,0][:,0])
+    delta_yy = np.real(tensor[1:][:,1][:,1] - tensor[:-1][:,1][:,1])
+    delta_zz = np.real(tensor[1:][:,2][:,2] - tensor[:-1][:,2][:,2])
+    delta_ixx = np.imag(tensor[1:][:,0][:,0] - tensor[:-1][:,0][:,0])
+    delta_iyy = np.imag(tensor[1:][:,1][:,1] - tensor[:-1][:,1][:,1])
+    delta_izz = np.imag(tensor[1:][:,2][:,2] - tensor[:-1][:,2][:,2])
     # work out the birefringence 
-    bfreal = np.real(tensor[:][:,0][:,0]) - np.real(tensor[:][:,2][:,2])
-    bfimag = np.imag(tensor[:][:,0][:,0]) - np.imag(tensor[:][:,2][:,2])
-    delta_bfreal = bfreal[1:] - bfreal[:-1]
-    delta_bfimag = bfimag[1:] - bfimag[:-1]
+    calc_bf = np.real(tensor[:][:,0][:,0]) - np.real(tensor[:][:,2][:,2])
+    calc_dc = np.imag(tensor[:][:,0][:,0]) - np.imag(tensor[:][:,2][:,2])
+    delta_bf = calc_bf[1:] - calc_bf[:-1]
+    delta_dc = calc_dc[1:] - calc_dc[:-1]
     
     #print(delta_iexx)
     # use erf for roughness function, but step if the roughness is zero
@@ -1576,18 +1247,311 @@ def birefringence_profile(slabs,tensor, z=None):
         sld += delta_rho[i] * f(zed, scale=sigma[i], loc=dist[i])
         isld += delta_rhoi[i] * f(zed, scale=sigma[i], loc=dist[i])
         
-        exx += delta_exx[i] * f(zed, scale=sigma[i], loc=dist[i])
-        iexx += delta_iexx[i] * f(zed, scale=sigma[i], loc=dist[i])
-        eyy += delta_eyy[i] * f(zed, scale=sigma[i], loc=dist[i])
-        ieyy += delta_ieyy[i] * f(zed, scale=sigma[i], loc=dist[i])
-        ezz += delta_ezz[i] * f(zed, scale=sigma[i], loc=dist[i])
-        iezz += delta_iezz[i] * f(zed, scale=sigma[i], loc=dist[i])
+        xx += delta_xx[i] * f(zed, scale=sigma[i], loc=dist[i])
+        ixx += delta_ixx[i] * f(zed, scale=sigma[i], loc=dist[i])
+        yy += delta_yy[i] * f(zed, scale=sigma[i], loc=dist[i])
+        iyy += delta_iyy[i] * f(zed, scale=sigma[i], loc=dist[i])
+        zz += delta_zz[i] * f(zed, scale=sigma[i], loc=dist[i])
+        izz += delta_izz[i] * f(zed, scale=sigma[i], loc=dist[i])
         
-        bf += delta_bfreal[i] * f(zed, scale=sigma[i], loc=dist[i])
-        ibf += delta_bfimag[i] * f(zed, scale=sigma[i], loc=dist[i])
+        bf += delta_bf[i] * f(zed, scale=sigma[i], loc=dist[i])
+        dc += delta_dc[i] * f(zed, scale=sigma[i], loc=dist[i])
     
-    profile = np.array([sld,isld,bf,ibf])
-    tensor_profile = np.array([exx,iexx,eyy,ieyy,ezz,iezz])
+    profile = np.array([sld,isld,bf,dc])
+    tensor_profile = np.array([xx,ixx,yy,iyy,zz,izz])
 
     return zed, profile, tensor_profile
+
+
+class ani_MixedMaterialSlab(ani_Component):
+    """
+    A slab component made of several components
+
+    Parameters
+    ----------
+    thick : refnx.analysis.Parameter or float
+        thickness of slab (Angstrom)
+    sld_list : sequence of {refnx.reflect.Scatterer, complex, float}
+        Sequence of (complex) SLDs that are contained in film
+        (/1e-6 Angstrom**2)
+    vf_list : sequence of refnx.analysis.Parameter or float
+        relative volume fractions of each of the materials contained in the
+        film.
+    rough : refnx.analysis.Parameter or float
+        roughness on top of this slab (Angstrom)
+    name : str
+        Name of this slab
+    vfsolv : refnx.analysis.Parameter or float
+        Volume fraction of solvent [0, 1]
+    interface : {:class:`Interface`, None}, optional
+        The type of interfacial roughness associated with the Slab.
+        If `None`, then the default interfacial roughness is an Error
+        function (also known as Gaussian roughness).
+
+    Notes
+    -----
+    The SLD of this Slab is calculated using the normalised volume fractions of
+    each of the constituent Scatterers:
+
+    >>> np.sum([complex(sld) * vf / np.sum(vf_list) for sld, vf in
+    ...         zip(sld_list, vf_list)]).
+
+    The overall SLD then takes into account the volume fraction of solvent,
+    `vfsolv`.
+    """
+
+    def __init__(
+        self,
+        thick,
+        sld_list,
+        vf_list,
+        rough,
+        name="",
+        vfsolv=0,
+        interface=None,
+    ):
+        super(ani_MixedMaterialSlab, self).__init__(name=name)
+        self.thick = possibly_create_parameter(thick, name="%s - thick" % name)
+
+        self.sld = []
+        self.vf = []
+        self._sld_parameters = Parameters(name=f"{name} - slds")
+        self._vf_parameters = Parameters(name=f"{name} - volfracs")
+
+        i = 0
+        for s, v in zip(sld_list, vf_list):
+            if isinstance(s, ani_Scatterer):
+                self.sld.append(s)
+            else:
+                self.sld.append(ani_SLD(s))
+
+            self._sld_parameters.append(self.sld[-1].parameters)
+
+            vf = possibly_create_parameter(
+                v, name=f"vf{i} - {name}", bounds=(0.0, 1.0)
+            )
+            self.vf.append(vf)
+            self._vf_parameters.append(vf)
+            i += 1
+
+        self.vfsolv = possibly_create_parameter(
+            vfsolv, name=f"{name} - volfrac solvent", bounds=(0.0, 1.0)
+        )
+        self.rough = possibly_create_parameter(rough, name=f"{name} - rough")
+
+        p = Parameters(name=self.name)
+        p.append(self.thick)
+        p.extend(self._sld_parameters)
+        p.extend(self._vf_parameters)
+        p.extend([self.vfsolv, self.rough])
+
+        self._parameters = p
+        self.interfaces = interface
+
+    def __repr__(self):
+        return (
+            f"ani_MixedMaterialSlab({self.thick!r}, {self.sld!r}, {self.vf!r},"
+            f" {self.rough!r}, vfsolv={self.vfsolv!r}, name={self.name!r},"
+            f" interface={self.interfaces!r})"
+        )
+
+    def __str__(self):
+        return str(self.parameters)
+
+    @property
+    def parameters(self):
+        """
+        :class:`refnx.analysis.Parameters` associated with this component
+
+        """
+        self._parameters.name = self.name
+        return self._parameters
+
+    def slabs(self, structure=None):
+        """
+        Slab representation of this component. See :class:`Component.slabs`
+        """
+        vfs = np.array(self._vf_parameters)
+        sum_vfs = np.sum(vfs)
+
+        sldc = np.sum(
+            [complex(sld) * vf / sum_vfs for sld, vf in zip(self.sld, vfs)]
+        )
+
+        return np.array(
+            [
+                [
+                    self.thick.value,
+                    sldc.real,
+                    sldc.imag,
+                    self.rough.value,
+                    self.vfsolv.value,
+                ]
+            ]
+        )
+        
+    def tensor(self, structure=None,energy=None): ##TFerron Edits 05/20/2020 *Add in a new element that stores the tensor for the individual slab
+        """
+        Stored information pertaining to the tensor dielectric properties of the slab.
+        Value of the tensor can be updated by changing the energy encoded into the SLD object.
+        self.sld.energy = ()
+        The trace of the layer is stored in the .slabs() attribute as the real and imaginary component of the SLD
+        """
+        vfs = np.array(self._vf_parameters)
+        sum_vfs = np.sum(vfs)
+        
+        if (energy is not None and hasattr(self.sld, 'energy')):
+            self.sld.energy = energy
+        
+        combinetensor = np.sum(
+            [sld.tensor * vf / sum_vfs for sld, vf in zip(self.sld, vfs)], axis=0        
+        )
+        
+        return combinetensor#self.sld.tensor
+        
+class ani_MGMixedSlab(ani_Component):
+    """
+    A slab component made of several components
+
+    Parameters
+    ----------
+    thick : refnx.analysis.Parameter or float
+        thickness of slab (Angstrom)
+    sld_list : sequence of {refnx.reflect.Scatterer, complex, float}
+        Sequence of (complex) SLDs that are contained in film
+        (/1e-6 Angstrom**2) **The first in the list is the 'host' matrix for Maxwell-Garnett approximation
+    vf : float
+        Volume fraction of the dopant material in the 2-component slab
+    shapefunc : List
+        Three floats representing the x, y, z shape parameters for anisotropic model
+        **No guarentee by the author that one will be more 'correct' than another
+        Spherical inclusion: [1/3, 1/3, 1/3] ***Default
+        Rod-like inclusion: [1/2, 1/2, 0]
+        Disk-like inclusion: []
+        
+    rough : refnx.analysis.Parameter or float
+        roughness on top of this slab (Angstrom)
+    name : str
+        Name of this slab
+    vfsolv : refnx.analysis.Parameter or float
+        Volume fraction of solvent [0, 1]
+    interface : {:class:`Interface`, None}, optional
+        The type of interfacial roughness associated with the Slab.
+        If `None`, then the default interfacial roughness is an Error
+        function (also known as Gaussian roughness).
+
+    Notes
+    -----
+    The SLD of this Slab is calculated using the Maxwell-Garnett Effective Media modelof
+    each of the constituent Scatterers:
+
+    >>> np.sum([complex(sld) * vf / np.sum(vf_list) for sld, vf in
+    ...         zip(sld_list, vf_list)]).
+
+    """
+
+    def __init__(
+        self,
+        thick,
+        rough,
+        sld_list,
+        vf,
+        shapefunc = [1/3, 1/3, 1/3],
+        name="",
+        vfsolv=0,
+        interface=None,
+    ):
+        super(ani_MGMixedSlab, self).__init__(name=name)
+        
+        self.thick = possibly_create_parameter(thick, name="%s - thick" % name)
+        self.vf = possibly_create_parameter((vf/100 if vf>1 else vf), name=f"vf - {name}", bounds=(0.0, 1.0))
+        self.rough = possibly_create_parameter(rough, name=f"{name} - rough")
+        self.vfsolv = possibly_create_parameter(
+            vfsolv, name=f"{name} - volfrac solvent", bounds=(0.0, 1.0)
+        )
+        self.sld = []
+        self._sld_parameters = Parameters(name=f"{name} - slds")
+        self._vf_parameters = Parameters(name=f"{name} - volfracs")
+
+        i = 0
+        for s in sld_list:
+            if isinstance(s, ani_Scatterer):
+                self.sld.append(s)
+            else:
+                self.sld.append(ani_SLD(s))
+            self._sld_parameters.append(self.sld[-1].parameters)
+            i += 1
+
+        p = Parameters(name=self.name)
+        p.append([self.thick, self.vf])
+        p.extend(self._sld_parameters)
+        p.extend([self.vfsolv, self.rough])
+
+        self._parameters = p
+        self.interfaces = interface
+        self.shapefunc = np.array(shapefunc)
+
+    def __repr__(self):
+        return (
+            f"ani_MGMixedSlab({self.thick!r}, {self.sld!r}, {self.vf!r}, {self.shapefunc!r},"
+            f" {self.rough!r}, vfsolv={self.vfsolv!r}, name={self.name!r},"
+            f" interface={self.interfaces!r})"
+        )
+
+    def __str__(self):
+        return str(self.parameters)
+
+    @property
+    def parameters(self):
+        """
+        :class:`refnx.analysis.Parameters` associated with this component
+
+        """
+        self._parameters.name = self.name
+        return self._parameters
+
+    def slabs(self, structure=None):
+        """
+        Slab representation of this component. See :class:`Component.slabs`
+        """
+
+        MGdelta = np.trace(self.tensor().real)/3
+        MGbeta = np.trace(self.tensor().imag)/3
+        sldc = complex(MGdelta, MGbeta)
+        
+        return np.array(
+            [
+                [
+                    self.thick.value,
+                    sldc.real,
+                    sldc.imag,
+                    self.rough.value,
+                    self.vfsolv.value,
+                ]
+            ]
+        )
+        
+    def tensor(self, structure=None,energy=None): ##TFerron Edits 05/20/2020 *Add in a new element that stores the tensor for the individual slab
+        """
+        Stored information pertaining to the tensor dielectric properties of the slab.
+        Value of the tensor can be updated by changing the energy encoded into the SLD object.
+        self.sld.energy = ()
+        The trace of the layer is stored in the .slabs() attribute as the real and imaginary component of the SLD
+        """
+        vf = self.vf.value
+        host = np.diag(self.sld[0].tensor) #Just grab the diagonal elements for easy calculation
+        dopant = np.diag(self.sld[1].tensor) #Just grab the diagonal elements for easy calculation
+        #sum_vfs = np.sum(vfs)
+        
+        if (energy is not None and hasattr(self.sld, 'energy')):
+            self.sld.energy = energy
+        
+        numerator = host + (self.shapefunc * (1-vf) + (vf))*(dopant - host)
+        denom = host + self.shapefunc * (1-vf) * (dopant - host)
+        
+        combinetensor = host * (numerator/denom)
+        
+        return combinetensor * np.eye(3)#self.sld.tensor 
+        
+
 

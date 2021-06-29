@@ -29,7 +29,7 @@ import numbers
 import warnings
 
 import numpy as np
-from numba import njit, complex128
+#from numba import njit, complex128
 import scipy
 from scipy.interpolate import splrep, splev
 
@@ -51,7 +51,7 @@ TINY = 1e-30
 
 def uniaxial_reflectivity(q, layers, tensor, energy, phi, scale=1., bkg=0, threads=0,save_components=None):
     """
-    EMpy implementation of the biaxial 4x4 matrix formalism for calculating reflectivity from a stratified
+    EMpy implementation of the uniaxial 4x4 matrix formalism for calculating reflectivity from a stratified
     medium.
     
     Uses the implementation developed by FSRStools - https://github.com/ddietze/FSRStools - written by Daniel Dietze
@@ -106,7 +106,8 @@ def uniaxial_reflectivity(q, layers, tensor, energy, phi, scale=1., bkg=0, threa
     k0 = 2*np.pi/(wl)
     
     #Convert optical constants into dielectric tensor
-    tensor = np.conj(np.eye(3) - 2*tensor[:,0,:,:])
+    tensor = np.conj(np.eye(3) - 2*tensor[:,:,:]) #From tensor[:,0,:,:]
+    
     
     #freq = 2*np.pi * c/wls #Angular frequency
     theta_exp = np.zeros(numpnts,dtype=float)
@@ -148,7 +149,7 @@ def uniaxial_reflectivity(q, layers, tensor, energy, phi, scale=1., bkg=0, threa
     W = np.zeros((numpnts,nlayers, 4, 4),dtype=complex) ##Nevot-Croche roughness matrix
     
     Refl = np.zeros((numpnts,2,2),dtype=float)
-    Tran = np.zeros((numpnts,2,2),dtype=float)
+    Tran = np.zeros((numpnts,2,2),dtype=complex)
     
     #calculate the propagation matrices
     P[:,:,:,:] = calculate_P(numpnts, nlayers, kz[:,:,:], layers[:,0]) ##layers[k,0] is the thicknes of layer k
@@ -161,9 +162,9 @@ def uniaxial_reflectivity(q, layers, tensor, energy, phi, scale=1., bkg=0, threa
     ##Dimensionality ##
     ##(Matrix (4,4),wavelength)
     M = np.ones((numpnts,4,4),dtype=complex)
-    M = np.einsum('...ij,ij->...ij',M,np.identity(4))#Make a numpnts x 4x4 identity matrix for the TMM
+    #Make a (numpnts x 4x4) identity matrix for the TMM - 
+    M = np.einsum('...ij,ij->...ij',M,np.identity(4))
     M = calulate_TMM(numpnts,nlayers,M,D,Di,P,W)
-    
     ##Calculate the final outputs and organize into the appropriate waves for later
     Refl, Tran = calculate_output(numpnts, scale, bkg, M)
 
@@ -174,12 +175,7 @@ def uniaxial_reflectivity(q, layers, tensor, energy, phi, scale=1., bkg=0, threa
 
 """
 The following functions were adapted from PyATMM copyright Pavel Dmitriev
-
-
-
-
 """
-#@njit
 def calculate_kz_uni(ep, kx, ky, k0, opticaxis=([0., 1., 0.])):
 
     #Calculate ordinary and extraordinary components from the tensor
@@ -218,7 +214,6 @@ def calculate_kz_uni(ep, kx, ky, k0, opticaxis=([0., 1., 0.])):
     kz_out[:,1] = -kz_extraord
     return kz_out
 
-#@njit
 def calculate_Dpol_uni(ep, kx, ky, kz, k0, opticaxis=([0., 1., 0.])):
 
     # For now optic axis should be aligned to main axes
@@ -252,8 +247,7 @@ def calculate_Dpol_uni(ep, kx, ky, kz, k0, opticaxis=([0., 1., 0.])):
     kdiv = np.sqrt(np.einsum('ijk,ijk->ij',kvec,kvec)) #Performs the commented out dot product calculation
     
     knorm = kvec / kdiv [:,:,None]#(np.linalg.norm(kvec,axis=-1)[:,:,None])
-
-
+    
     #calc propogation of k along optical axis
     kpol = np.dot(knorm,opticaxis)
 
@@ -270,52 +264,11 @@ def calculate_Dpol_uni(ep, kx, ky, kz, k0, opticaxis=([0., 1., 0.])):
     dpol_norm = np.linalg.norm(dpol_temp,axis=-1)
     dpol_temp /= dpol_norm[:,:,None]
     hpol_temp = np.cross(kvec, dpol_temp) * (1/k0)
-    return dpol_temp, hpol_temp
-
-"""
-The following functions were adapted from FSRSTools copyright Daniel Dietze ~~
-
-   This file is part of the FSRStools python module.
-
-   The FSRStools python module is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
-
-   The FSRStools python module is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with the FSRStools python module. If not, see <http://www.gnu.org/licenses/>.
-
-   Copyright 2015 Daniel Dietze <daniel.dietze@berkeley.edu>.
-"""
-
-"""
-
-@njit only supports 2-D arrays for linalg.svd, broadcasting should be faster than iterating through each one. (maybe?) something to test in the future.
-
-"""       
-def solve_polarization_vectors(ep, kx, ky, kz, w):
-    # this idea is partly based on Reider's book, as the explanation in the papers is misleading
-
-    # define the matrix for getting the co-factors
-    # use the complex conjugate to get the phases right!!
-    # Calculate characteristic matrix
-    mu = 1 #legacy variable...kept around to better reflect references not using gaussian units.
-    M = np.rollaxis(np.conj(np.array([[w**2 * mu * ep[0, 0] - ky[:]**2 - kz[:]**2, w**2 * mu * ep[0, 1] + kx[:] * ky[:], w**2 * mu * ep[0, 2] + kx[:] * kz[:]],
-            [w**2 * mu * ep[0, 1] + kx[:] * ky[:], w**2 * mu * ep[1, 1] - kx[:]**2 - kz[:]**2, w**2 * mu * ep[1, 2] + ky[:] * kz[:]],
-            [w**2 * mu * ep[0, 2] + kx[:] * kz[:], w**2 * mu * ep[1, 2] + ky[:] * kz[:], w**2 * mu * ep[2, 2] - ky[:]**2 - kx[:]**2]],
-            dtype=np.complex)),2,0)
-    u, s, vh = np.linalg.svd(M)
     
-    return [u,s,vh]
+    return dpol_temp, hpol_temp
 
 
 # calculate the dynamic matrix and its inverse  
-#@njit  
 def calculate_D(numpnts,nlayers, Dpol, Hpol):
     """Calculate the dynamic matrix and its inverse using the previously calculated values for p and q.
 
@@ -353,11 +306,9 @@ def calculate_D(numpnts,nlayers, Dpol, Hpol):
 
     return [D_Temp, Di_Temp]
 
-
-
-@njit  
 def calculate_P(numpnts, nlayers, kz, d):
-    """Calculate the propagation matrix using the previously calculated values for kz.
+    """
+    Calculate the propagation matrix using the previously calculated values for kz.
     
         :param complex 4-entry kz: Eigenvalues for solving characteristic equation, 4 potentially degenerate inputs
         :param float d: thickness of the layer in question. (units: Angstroms)
@@ -365,37 +316,42 @@ def calculate_P(numpnts, nlayers, kz, d):
 
     .. important:: Requires prior execution of :py:func:`calculate_kz`.
     """
-    
-    P_temp = np.zeros((numpnts,nlayers,4,4), dtype=np.complex_)
 
-    for i in range(numpnts):
-        for j in range(nlayers):
-            P_temp[i,j,:,:] = np.diag(np.exp(-1j * kz[i,j,:] * d[j]))
+    #Create the diagonal components in the propogation matrix
+    #Cast into a 4x4 version through redundent broadcasting
+    diagonal_components = np.exp(-1j * kz[:,:,:,None] * d[None,:,None,None]) 
+    #Element by element multiplication with the identity over each q-point
+    P_temp = np.einsum('...jk,jk->...jk',diagonal_components,np.identity(4)) 
+
+    
     return P_temp
+
     
-    
-@njit
 def calculate_W(numpnts, nlayers, kz1, kz2, r):
-    """Calculate the roughness matrix usinfg previously caluclated values of kz for adjacent layers '1' and '2'
+    """
+    Calculate the roughness matrix usinfg previously caluclated values of kz for adjacent layers '1' and '2'
     
         :param complex 4-entry kz1: Eigenvalues of kz for current layer
         :param complex 4-entry kz2: Eigenvalues of kz for previous layer
-        :param float r: roughness of the interface assuming a error function (units: Angstroms)
+        :param float r: roughness of the interface assuming an error function (units: Angstroms)
         returns: :math:`P`
 
     .. important:: Requires prior execution of :py:func:`calculate_kz`.
     """
-    
-    #W[i,j,:,:] = calculate_W(kz[i,j,:],kz[i,j-1,:],layers[j,3])
-    
+        
     W_temp = np.zeros((numpnts, nlayers, 4,4), dtype=np.complex_)
     eplus = np.zeros((numpnts, nlayers, 4), dtype=np.complex_)
     eminus = np.zeros((numpnts, nlayers, 4), dtype=np.complex_)
-    
+    """ 
     for i in range(numpnts):
         for j in range(nlayers):
             eplus[i,j,:] = np.exp(-(kz1[i, j, :] + kz2[i, j-1, :])**2 * r[j]**2 / 2) 
             eminus[i,j,:] = np.exp(-(kz1[i, j, :] - kz2[i, j-1, :])**2 * r[j]**2 / 2)
+    """
+    kz2 = np.roll(kz2, 1, axis=1) #Reindex to allow broadcasting in the next step....see commented loop
+    #for j in range(nlayers):
+    eplus[:,:,:] = np.exp(-(kz1[:, :, :] + kz2[:, :, :])**2 * r[None,:,None]**2 / 2) 
+    eminus[:,:,:] = np.exp(-(kz1[:, :, :] - kz2[:, :, :])**2 * r[None,:,None]**2 / 2)
     """
     W_temp[:,:] = [[eminus[0],eplus[1],eminus[2],eplus[3]],
                     [eplus[0],eminus[1],eplus[2],eminus[3]],
@@ -421,8 +377,9 @@ def calculate_W(numpnts, nlayers, kz1, kz2, r):
     W_temp[:, :, 3, 3] = eminus[:, :, 3]
     
     return W_temp
-    
-@njit
+
+#Unable to calculate the iterative TMM through broadcasting...Numba decorator provides performance increase.
+"""
 def calulate_TMM(numpnts,nlayers,M,D,Di,P,W):
     
     for i in range(numpnts):
@@ -430,36 +387,51 @@ def calulate_TMM(numpnts,nlayers,M,D,Di,P,W):
             M[i,:,:] = np.dot(M[i,:,:],np.dot((np.dot(Di[i,j-1,:,:],D[i,j,:,:])*W[i,j,:,:]) , P[i,j,:,:]))
         M[i,:,:] = np.dot(M[i,:,:],(np.dot(Di[i,-2,:,:],D[i,-1,:,:]) * W[i,-1,:,:]))
     return M
-    
-@njit
+"""
+
+#Iterative dot product over each element in the first axis. Equivalent to using Numba on the above calculation
+##np.einsum('...ij,...jk ->...ik',A[:,j-1,:,:], B[:,j,:,:])
+#Does not result in errors and is cleaner in general.
+
+def calulate_TMM(numpnts,nlayers,M,D,Di,P,W):
+    for j in range(1,nlayers-1):
+        A = np.einsum('...ij,...jk ->...ik',Di[:,j-1,:,:], D[:,j,:,:])
+        B = A*W[:,j,:,:]
+        C = np.einsum('...ij,...jk ->...ik',B, P[:,j,:,:])
+        M[:,:,:] = np.einsum('...ij,...jk ->...ik',M[:,:,:], C)
+    AA = np.einsum('...ij,...jk ->...ik',Di[:,-2,:,:], D[:,-1,:,:])
+    BB = AA*W[:,-1,:,:]
+    M[:,:,:] = np.einsum('...ij,...jk ->...ik',M[:,:,:], BB)
+    return M
+
 def calculate_output(numpnts, scale, bkg, M_full):
 
     Refl = np.zeros((numpnts,2,2),dtype=np.float_)
-    Tran = np.zeros((numpnts,2,2),dtype=np.float_)
+    Tran = np.zeros((numpnts,2,2),dtype=np.complex_)
     
-    for i in range(numpnts):
-        M = M_full[i,:,:]
-        
-        denom = M[0,0]*M[2,2] - M[0,2]*M[2,0]
-        r_ss = (M[1, 0]*M[2, 2] - M[1, 2]*M[2, 0]) / (M[0, 0]*M[2, 2] - M[0, 2]*M[2, 0])
-        r_sp = (M[3, 0]*M[2, 2] - M[3, 2]*M[2, 0]) / (M[0, 0]*M[2, 2] - M[0, 2]*M[2, 0])
-        r_ps = (M[0, 0]*M[1, 2] - M[1, 0]*M[0, 2]) / (M[0, 0]*M[2, 2] - M[0, 2]*M[2, 0])
-        r_pp = (M[0, 0]*M[3, 2] - M[3, 0]*M[0, 2]) / (M[0, 0]*M[2, 2] - M[0, 2]*M[2, 0])
-        t_ss = M[2, 2] / (M[0, 0]*M[2, 2] - M[0, 2]*M[2, 0])
-        t_sp = -M[2, 0] / (M[0, 0]*M[2, 2] - M[0, 2]*M[2, 0])
-        t_ps = -M[0, 2] / (M[0, 0]*M[2, 2] - M[0, 2]*M[2, 0])
-        t_pp = M[0, 0] / (M[0, 0]*M[2, 2] - M[0, 2]*M[2, 0])
+    #for i in range(numpnts):
+    M = M_full #[i,:,:]
     
-   
-        #r_pp, r_ps, r_sp, r_ss, t_pp, t_ps, t_sp, t_ss = solve_transfer_matrix(M[i,:,:])
-        Refl[i,0,0] = scale * np.abs(r_ss)**2 + bkg
-        Refl[i,0,1] = scale * np.abs(r_sp)**2 + bkg
-        Refl[i,1,0] = scale * np.abs(r_ps)**2 + bkg
-        Refl[i,1,1] = scale * np.abs(r_pp)**2 + bkg
-        Tran[i,0,0] = scale * np.abs(t_ss)**2 + bkg
-        Tran[i,0,1] = scale * np.abs(t_sp)**2 + bkg
-        Tran[i,1,0] = scale * np.abs(t_ps)**2 + bkg
-        Tran[i,1,1] = scale * np.abs(t_pp)**2 + bkg
+    denom = M[:,0,0]*M[:,2,2] - M[:,0,2]*M[:,2,0]
+    r_ss = (M[:,1,0]*M[:,2,2] - M[:,1,2]*M[:,2,0]) / denom#(M[:,0, 0]*M[2, 2] - M[0, 2]*M[2, 0])
+    r_sp = (M[:,3,0]*M[:,2,2] - M[:,3,2]*M[:,2,0]) / denom#(M[0, 0]*M[2, 2] - M[0, 2]*M[2, 0])
+    r_ps = (M[:,0,0]*M[:,1,2] - M[:,1,0]*M[:,0,2]) / denom #(M[0, 0]*M[2, 2] - M[0, 2]*M[2, 0])
+    r_pp = (M[:,0,0]*M[:,3,2] - M[:,3,0]*M[:,0,2]) / denom #(M[0, 0]*M[2, 2] - M[0, 2]*M[2, 0])
+    t_ss = M[:,2,2] / denom#(M[0, 0]*M[2, 2] - M[0, 2]*M[2, 0])
+    t_sp = -M[:,2,0] / denom#(M[0, 0]*M[2, 2] - M[0, 2]*M[2, 0])
+    t_ps = -M[:,0,2] / denom#(M[0, 0]*M[2, 2] - M[0, 2]*M[2, 0])
+    t_pp = M[:,0,0] / denom#(M[0, 0]*M[2, 2] - M[0, 2]*M[2, 0])
+
+
+    #r_pp, r_ps, r_sp, r_ss, t_pp, t_ps, t_sp, t_ss = solve_transfer_matrix(M[i,:,:])
+    Refl[:,0,0] = scale * np.abs(r_ss)**2 + bkg
+    Refl[:,0,1] = scale * np.abs(r_sp)**2 + bkg
+    Refl[:,1,0] = scale * np.abs(r_ps)**2 + bkg
+    Refl[:,1,1] = scale * np.abs(r_pp)**2 + bkg
+    Tran[:,0,0] = t_ss #scale * np.abs(t_ss)**2 + bkg
+    Tran[:,0,1] = t_sp #scale * np.abs(t_sp)**2 + bkg
+    Tran[:,1,0] = t_ps #scale * np.abs(t_ps)**2 + bkg
+    Tran[:,1,1] = t_pp #scale * np.abs(t_pp)**2 + bkg
         
     return Refl, Tran
  

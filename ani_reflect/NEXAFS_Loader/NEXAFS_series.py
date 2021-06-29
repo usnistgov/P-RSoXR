@@ -6,12 +6,9 @@ import numpy as np
 import xarray as xr
 import pandas as pd
 import warnings
-
+from refnx.ani_reflect.Data1D_series import Data1D_series
 import kkcalc.data as kkdata
 import kkcalc.kk as kk
-
-from refnx.ani_reflect.Data1D_series import Data1D_series
-
    
 
 class NexafsSeries(Data1D_series):
@@ -43,9 +40,7 @@ class NEXAFS(object):
             self.input_data = input_data
         elif type(input_data) is NexafsSeries:
             self.input_data = input_data.data
-        self.nexafsseries = input_data #Makes sure that the data inputed into the object is a DataSet
-        
-        
+        self.nexafsseries = input_data
         #self.input_data = input_data.data #Specifically grab the dataset from the input NEXAFSSeries Object
         self.coord0 = 'angle'#input_data._coords[0] #Grab the specific label for coord 0
         self.coord1 = 'energy'#input_data._coords[1] #Grab the specific label for coord 1
