@@ -1,6 +1,10 @@
 import numpy as np
 import h5py
 
+"""
+Load prsoxr data that has been saved as hdf5
+"""
+
 def load_prsoxr_hdf5(file, path):
     f_load = path + file
     energy_list = []
@@ -26,7 +30,11 @@ def load_prsoxr_hdf5(file, path):
         
     return out
     
-
+"""
+Quick Script to construct a tensor object given isotropic
+components and difference values. This can be a beneficial
+parameterization.
+"""
 def build_tensor(complex_inputs):
     out = []
     for r, i, dr, di in complex_inputs:

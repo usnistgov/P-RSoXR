@@ -1,7 +1,4 @@
 """
-*Calculates the specular (Neutron or X-ray) reflectivity from a stratified
-series of layers.
-
 The refnx code is distributed under the following license:
 
 Copyright (c) 2015 A. R. J. Nelson, ANSTO
@@ -23,6 +20,13 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THIS SOFTWARE.
 
 """
+
+
+"""
+Calculates the specular reflectivity from a stratified series of layers
+using polarized resonant soft X-ray reflectivity.
+"""
+
 import abc
 import math
 import numbers
@@ -48,7 +52,7 @@ class ani_ReflectModel(object):
     r"""
     Parameters
     ----------
-    structure : refnx.reflect.Structure
+    structure : PRSOXS.RXR_Structure object
         The interfacial structure.
     scale : float or refnx.analysis.Parameter, optional
         scale factor. All model values are multiplied by this value before
@@ -69,36 +73,22 @@ class ani_ReflectModel(object):
         However, if `x_err` is supplied to the `model` method, then that
         overrides any setting given here. This value is turned into
         a Parameter during the construction of this object.
-    threads: int, optional
-        Specifies the number of threads for parallel calculation. This
-        option is only applicable if you are using the ``_creflect``
-        module. The option is ignored if using the pure python calculator,
-        ``_reflect``. If `threads == -1` then all available processors are
-        used.
-    quad_order: int, optional
-        the order of the Gaussian quadrature polynomial for doing the
-        resolution smearing. default = 17. Don't choose less than 13. If
-        quad_order == 'ultimate' then adaptive quadrature is used. Adaptive
-        quadrature will always work, but takes a _long_ time (2 or 3 orders
-        of magnitude longer). Fixed quadrature will always take a lot less
-        time. BUT it won't necessarily work across all samples. For
-        example, 13 points may be fine for a thin layer, but will be
-        atrocious at describing a multilayer with bragg peaks.
+        
+        Adding q-smearing greatly reduces the current speed of the calculation.
+        Running at ALS 11.0.1.2 likely does not require any q-smearing
+        as a result of the low photon energy at the carbon edge.
 
     """
     def __init__(self, structure, scale=1, bkg=0, name='', dq=0.,
-                 threads=-1, quad_order=17, energy = None, phi = 0, pol='s', backend = 'uni'): ##Tferron Edits 05/28/2020 Added a energy property to the reflectivity model to carry through to Anisotropic reflectivity
-                                                                      ##Tferron Edits 05/28/2020 Added an angle phi representing the azimuthal angle of incidence with respect to the surface normal (for biaxial tensor properties)
-                                                                      
+                 energy = None, phi = 0, pol='s', backend = 'uni'): ##Tferron Edits 05/28/2020 Added a energy property to the reflectivity model to carry through to Anisotropic reflectivity
+                                                                      ##Tferron Edits 05/28/2020 Added an angle phi representing the azimuthal angle of incidence with respect to the surface normal (for biaxial tensor properties)                                                                   
         self.name = name
         self._parameters = None
-        self.threads = threads
-        self.quad_order = quad_order
         self.backend = backend
         ##Tferron Edits 05/28/2020 Added the energy property to carry through to anisotropic calculations /// And the angle phi for the angle of incidence 
         self._energy = energy ## In eV
-        self.phi = phi
-        self.pol = pol #Output polarization
+        self._phi = phi
+        self._pol = pol #Output polarization
         
         # all reflectometry models need a scale factor and background
         self._scale = possibly_create_parameter(scale, name='scale')
@@ -193,13 +183,38 @@ class ani_ReflectModel(object):
     @property
     def energy(self):
         """
-        Series of energies to model in this particular model, must match the dimension of the dataset if used in an objective
+        Energy to calculate the resonant reflectivity.
         """
         return self._energy
 
     @energy.setter
     def energy(self,energy):
-        self._energy = energy 
+        self._energy = energy
+        
+    @property
+    def pol(self):
+        """
+        Polarization to calculate the resonant reflectivity. 
+            s-polarization: 's'
+            p-polarization: 'p'
+            concatenated:   'sp'
+        """
+        return self._pol
+
+    @pol.setter
+    def pol(self, pol):
+        self._pol = pol 
+        
+    @property
+    def phi(self):
+        """
+        Azimuthal angle of incidence [deg]. Only used with a biaxial calculation.
+        """
+        return self._phi
+
+    @phi.setter
+    def phi(self, phi):
+        self._phi = phi
 
     def model(self, x, p=None, x_err=None):
         r"""
@@ -229,25 +244,27 @@ class ani_ReflectModel(object):
             x_err = float(self.dq)
             
 
-        if self.pol == 'fit': ##Data was concatenated prior to fitting / need to make an input thats half the length
-            num_q = len(x) + 50 #50 more datapoints than the data used to calculate the spectra (can be adjusted)
-            qvals = np.linspace(np.min(x), np.max(x), num_q) ##400 is an arbitrary number for now.
-        else:  
-            qvals = x     
+        #if self._pol == 'sp': ##Data was concatenated prior to fitting / need to make an input thats half the length
+        #    num_q = len(x) + 50 #50 more datapoints than the data used to calculate the spectra (can be adjusted)
+        #    qvals = np.linspace(np.min(x), np.max(x), num_q) ##400 is an arbitrary number for now.
+        #else:  
+        #    qvals = x     
            
         ##loop over energy here ~~~ ?
-        refl = np.zeros((len(qvals),2,2),dtype=float)
-        tran = np.zeros((len(qvals),2,2),dtype=complex)
-        refl[:,:,:], tran[:,:,:] =  ani_reflectivity(qvals, self.structure.slabs(),
-                                    self.structure.tensor(energy=self.energy),
-                                    self.energy,
-                                    self.phi,
-                                    scale=self.scale.value,
-                                    bkg=self.bkg.value,
-                                    dq=x_err,
-                                    threads=self.threads,
-                                    quad_order=self.quad_order,
-                                    ani_backend=self.backend)
+        #refl = np.zeros((len(qvals),2,2),dtype=float)
+        #tran = np.zeros((len(qvals),2,2),dtype=complex)
+        refl, tran, *components = ani_reflectivity(qvals, self.structure.slabs(),
+                                self.structure.tensor(energy=self.energy),
+                                self.energy,
+                                self.phi,
+                                scale=self.scale.value,
+                                bkg=self.bkg.value,
+                                dq=x_err,
+                                backend=self.backend
+                                )
+        
+        return refl[:,1,1], refl[:,0,0]
+        """
         ## Check what the output is looking for (required to specify polarization for fitting)                            
         if self.pol == 's':
             return refl[:,1,1]#,0]
@@ -264,7 +281,7 @@ class ani_ReflectModel(object):
             return np.concatenate([spol_fit,ppol_fit]) 
         else:
             return refl
-            
+        """
     def logp(self):
         r"""
         Additional log-probability terms for the reflectivity model. Do not
@@ -282,7 +299,7 @@ class ani_ReflectModel(object):
     @property
     def structure(self):
         r"""
-        :class:`refnx.reflect.Structure` - object describing the interface of
+        :class:`PRSoXR.RXR_Structure` - object describing the interface of
         a reflectometry sample.
 
         """
@@ -308,11 +325,10 @@ class ani_ReflectModel(object):
         return self._parameters
 
 
-def ani_reflectivity(q, slabs, tensor, energy=250.0, phi=0, scale=1., bkg=0., dq=0., quad_order=17,
-                 threads=-1,ani_backend='uni'):
+def ani_reflectivity(q, slabs, tensor, energy=250.0, phi=0, scale=1., bkg=0., dq=0., backend='uni'):
     r"""
-    Full biaxial tensor calculation for calculating reflectivity from a stratified medium.
-
+    Full calculation for anisotropic reflectivity of a stratified medium
+    
     Parameters
     ----------
     q : np.ndarray
@@ -320,7 +336,7 @@ def ani_reflectivity(q, slabs, tensor, energy=250.0, phi=0, scale=1., bkg=0., dq
         :math:`Q=\frac{4Pi}{\lambda}\sin(\Omega)`.
         Units = Angstrom**-1
     slabs : np.ndarray
-        coefficients required for the calculation, has shape (2 + N, 5),
+        coefficients required for the calculation, has shape (2 + N, 4),
         where N is the number of layers
 
         - slabs[0, 0]
@@ -331,18 +347,18 @@ def ani_reflectivity(q, slabs, tensor, energy=250.0, phi=0, scale=1., bkg=0., dq
            ignored
 
         - slabs[0, 1]
-           trace of biaxial SLD_real of fronting (/1e-6 Angstrom**-2)
+           trace of real index tensor of fronting (/1e-6 Angstrom**-2)
         - slabs[N, 1]
-           trace of biaxial SLD_real of layer N (/1e-6 Angstrom**-2)
+           trace of real index tensor of layer N (/1e-6 Angstrom**-2)
         - slabs[-1, 1]
-           trace of biaxial SLD_real of backing (/1e-6 Angstrom**-2)
+           trace of real index tensor of backing (/1e-6 Angstrom**-2)
 
         - slabs[0, 2]
-           trace of biaxial iSLD_imag of fronting (/1e-6 Angstrom**-2)
+           trace of imaginary index tensor of fronting (/1e-6 Angstrom**-2)
         - slabs[N, 2]
-           trace of biaxial iSLD_real of layer N (/1e-6 Angstrom**-2)
+           trace of imaginary index tensor of layer N (/1e-6 Angstrom**-2)
         - slabs[-1, 2]
-           trace of biaxial iSLD_real of backing (/1e-6 Angstrom**-2)
+           trace of imaginary index tensor of backing (/1e-6 Angstrom**-2)
 
         - slabs[0, 3]
            ignored
@@ -351,64 +367,34 @@ def ani_reflectivity(q, slabs, tensor, energy=250.0, phi=0, scale=1., bkg=0., dq
         - slabs[-1, 3]
            roughness between backing and layer N
         
-        -slabs[0, 4]
-            full biaxial tensor of fronting media
-        -slabs[N, 4]
-            full biaxial tensor of layer N
-        -slabs[-1, 4]
-            full biaxial tensor of backing media
-        
     tensor : 3x3 numpy array
         The full dielectric tensor required for the anisotropic calculation.
         Each component (real and imaginary) is a fit parameter 
-        units - ???
+        Has shape (2 + N, 3, 3)
+        units - unitless
         
-    Energy : numpy array
-        A list of energies that you want to calculate the reflectivity profile for. 
-        When fitting it may be adventageous to fit one at a time, although simultaneous fitting may be possible
-        NOT IMPLEMETED YET FOR MORE THAN 1 ENERGY
+    Energy : float
+        Energy to calculate the reflectivity profile 
+        Used in calculating 'q' and index of refraction for RXR_MaterialSLD objects
         
     phi : float
         Azimuthal angle of incidence for calculating k-vectors.
-        This is only required if dealing with a biaxial tensor and interested in the rotational variation in reflection
+        This is only required if dealing with a biaxial tensor
         defaults to phi = 0 ~
         
     scale : float
         scale factor. All model values are multiplied by this value before
         the background is added
+        
     bkg : float
         Q-independent constant background added to all model values.
+        
     dq : float or np.ndarray, optional
         - `dq == 0`
            no resolution smearing is employed.
         - `dq` is a float
            a constant dQ/Q resolution smearing is employed.  For 5% resolution
            smearing supply 5.
-        - `dq` is the same shape as q
-           the array contains the FWHM of a Gaussian approximated resolution
-           kernel. Point by point resolution smearing is employed.  Use this
-           option if dQ/Q varies across your dataset.
-        - `dq.ndim == q.ndim + 2` and `q.shape == dq[..., -3].shape`
-           an individual resolution kernel is applied to each measurement
-           point. This resolution kernel is a probability distribution function
-           (PDF). `dqvals` will have the shape (qvals.shape, 2, M).  There are
-           `M` points in the kernel. `dq[:, 0, :]` holds the q values for the
-           kernel, `dq[:, 1, :]` gives the corresponding probability.
-    quad_order: int, optional
-        the order of the Gaussian quadrature polynomial for doing the
-        resolution smearing. default = 17. Don't choose less than 13. If
-        quad_order == 'ultimate' then adaptive quadrature is used. Adaptive
-        quadrature will always work, but takes a _long_ time (2 or 3 orders
-        of magnitude longer). Fixed quadrature will always take a lot less
-        time. BUT it won't necessarily work across all samples. For
-        example, 13 points may be fine for a thin layer, but will be
-        atrocious at describing a multilayer with bragg peaks.
-    threads: int, optionalv ##UNSURE IF USABLE FOR CURRENT CALCULATION
-        Specifies the number of threads for parallel calculation. This
-        option is only applicable if you are using the ``_creflect``
-        module. The option is ignored if using the pure python calculator,
-        ``_reflect``. If `threads == -1` then all available processors are
-        used.
 
     Example
     -------
@@ -424,26 +410,25 @@ def ani_reflectivity(q, slabs, tensor, energy=250.0, phi=0, scale=1., bkg=0., dq
         
     # constant dq/q smearing
     if isinstance(dq, numbers.Real) and float(dq) == 0:
-        if ani_backend == 'uni':
-            Refl, Tran = uniaxial_reflectivity(q, slabs, tensor, energy, phi, scale=scale, bkg=bkg, threads=threads, save_components=None)
+        if backend == 'uni':
+            refl, tran, *components = uniaxial_reflectivity(q, slabs, tensor, energy)
         else:
-            Refl, Tran = yeh_4x4_reflectivity(q, slabs, tensor, energy, phi, scale=scale, bkg=bkg, threads=threads, save_components=None)
-        return [Refl, Tran]
+            refl, tran, *components = yeh_4x4_reflectivity(q, slabs, tensor, energy, phi)
+        return (scale*refl + bkg), tran, components
             
     elif isinstance(dq, numbers.Real):
         dq = float(dq)
-        smear_refl, smear_tran = _smeared_ani_reflectivity(q,
+        smear_refl, smear_tran, *components = _smeared_ani_reflectivity(q,
                                          slabs,
                                          tensor, energy, phi,
                                          dq,
-                                         threads=threads,save_components=None,
-                                         backend=ani_backend)
+                                         backend=backend)
 
-        return [(scale*smear_tefl + bkg), smear_tran]
+        return [(scale*smear_tefl + bkg), smear_tran, components]
 
     return None
 
-def _smeared_ani_reflectivity(q, w, tensor, Energy, phi, resolution, threads=-1,save_components=None, backend='uni'):
+def _smeared_ani_reflectivity(q, w, tensor, energy, phi, resolution, backend='uni'):
     """
     Fast resolution smearing for constant dQ/Q.
 
@@ -456,10 +441,7 @@ def _smeared_ani_reflectivity(q, w, tensor, Energy, phi, resolution, threads=-1,
     resolution: float
         Percentage dq/q resolution. dq specified as FWHM of a resolution
         kernel.
-    threads: int, optional
-        Do you want to calculate in parallel? This option is only applicable if
-        you are using the ``_creflect`` module. The option is ignored if using
-        the pure python calculator, ``_reflect``.
+
     Returns
     -------
     reflectivity: np.ndarray
@@ -468,9 +450,9 @@ def _smeared_ani_reflectivity(q, w, tensor, Energy, phi, resolution, threads=-1,
 
     if resolution < 0.5:
         if backend == 'uni':
-            return uniaxial_reflectivity(q, w, tensor, Energy, phi, threads=threads,save_components=None)
+            return uniaxial_reflectivity(q, w, tensor, energy)
         else:
-            return yeh_4x4_reflectivity(q, w, tensor, Energy, phi, threads=threads,save_components=None)
+            return yeh_4x4_reflectivity(q, w, tensor, energy, phi)
 
     resolution /= 100
     gaussnum = 51
@@ -495,15 +477,15 @@ def _smeared_ani_reflectivity(q, w, tensor, Energy, phi, resolution, threads=-1,
     gauss_x = np.linspace(-1.7 * resolution, 1.7 * resolution, gaussnum)
     gauss_y = gauss(gauss_x, resolution / _FWHM)
     if backend == 'uni':
-        Refl, Tran = uniaxial_reflectivity(xlin, w, tensor, Energy, phi, threads=threads,save_components=None)
+        refl, tran, *components = uniaxial_reflectivity(xlin, w, tensor, energy)
     else:
-        Refl, Tran = yeh_4x4_reflectivity(xlin, w, tensor, Energy, phi, threads=threads,save_components=None)
+        refl, tran, *components = yeh_4x4_reflectivity(xlin, w, tensor, energy, phi)
     #Refl, Tran = yeh_4x4_reflectivity(xlin, w, tensor, Energy, phi, threads=threads,save_components=None)
     ##Convolve each solution independently
-    smeared_ss = np.convolve(Refl[:,0,0], gauss_y, mode='same') * (gauss_x[1] - gauss_x[0])
-    smeared_pp = np.convolve(Refl[:,1,1], gauss_y, mode='same') * (gauss_x[1] - gauss_x[0])
-    smeared_sp = np.convolve(Refl[:,0,1], gauss_y, mode='same') * (gauss_x[1] - gauss_x[0])
-    smeared_ps = np.convolve(Refl[:,1,0], gauss_y, mode='same') * (gauss_x[1] - gauss_x[0])
+    smeared_ss = np.convolve(refl[:,0,0], gauss_y, mode='same') * (gauss_x[1] - gauss_x[0])
+    smeared_pp = np.convolve(refl[:,1,1], gauss_y, mode='same') * (gauss_x[1] - gauss_x[0])
+    smeared_sp = np.convolve(refl[:,0,1], gauss_y, mode='same') * (gauss_x[1] - gauss_x[0])
+    smeared_ps = np.convolve(refl[:,1,0], gauss_y, mode='same') * (gauss_x[1] - gauss_x[0])
 
     #smeared_rvals *= gauss_x[1] - gauss_x[0]
 
@@ -526,6 +508,6 @@ def _smeared_ani_reflectivity(q, w, tensor, Energy, phi, resolution, threads=-1,
     ##Organize the output wave with the appropriate outputs
     smeared_output = np.rollaxis(np.array([[smeared_output_ss,smeared_output_sp],[smeared_output_ps,smeared_output_pp]]),2,0)
 
-    return smeared_output, Tran
+    return smeared_output, tran, components
     
     

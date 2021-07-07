@@ -41,7 +41,7 @@ from refnx.analysis import (Parameters, Parameter, possibly_create_parameter,
 _FWHM = 2 * np.sqrt(2 * np.log(2.0))
 _INTLIMIT = 3.5
 
-    ##fundamental constants ##may not need these if converion to Gaussian units works (c=1)
+##fundamental constants ##may not need these if converion to Gaussian units works (c=1)
 hc = 12398.4193 ##ev*Angstroms
 c = 299792458.
 mu0 = 4. * np.pi * 1e-7
@@ -49,7 +49,7 @@ ep0 = 1. / (c**2 * mu0)
 TINY = 1e-30
     
 
-def uniaxial_reflectivity(q, layers, tensor, energy, phi, scale=1., bkg=0, threads=0,save_components=None):
+def uniaxial_reflectivity(q, layers, tensor, energy):
     """
     EMpy implementation of the uniaxial 4x4 matrix formalism for calculating reflectivity from a stratified
     medium.
@@ -92,6 +92,7 @@ def uniaxial_reflectivity(q, layers, tensor, energy, phi, scale=1., bkg=0, threa
     """
     #Plane of incidence - required to define polarization vectors
     OpticAxis = np.array([0.,0.,1.])
+    phi = 0 #This is a uniaxial calculation
 
     ##Organize qvals into proper order
     qvals = np.asfarray(q)
@@ -118,11 +119,11 @@ def uniaxial_reflectivity(q, layers, tensor, energy, phi, scale=1., bkg=0, threa
     ## Special cases!
     ##kx is constant for each wavelength but changes with angle
     ## Dimensionality ## 
-    ## (angle, wavelength)
-    kx = np.zeros(numpnts, dtype=complex)
-    ky = np.zeros(numpnts, dtype=complex) #Used to keep the k vectors three components later on for cross / dot products
+    ## (angle)
+    #kx = np.zeros(numpnts, dtype=complex)
+    #ky = np.zeros(numpnts, dtype=complex) #Used to keep the k vectors three components later on for cross / dot products
     kx = k0 * np.sin(theta_exp) * np.cos(phi)
-    #ky = k0 * np.sin(theta_exp) * np.sin(phi)
+    ky = k0 * np.sin(theta_exp) * np.sin(phi)
 
     ## Calculate the eigenvalues corresponding to kz ~~ Each one has 4 solutions
     ## Dimensionality ##
@@ -142,36 +143,26 @@ def uniaxial_reflectivity(q, layers, tensor, energy, phi, scale=1., bkg=0, threa
 
     ##Make matrices for the transfer matrix calculation
     ##Dimensionality ##
-    ##(Matrix (4,4),#layer,angle,wavelength)
-    D = np.zeros((numpnts,nlayers, 4, 4),dtype=complex) ##Dynamic Matrix
-    Di = np.zeros((numpnts,nlayers, 4, 4),dtype=complex) ##Dynamic Matrix Inverse
-    P = np.zeros((numpnts,nlayers, 4, 4),dtype=complex) ## Propogation Matrix
-    W = np.zeros((numpnts,nlayers, 4, 4),dtype=complex) ##Nevot-Croche roughness matrix
+    ##(angles, #layers, Matrix (4,4)
     
-    Refl = np.zeros((numpnts,2,2),dtype=float)
-    Tran = np.zeros((numpnts,2,2),dtype=complex)
-    
-    #calculate the propagation matrices
-    P[:,:,:,:] = calculate_P(numpnts, nlayers, kz[:,:,:], layers[:,0]) ##layers[k,0] is the thicknes of layer k
-    #calculate the roughness matrices
-    W[:,:,:,:] = calculate_W(numpnts, nlayers, kz[:,:,:], kz[:,:,:], layers[:,3])
-    #calculate the Dynamical matrices  
-    D[:,:,:,:], Di[:,:,:,:] = calculate_D(numpnts,nlayers,Dpol[:,:,:,:], Hpol[:,:,:,:])
+    ## Propogation Matrix
+    P = calculate_P(numpnts, nlayers, kz[:,:,:], layers[:,0]) ##layers[k,0] is the thicknes of layer k
+    ##Nevot-Croche roughness matrix
+    W = calculate_W(numpnts, nlayers, kz[:,:,:], kz[:,:,:], layers[:,3])
+    ##Dynamic Matrix and inverse  
+    D, Di = calculate_D(numpnts,nlayers,Dpol[:,:,:,:], Hpol[:,:,:,:])
     
     ##Calculate the full system transfer matrix
     ##Dimensionality ##
-    ##(Matrix (4,4),wavelength)
+    ##(angles, Matrix (4,4))
     M = np.ones((numpnts,4,4),dtype=complex)
     #Make a (numpnts x 4x4) identity matrix for the TMM - 
     M = np.einsum('...ij,ij->...ij',M,np.identity(4))
     M = calulate_TMM(numpnts,nlayers,M,D,Di,P,W)
     ##Calculate the final outputs and organize into the appropriate waves for later
-    Refl, Tran = calculate_output(numpnts, scale, bkg, M)
+    refl, tran = calculate_output(numpnts, M)
 
-    if save_components:
-        return (kx, ky, kz, Dpol,Hpol, D, Di, P, W, Refl, Tran)
-    else:
-        return [Refl, Tran]
+    return refl, tran, kx, ky, kz, Dpol, Hpol, D, Di, P, W
 
 """
 The following functions were adapted from PyATMM copyright Pavel Dmitriev
@@ -274,7 +265,7 @@ def calculate_D(numpnts,nlayers, Dpol, Hpol):
 
     returns: :math:`D`, :math`D^{-1}`
 
-     .. important:: Requires prior execution of :py:func:`calculate_p_q`.
+     .. important:: Requires prior execution of :py:func:`calculate_Dpol_uni`.
     """
     D_Temp = np.zeros((numpnts,nlayers,4,4), dtype=np.complex_)
     Di_Temp = np.zeros((numpnts,nlayers,4,4), dtype=np.complex_)
@@ -301,8 +292,14 @@ def calculate_D(numpnts,nlayers, Dpol, Hpol):
         for j in range(nlayers):
             Di_Temp[i,j,:,:] = np.linalg.pinv(D_Temp[i,j,:,:])
     """
-    
-    Di_Temp = np.linalg.pinv(D_Temp)
+    #Try running an a matrix inversion for the tranfer matrix.
+    #If it fails, run a pseudo-inverse
+    #Update 07/07/2021: I don't think the uniaxial calculation will error...changing pinv to inv
+    #                   for default calculation
+    try:
+        Di_Temp = np.linalg.inv(D_Temp) #Broadcasted along the 'numpnts' dimension
+    except LinAlgError:
+        Di_Temp = np.linalg.pinv(D_Temp)
 
     return [D_Temp, Di_Temp]
 
@@ -391,7 +388,7 @@ def calulate_TMM(numpnts,nlayers,M,D,Di,P,W):
 
 #Iterative dot product over each element in the first axis. Equivalent to using Numba on the above calculation
 ##np.einsum('...ij,...jk ->...ik',A[:,j-1,:,:], B[:,j,:,:])
-#Does not result in errors and is cleaner in general.
+#Does not result in errors and is cleaner in general. EDIT 2021: Not actually sure I believe its 'cleaner'
 
 def calulate_TMM(numpnts,nlayers,M,D,Di,P,W):
     for j in range(1,nlayers-1):
@@ -404,10 +401,10 @@ def calulate_TMM(numpnts,nlayers,M,D,Di,P,W):
     M[:,:,:] = np.einsum('...ij,...jk ->...ik',M[:,:,:], BB)
     return M
 
-def calculate_output(numpnts, scale, bkg, M_full):
+def calculate_output(numpnts, M_full):
 
-    Refl = np.zeros((numpnts,2,2),dtype=np.float_)
-    Tran = np.zeros((numpnts,2,2),dtype=np.complex_)
+    refl = np.zeros((numpnts,2,2),dtype=np.float_)
+    tran = np.zeros((numpnts,2,2),dtype=np.complex_)
     
     #for i in range(numpnts):
     M = M_full #[i,:,:]
@@ -424,14 +421,14 @@ def calculate_output(numpnts, scale, bkg, M_full):
 
 
     #r_pp, r_ps, r_sp, r_ss, t_pp, t_ps, t_sp, t_ss = solve_transfer_matrix(M[i,:,:])
-    Refl[:,0,0] = scale * np.abs(r_ss)**2 + bkg
-    Refl[:,0,1] = scale * np.abs(r_sp)**2 + bkg
-    Refl[:,1,0] = scale * np.abs(r_ps)**2 + bkg
-    Refl[:,1,1] = scale * np.abs(r_pp)**2 + bkg
-    Tran[:,0,0] = t_ss #scale * np.abs(t_ss)**2 + bkg
-    Tran[:,0,1] = t_sp #scale * np.abs(t_sp)**2 + bkg
-    Tran[:,1,0] = t_ps #scale * np.abs(t_ps)**2 + bkg
-    Tran[:,1,1] = t_pp #scale * np.abs(t_pp)**2 + bkg
+    refl[:,0,0] = np.abs(r_ss)**2
+    refl[:,0,1] = np.abs(r_sp)**2
+    refl[:,1,0] = np.abs(r_ps)**2
+    refl[:,1,1] = np.abs(r_pp)**2
+    tran[:,0,0] = t_ss
+    tran[:,0,1] = t_sp
+    tran[:,1,0] = t_ps
+    tran[:,1,1] = t_pp
         
-    return Refl, Tran
+    return refl, tran
  
