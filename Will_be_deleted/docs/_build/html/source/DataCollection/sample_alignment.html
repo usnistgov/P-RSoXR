@@ -1,0 +1,598 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Preparing to collect data &mdash; p-RSoXR 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/thebelab.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/thebelab-helper.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.0/dist/embed-amd.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Sorting data" href="collecting_data.html" />
+    <link rel="prev" title="Setting up the beamline" href="Introduction.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> p-RSoXR
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Collecting data at ALS 11.0.1.2:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Introduction.html">Setting up the beamline</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Preparing to collect data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#initial-sample-information">Initial sample information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sample-alignment">Sample Alignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#adjust-incident-flux">Adjust incident flux</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-the-script">Running the script</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="collecting_data.html">Sorting data</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Reducing data to 1D profiles:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../DataReduction/loader.html">ALS11012 PRSoXR loader</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Modeling/Fitting with PyPXR:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Home_PyPXR.html"><em>PyPXR</em></a></li>
+</ul>
+<p class="caption"><span class="caption-text">Documentation:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reduction_API.html">Data reduction API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../PyPXR_API.html">PyPXR API</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">p-RSoXR</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Preparing to collect data</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../../_sources/source/DataCollection/sample_alignment.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="preparing-to-collect-data">
+<h1>Preparing to collect data<a class="headerlink" href="#preparing-to-collect-data" title="Permalink to this headline">¶</a></h1>
+<p>The next step is to align each sample and generate a script that will be used to collect data. It is recommended to use the provided <cite>prsoxr_script_gen.py</cite> to assist in generating a runfile. The following steps will outline how to use the script. It only requires <cite>numpy</cite> and <cite>pandas</cite> to be installed.</p>
+<div class="section" id="initial-sample-information">
+<h2>Initial sample information<a class="headerlink" href="#initial-sample-information" title="Permalink to this headline">¶</a></h2>
+<p>The first steps to generating a runfile is to fill out the “Setup Parameters” section. This will require some basic bookeeping that will later allow you to sort your new data.</p>
+<p>Begin with information about the samples mounted on the plate:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Setup Parameters</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="n">save_dir</span> <span class="o">=</span> <span class="s1">&#39;.../P-RSoXR/&#39;</span> <span class="c1"># Location to save script</span>
+<span class="n">save_name</span> <span class="o">=</span> <span class="s1">&#39;test_spol&#39;</span> <span class="c1"># Scipt name</span>
+
+<span class="c1">#Store sample names and energies you want to run</span>
+<span class="n">sample_list</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1">#Do not change this line</span>
+<span class="n">sample_list</span><span class="p">[</span><span class="s1">&#39;Samp_A&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">270.0</span><span class="p">,</span> <span class="mf">284.5</span><span class="p">,</span> <span class="mf">287.3</span><span class="p">,</span> <span class="mf">288.7</span><span class="p">]</span>
+<span class="n">sample_list</span><span class="p">[</span><span class="s1">&#39;Samp_B&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">270.0</span><span class="p">,</span> <span class="mf">284.3</span><span class="p">,</span> <span class="mf">288.7</span><span class="p">]</span>
+<span class="n">sample_list</span><span class="p">[</span><span class="s1">&#39;Samp_C&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">250.0</span><span class="p">,</span> <span class="mf">283.5</span><span class="p">,</span> <span class="mf">284.8</span><span class="p">,</span> <span class="mf">285.3</span><span class="p">]</span>
+
+<span class="c1">#External energy calibration</span>
+<span class="n">EnergyOffset</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># [eV]</span>
+</pre></div>
+</div>
+<p>You will need to set a directory (<strong>save_dir</strong>) that you want to save the script and a descriptive name (<strong>save_name</strong>). Basic sample information is stored in the <code class="docutils literal notranslate"><span class="pre">sample_list</span></code> dictionary. Make a new key for each sample and a corresponding list of each energy that you would like to run on that sample.</p>
+<p>The energies that you pick will want to be the true energies that you want to run. If you wish to apply some external offset, you can set <code class="docutils literal notranslate"><span class="pre">EnergyOffset</span></code> to something other than 0. The final script will then run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">energy_run</span> <span class="o">=</span> <span class="n">energy_in_list</span> <span class="o">+</span> <span class="n">EnergyOffset</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This script will at no point ask for an input polarization because we recommend running each polarization independently. At beamline 11.0.1.2, changing the polarization state makes the beam intensity semi-unstable for at least 30 minutes. Before any alignment, set the <code class="docutils literal notranslate"><span class="pre">EPU</span> <span class="pre">Polarization</span></code> motor to your desired state.</p>
+<p>Once this script has finished running, change the polarization, wait 30 minutes, then run it again.</p>
+</div>
+<p>Once each sample has been defined, motor positions need to be setup. Each script input will consist of a list with each element corresponding to a sample. Input them in the order you wish to collect data. We will define the inputs here and describe how you collect them in the following sections:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Inputs to run sample plate</span>
+<span class="n">SampleOrder</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Samp_A&#39;</span><span class="p">,</span> <span class="s1">&#39;Samp_B&#39;</span><span class="p">,</span> <span class="s1">&#39;Samp_C&#39;</span><span class="p">]</span> <span class="c1"># Order that you want to run samples.</span>
+<span class="c1"># Motor positions</span>
+<span class="n">XPosition</span> <span class="o">=</span> <span class="p">[</span><span class="mf">36.52</span><span class="p">,</span> <span class="mf">23.36</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="c1"># &#39;Sample X&#39; motor position</span>
+<span class="n">XOffset</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">]</span> <span class="c1"># Offset to translate beam on sample after each energy.</span>
+<span class="n">YPosition</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">3.2150</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.9750</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="c1"># &#39;Sample Y&#39; motor position</span>
+<span class="n">ZPosition</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.27</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.36</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="c1"># &#39;Sample Z&#39; motor position</span>
+<span class="n">ZFlipPosition</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.21</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="c1"># &#39;Sample Z&#39; motor position when &#39;Sample Theta&#39; is flipped 180deg</span>
+<span class="n">ReverseHolder</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="c1">#Set to True (1) for a sample that is on the reverse side of the holder</span>
+<span class="n">ZDirectBeam</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="c1">#&#39;Sample Z&#39; motor positions to access the direct beam</span>
+<span class="n">ThetaOffset</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.55</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="c1">#&#39;Sample Theta&#39; offset if measuring multiple samples</span>
+
+<span class="c1">##</span>
+<span class="n">SampleThickness</span> <span class="o">=</span> <span class="p">[</span><span class="mi">250</span><span class="p">,</span> <span class="mi">250</span><span class="p">,</span> <span class="mi">250</span><span class="p">]</span> <span class="c1">#Approximate film thickness [A], used to determine dq</span>
+<span class="n">LowAngleDensity</span> <span class="o">=</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">]</span> <span class="c1">#Approximate number of points per fringe at low angles</span>
+<span class="n">HighAngleDensity</span> <span class="o">=</span> <span class="p">[</span><span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">]</span> <span class="c1">#Approximate number of points per fringe at high angles</span>
+<span class="n">AngleCrossover</span> <span class="o">=</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span> <span class="c1">#Angle [deg] to cross from low -&gt; high density</span>
+<span class="c1">##</span>
+<span class="n">OverlapPoints</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="c1">#Number of overlap points upon changing motor. Used for stitching</span>
+<span class="n">CheckUncertainty</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="c1">#Number of points for assessing error at each change in motor conditions. Used for error reduction</span>
+<span class="n">HOSBuffer</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="c1">#Number of points to add upon changing HOS to account for  motor movement.</span>
+<span class="n">I0Points</span> <span class="o">=</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span> <span class="c1">#Number of I0 measureents taken at the start of the scan. Used to calculate direct beam uncertainty</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Motor Positions:</dt><dd><ol class="arabic simple">
+<li><p><strong>SampleOrder</strong>: This is a list of sample names. They are in the order that you want to run. Use the same key phrases used in defining your sample dictionary.</p></li>
+<li><p><strong>XPosition</strong>: This is the <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">X</span></code> motor position at the spot of the sample to be measured.</p></li>
+<li><p><strong>XOffset</strong>: This is an offset that will laterally translate your <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">X</span></code> position at each energy. Typically set slightly larger than the size of th beam to measure a fresh spot at each energy. Set to 0 if do not want to move the beam while measuring (not recommended)</p></li>
+<li><p><strong>YPosition</strong>: This is the <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Y</span></code> motor position at the spot of the sample to be measured.</p></li>
+<li><p><strong>ZPosition</strong>: This is the <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Z</span></code> motor position that cuts the beam in half when <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Theta</span> <span class="pre">=</span> <span class="pre">0</span></code></p></li>
+<li><p><strong>ZFlipPosition</strong>: This is the <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Z</span></code> motor position that cuts the beam in half when <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Theta</span> <span class="pre">=</span> <span class="pre">180</span></code></p></li>
+<li><p><strong>ReverseHolder</strong>: This is a binary option that is set on whether the sample is on the top (0) or bottom (1) of the plate.</p></li>
+<li><p><strong>ZDirectBeam</strong>: This is a <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Z</span></code> position that moves the entire plate to enable measuring the direct beam.</p></li>
+<li><p><strong>ThetaOffset</strong>: This is an angle offset to be measured for each sample.</p></li>
+</ol>
+</dd>
+</dl>
+</li>
+</ul>
+<p>The next settings define the q-spacing to be measured. This is defined by an approximate number of measurements that we want to collect per fringe. If we assume that the highest frequency fringe spacing will depend on the total film thickness, <code class="docutils literal notranslate"><span class="pre">L</span> <span class="pre">=</span> <span class="pre">2*np.pi/thick</span></code>, the q-spacing is given by <code class="docutils literal notranslate"><span class="pre">dq</span> <span class="pre">=</span> <span class="pre">L/N</span></code> where N is the chosen point density.</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Settings for point density:</dt><dd><ol class="arabic simple">
+<li><p><strong>SampleThickness</strong>: An approximate sample film thickness in [A]. This will be referenced to determine dq</p></li>
+<li><p><strong>LowAngleDensity</strong>: Number of points per fringe at low angles. Typically high to resolve critical angle</p></li>
+<li><p><strong>HighAngleDensity</strong>: Number of points per fringe at high angles. Typically lower once past the critical angle.</p></li>
+<li><p><strong>AngleCrossOver</strong>: Angle [deg] to cross from low to high density.</p></li>
+</ol>
+</dd>
+</dl>
+</li>
+</ul>
+<p>The final settings is to help with measurement statistics and buffer the measurement to allow for slower motors to reach their positions.</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Settings for Statistics:</dt><dd><ol class="arabic simple">
+<li><p><strong>OverlapPoints</strong>: Number of points to repeat when upstream optics are moved to increase flux. This will be used to stitch the data together.</p></li>
+<li><p><strong>CheckUncertainty</strong>: Number of points to repeat to assess error when changing <code class="docutils literal notranslate"><span class="pre">Higher</span> <span class="pre">Order</span> <span class="pre">Suppressor</span></code> or <code class="docutils literal notranslate"><span class="pre">Horizontal</span> <span class="pre">Exit</span> <span class="pre">Slit</span> <span class="pre">Size</span></code>.</p></li>
+<li><p><strong>HOSBuffer</strong>: Number of points to add, and later discard, to make sure the ‘Higher Order Suppressor`` has reached its new position.</p></li>
+<li><p><strong>I0Points</strong>: Number of times to measure the direct beam measurements at the start of each energy. This value will be averaged and the standard error will then be propogated into measurement uncertainty.</p></li>
+</ol>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<div class="section" id="sample-alignment">
+<h2>Sample Alignment<a class="headerlink" href="#sample-alignment" title="Permalink to this headline">¶</a></h2>
+<p>The following steps will outline the process to align the axis of rotation of each sample.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Samples mounted on the underside of the sample plate will require a slightly different alignment procedure. Subtract <strong>180</strong> from all <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Theta</span></code> positions. If this subtraction causes the angle to be <strong>-360</strong>, set <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Theta</span> <span class="pre">=</span> <span class="pre">0</span></code></p>
+</div>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Locate the sample:</dt><dd><ol class="arabic simple">
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Theta</span> <span class="pre">=</span> <span class="pre">90</span></code></p></li>
+<li><p>Move <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">X</span></code> and <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Y</span></code> until you reach the position on the sample you wish to measure.</p>
+<ul>
+<li><p>Record these motor positions in the script: <strong>XPosition</strong> and <strong>YPosition</strong></p></li>
+</ul>
+</li>
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Theta</span> <span class="pre">=</span> <span class="pre">0</span></code> and find a <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Z</span></code> position that allows the direct beam to pass unobstructed. (Typically around (-5 mm) when <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Theta</span> <span class="pre">=</span> <span class="pre">0</span></code> or (5 mm) when <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Theta</span> <span class="pre">=</span> <span class="pre">-180</span></code>)</p>
+<ul>
+<li><p>Record the <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Z</span></code> position in the script: <strong>ZDirectBeam</strong></p></li>
+<li><p>Remember to set <strong>ZFlipPosition = 1</strong> if the sample is on the bottom of the plate.</p></li>
+</ul>
+</li>
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">CCD</span> <span class="pre">Theta</span> <span class="pre">=</span> <span class="pre">0</span></code> and take an image of the direct beam with an exposure time that does not saturate (start with 0.001 [s])</p>
+<ul>
+<li><p>Record the total number of counts</p></li>
+<li><p>Measure the dark counts with the same exposure</p></li>
+<li><p>Calculate the direct beam counts: I0 = light - dark</p></li>
+</ul>
+</li>
+<li><p>Set the crosshairs on the CCD display to the center of the beamspot (if not already done)</p></li>
+</ol>
+</dd>
+</dl>
+</li>
+<li><p>Calibrate the axis of rotation:</p></li>
+</ul>
+<p>This point in the procedure is an iterative process. It may take 3 or 4 iterations until the sample is properly aligned.</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p>With <code class="docutils literal notranslate"><span class="pre">CCD</span> <span class="pre">Theta</span> <span class="pre">=</span> <span class="pre">0</span></code> and <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Theta</span> <span class="pre">=</span> <span class="pre">0</span></code> run a <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Z</span></code> single-motor scan that raises the plate into the beam. We are looking for the motor position that cuts the flux in half.</p>
+<ul class="simple">
+<li><p>Monitor the total counts as the motor moves. Use the previously calculated I0 as a reference for the full flux.</p></li>
+</ul>
+</li>
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Z</span></code> to the position that cuts the beam in half, <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">theta</span> <span class="pre">=</span> <span class="pre">4</span></code> and <code class="docutils literal notranslate"><span class="pre">CCD</span> <span class="pre">Theta</span> <span class="pre">=</span> <span class="pre">8</span></code> and snap an image.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If the beam is properly cut in half, the CCD image will only have signal <strong>above</strong> the crosshairs.</p>
+</div>
+</li>
+</ol>
+<blockquote>
+<div><ul>
+<li><p>If the beamspot is <strong>not</strong> within the crosshairs:</p>
+<blockquote>
+<div><blockquote>
+<div><ul>
+<li><p>Run a <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Theta</span></code> single-motor scan until the beamspot aligns with the crosshairs. Manually adjust the final position if necessary.</p></li>
+<li><p>If this is the <strong>first</strong> sample:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Set the new <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Theta</span> <span class="pre">==</span> <span class="pre">4</span></code></p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Otherwise:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Make note of the angle offset. Add this value to <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Theta</span></code> during the remaining calibration (it can be negative!).</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+<ul class="simple">
+<li><p>Return to step 1</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>If the beamspot is within the crosshairs:</p>
+<blockquote>
+<div><ul>
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Theta</span> <span class="pre">=</span> <span class="pre">10</span></code> and <code class="docutils literal notranslate"><span class="pre">CCD</span> <span class="pre">Theta</span> <span class="pre">=</span> <span class="pre">20</span></code> and snap an image.</p></li>
+<li><p>If the beamspot is <em>not</em> within the crosshairs</p>
+<ul>
+<li><p>Adjust <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Theta</span></code> until it becomes aligned</p></li>
+<li><p>If this is the <strong>first</strong> sample:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Set the new <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Theta</span> <span class="pre">==</span> <span class="pre">10</span></code></p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Otherwise:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Make note of the angle offset. Add (or subtract) this value to <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Theta</span></code> during the remaining calibration (it can be negative!).</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Return to step 1</p></li>
+</ul>
+</li>
+<li><p>If the beamspot does not move (or is acceptable)</p>
+<ul class="simple">
+<li><p>Record <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Z</span></code> in the script: <strong>ZPosition</strong></p></li>
+<li><p>Record your angle offset in the script: <strong>ThetaOffset</strong></p></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+<ul>
+<li><p>Having aligned <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Theta</span></code>, set <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Theta</span> <span class="pre">=</span> <span class="pre">-180</span></code> and <code class="docutils literal notranslate"><span class="pre">CCD</span> <span class="pre">Theta</span> <span class="pre">=</span> <span class="pre">0</span></code>.</p></li>
+<li><p>Run a <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Z</span></code> single-motor scan that raises the plate into the beam. Find the position that cuts it in half and record it in the script as <strong>ZFlipPosition</strong></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This motor position will typically be the opposite sign of <strong>ZPosition</strong> and the approximate difference between the two values will be the substrate thickness.</p>
+</div>
+</li>
+</ul>
+</div></blockquote>
+<p>Repeat this process for each sample.</p>
+</div>
+<div class="section" id="adjust-incident-flux">
+<h2>Adjust incident flux<a class="headerlink" href="#adjust-incident-flux" title="Permalink to this headline">¶</a></h2>
+<p>Having aligned each sample, the next step is to setup upstream optics and exposure times to progressively increase flux while the angle is increased. Beamline 11.0.1.2 can achieve up to 7 orders of magnitude by adjusting the following:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Higher</span> <span class="pre">Order</span> <span class="pre">Suppressor</span></code> : This is a 4-bounce mirror that is designed to eliminate higher order light. Keep it above <em>7.5 [deg]</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Horizontal</span> <span class="pre">Exit</span> <span class="pre">Slit</span> <span class="pre">Size</span></code> : This is an upstream beam-shaping slit. At non-resonant energies, this is typically cut down to <em>150 [mm]</em>. For more flux, it can be increased to <em>1500 [mm]</em>. This is usually a binary operation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Exposure</span></code> : How long do you want to dwell at a single position. It is good practice to never go above 1 [s] exposures. The amount of flux gained beyond that is minimal compared to the increase in beam damage and the overall length of the experiment.</p></li>
+</ol>
+<p>We will manually survey the full theta scan that we want to run for each sample (and energy). Once the flux has dropped by some threshold, we will adjust one of the above motors. This is typically done in the order: <code class="docutils literal notranslate"><span class="pre">Higher</span> <span class="pre">Order</span> <span class="pre">Suppressor</span></code>, <code class="docutils literal notranslate"><span class="pre">Exposure</span></code>, and finally <code class="docutils literal notranslate"><span class="pre">Horizontal</span> <span class="pre">Exit</span> <span class="pre">Slit</span> <span class="pre">Size</span></code>.</p>
+<p>Within <em>prsoxr_script_gen.py</em>, you will want to copy the following block of code for every sample:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">COPY THIS BLOCK OF CODE FOR EACH SAMPLE</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1">#########################################</span>
+<span class="c1">#####            Sample 0           #####</span>
+<span class="c1">#########################################</span>
+<span class="n">DEG</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># Angles to change settings</span>
+<span class="n">HOS</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># HOS positions</span>
+<span class="n">HES</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># HES positions</span>
+<span class="n">EXP</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># Exposures</span>
+<span class="c1">#########################################</span>
+
+<span class="c1">#########################################</span>
+<span class="c1">#####           Energy 1            #####</span>
+<span class="c1">#########################################</span>
+<span class="n">DEG</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">75</span><span class="p">])</span>
+<span class="n">HOS</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">12</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">])</span>
+<span class="n">HES</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">150</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">150</span><span class="p">])</span>
+<span class="n">EXP</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">])</span>
+
+<span class="c1">#########################################</span>
+<span class="c1">#####           Energy 2            #####</span>
+<span class="c1">#########################################</span>
+<span class="n">DEG</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">60</span><span class="p">])</span>
+<span class="n">HOS</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">12</span><span class="p">,</span> <span class="mf">11.5</span><span class="p">,</span>  <span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">])</span>
+<span class="n">HES</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">])</span>
+<span class="n">EXP</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">])</span>
+
+<span class="c1">#########################################</span>
+<span class="c1">#####           Energy 3            #####</span>
+<span class="c1">#########################################</span>
+<span class="n">DEG</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">60</span><span class="p">])</span>
+<span class="n">HOS</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">12</span><span class="p">,</span> <span class="mf">11.5</span><span class="p">,</span>  <span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">])</span>
+<span class="n">HES</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">])</span>
+<span class="n">EXP</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">])</span>
+
+<span class="c1">#########################################</span>
+<span class="c1">#####           Energy 4            #####</span>
+<span class="c1">#########################################</span>
+<span class="n">DEG</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">60</span><span class="p">])</span>
+<span class="n">HOS</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">12</span><span class="p">,</span> <span class="mf">11.5</span><span class="p">,</span>  <span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">])</span>
+<span class="n">HES</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">])</span>
+<span class="n">EXP</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">])</span>
+
+<span class="c1">#Compile inputs</span>
+<span class="n">motors</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">DEG</span><span class="p">,</span> <span class="n">HOS</span><span class="p">,</span> <span class="n">HES</span><span class="p">,</span> <span class="n">EXP</span><span class="p">)</span>
+<span class="n">temp_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Angle&#39;</span><span class="p">,</span> <span class="s1">&#39;HOS&#39;</span><span class="p">,</span> <span class="s1">&#39;HES&#39;</span><span class="p">,</span> <span class="s1">&#39;EXPOSURE&#39;</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">deg</span><span class="p">,</span> <span class="n">hos</span><span class="p">,</span> <span class="n">hes</span><span class="p">,</span> <span class="n">exp</span> <span class="ow">in</span> <span class="n">motors</span><span class="p">:</span>
+        <span class="n">temp_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;Angle&#39;</span><span class="p">:</span><span class="n">deg</span><span class="p">,</span> <span class="s1">&#39;HOS&#39;</span><span class="p">:</span><span class="n">hos</span><span class="p">,</span> <span class="s1">&#39;HES&#39;</span><span class="p">:</span><span class="n">hes</span><span class="p">,</span> <span class="s1">&#39;EXPOSURE&#39;</span><span class="p">:</span><span class="n">exp</span><span class="p">}))</span>
+<span class="n">VariableMotors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">temp_list</span><span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">STOP COPYING HERE</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p>The example given is for a sample that will be measured at four energies. Under each four energies are lists correspond to the 3 motors discussed earlier and <strong>DEG</strong> which corresponds to <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Theta</span></code>. In these lists we will compile a set of angles, that once reached in our ‘theta-2theta’ scan, will update the upstream optics to increase flux.</p>
+<p>This is a process that you will want to complete for each energy (and likely polarization).</p>
+<ol class="arabic simple">
+<li><p>Always begin with the following settings: <code class="docutils literal notranslate"><span class="pre">Higher</span> <span class="pre">Order</span> <span class="pre">Suppressor</span> <span class="pre">=</span> <span class="pre">12</span></code>, <code class="docutils literal notranslate"><span class="pre">Exposure</span> <span class="pre">=</span> <span class="pre">0.001</span></code>, and <code class="docutils literal notranslate"><span class="pre">Horizontal</span> <span class="pre">Exit</span> <span class="pre">Slit</span> <span class="pre">Size</span> <span class="pre">=</span> <span class="pre">150</span></code> (or <code class="docutils literal notranslate"><span class="pre">Horizontal</span> <span class="pre">Exit</span> <span class="pre">Slit</span> <span class="pre">Size</span> <span class="pre">=</span> <span class="pre">1500</span></code> if above 285 eV)</p></li>
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Theta</span> <span class="pre">=</span> <span class="pre">0</span></code> , <code class="docutils literal notranslate"><span class="pre">CCD</span> <span class="pre">Theta</span> <span class="pre">=</span> <span class="pre">0</span></code>, <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Z</span></code> to the direct beam location, and <code class="docutils literal notranslate"><span class="pre">Beamline</span> <span class="pre">Energy</span></code> to the target energy (be sure to include the <strong>EnergyOffset</strong>). Take a snap of the beam.</p>
+<ul class="simple">
+<li><p>For any samples with a corresponding <strong>AngleOffset</strong>, be sure to add it to every <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Theta</span></code> used during this alignment step.</p></li>
+<li><p>For samples mounted on the bottom of the plate, be sure to subtract <strong>180</strong> from each <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Theta</span></code></p></li>
+</ul>
+</li>
+<li><p>Adjust the <code class="docutils literal notranslate"><span class="pre">Exposure</span></code> until you maximize counts (or nearly so) without saturating any pixels.</p>
+<ul class="simple">
+<li><p>Set this value into the first element of the <strong>EXP</strong> list. In the example, for ‘Energy 1’, this value is <em>0.001</em>. We recommend to only use this exposure until the <code class="docutils literal notranslate"><span class="pre">Higher</span> <span class="pre">Order</span> <span class="pre">Suppressor</span> <span class="pre">==</span> <span class="pre">7.5</span></code></p></li>
+</ul>
+</li>
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Theta</span> <span class="pre">=</span> <span class="pre">4</span></code> and <code class="docutils literal notranslate"><span class="pre">CCD</span> <span class="pre">Theta</span> <span class="pre">=</span> <span class="pre">8</span></code> and snap an image with identical settings.</p>
+<ul class="simple">
+<li><p>The beam should still be visible, and with decent counts. Pixels should have at least hundreds of counts over the background.</p></li>
+<li><p>If the beam is completely gone, or too bright, adjust the <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Theta</span></code> position until the beam is at a good intensity to change settings. Remember to update the <strong>*DEG</strong> list to this new position.</p></li>
+</ul>
+</li>
+<li><p>Adjust the <code class="docutils literal notranslate"><span class="pre">Higher</span> <span class="pre">Order</span> <span class="pre">Suppressor</span></code> at this new <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Theta</span></code> position until you have maximized counts.</p>
+<ul class="simple">
+<li><p>Set this value into the second element of <strong>HOS</strong>.</p></li>
+</ul>
+</li>
+<li><p>Repeat steps 4 and 5 for <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Theta</span> <span class="pre">=</span> <span class="pre">[6,</span> <span class="pre">10,</span> <span class="pre">12,</span> <span class="pre">15,</span> <span class="pre">20,</span> <span class="pre">25,</span> <span class="pre">30,</span> <span class="pre">40,</span> <span class="pre">60]</span></code>. Always set <cite>CCD Theta`</cite> to double <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Theta</span></code> in order to measure the beam.</p>
+<ul class="simple">
+<li><p>Once <code class="docutils literal notranslate"><span class="pre">Higher</span> <span class="pre">Order</span> <span class="pre">Suppressor</span> <span class="pre">==</span> <span class="pre">7.5</span></code>, begin increasing <code class="docutils literal notranslate"><span class="pre">Exposure</span></code>. At <code class="docutils literal notranslate"><span class="pre">Exposure</span> <span class="pre">==</span> <span class="pre">1</span></code> it is unlikely that any increase will get you better data without going to 10s or higher. It is often not worth collecting this data due to the amount of time it will take.</p></li>
+</ul>
+</li>
+</ol>
+<p>The provided <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">Theta</span></code> positions are simply a suggestion. Change them or add more as you see fit for your samples.</p>
+</div>
+<div class="section" id="running-the-script">
+<h2>Running the script<a class="headerlink" href="#running-the-script" title="Permalink to this headline">¶</a></h2>
+<p>Once you have filled in all the necessary information, run the python script. Two files should be generated:</p>
+<ol class="arabic simple">
+<li><p>A runfile: ‘save_name’.txt</p></li>
+<li><p>A header file: ‘save_name’_HEADER.txt</p></li>
+</ol>
+<p>The header file keeps information about the samples and the energies that you want to run. This is for sorting the output data once it has been collected. The runfile needs to be transfered onto the beamline computer to run.</p>
+<p>Set the acquisition parameters to <code class="docutils literal notranslate"><span class="pre">From</span> <span class="pre">File</span></code>, select the runfile, click <code class="docutils literal notranslate"><span class="pre">Start</span></code></p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="collecting_data.html" class="btn btn-neutral float-right" title="Sorting data" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="Introduction.html" class="btn btn-neutral float-left" title="Setting up the beamline" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright : Official Contribution of the US Government.  Not subject to copyright in the United States..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

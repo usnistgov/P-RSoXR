@@ -1,0 +1,7 @@
+anisotropic_structure
+=====================
+
+.. automodule:: anisotropic_structure
+    :members:
+    :undoc-members:
+    :show-inheritance:
