@@ -1,0 +1,1052 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>PyPXR API &mdash; p-RSoXR 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/thebelab.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/thebelab-helper.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.0/dist/embed-amd.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="prsoxr_script_gen.py" href="DataCollection/script_gen.html" />
+    <link rel="prev" title="PrsoxrLoader API" href="DataReduction_API.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> p-RSoXR
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="DataCollection_home.html">Collecting Data:</a></li>
+<li class="toctree-l1"><a class="reference internal" href="DataReduction_home.html">Reducing data to 1D profiles:</a></li>
+<li class="toctree-l1"><a class="reference internal" href="DataModeling_home.html">Modeling/Fitting with PyPXR:</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references_home.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="API.html">API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="DataReduction_API.html">PrsoxrLoader API</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">PyPXR API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#building-a-structure">Building a structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#polarized-reflectivity-model">Polarized reflectivity model</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="DataCollection/script_gen.html">prsoxr_script_gen.py</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="legal.html">NIST Legal</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">p-RSoXR</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="API.html">API Documentation</a> &raquo;</li>
+        
+      <li>PyPXR API</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/source/PyPXR_API.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="pypxr-api">
+<h1>PyPXR API<a class="headerlink" href="#pypxr-api" title="Permalink to this headline">¶</a></h1>
+<p>The object oriented approach behind PyPXR was forked from the X-ray/Neutron reflectometry analysis platform <a class="reference external" href="http://refnx.readthedocs.io/en/latest">refnx</a> (written by Andrew Nelson). A compatibility between the two packages allows for PyPXR to take advantage of the robust fitting capabilities within refnx.</p>
+<div class="section" id="building-a-structure">
+<h2>Building a structure<a class="headerlink" href="#building-a-structure" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pypxr.structure.PXR_Scatterer">
+<em class="property">class </em><code class="sig-prename descclassname">pypxr.structure.</code><code class="sig-name descname">PXR_Scatterer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pypxr/structure.html#PXR_Scatterer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypxr.structure.PXR_Scatterer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Abstract base class for a material with a complex tensor index of refraction</p>
+<dl class="py method">
+<dt id="pypxr.structure.PXR_Scatterer.parameters">
+<em class="property">property </em><code class="sig-name descname">parameters</code><a class="headerlink" href="#pypxr.structure.PXR_Scatterer.parameters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pypxr.structure.PXR_SLD">
+<em class="property">class </em><code class="sig-prename descclassname">pypxr.structure.</code><code class="sig-name descname">PXR_SLD</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em>, <em class="sig-param"><span class="n">symmetry</span><span class="o">=</span><span class="default_value">'uni'</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pypxr/structure.html#PXR_SLD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypxr.structure.PXR_SLD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pypxr.structure.PXR_Scatterer" title="pypxr.structure.PXR_Scatterer"><code class="xref py py-class docutils literal notranslate"><span class="pre">pypxr.structure.PXR_Scatterer</span></code></a></p>
+<p>Object representing freely varying complex tensor index of refraction of a material</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> (<em>float</em><em>, </em><em>complex</em><em>, </em><em>'np.array'</em>) – Valid np.ndarray.shape: (2,), (3,), (3,3) (‘xx’, ‘yy’, ‘zz’)
+tensor index of refraction.
+Units (N/A)</p></li>
+<li><p><strong>symmetry</strong> (<em>(</em><em>'iso'</em><em>, </em><em>'uni'</em><em>, </em><em>'bi'</em><em>)</em>) – Tensor symmetry. Automatically applies inter-parameter constraints.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of object for later reference.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Components correspond to individual tensor components defined as (‘xx’, ‘yy’, ‘zz’).
+In a uniaxial approximation the following inputs are equivalent.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">n_xx</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">(</span><span class="o">-</span><span class="mf">0.0035</span><span class="p">,</span> <span class="mf">0.0004</span><span class="p">)</span> <span class="c1"># [unitless] #Ordinary Axis</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n_zz</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">(</span><span class="o">-</span><span class="mf">0.0045</span><span class="p">,</span> <span class="mf">0.0009</span><span class="p">)</span> <span class="c1"># [unitless] #Extraordinary Axis</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">molecule</span> <span class="o">=</span> <span class="n">PXR_SLD</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">n_xx</span><span class="p">,</span> <span class="n">n_zz</span><span class="p">]),</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;molecule&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">molecule</span> <span class="o">=</span> <span class="n">PXR_SLD</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">n_xx</span><span class="p">,</span> <span class="n">n_xx</span><span class="p">,</span> <span class="n">n_zz</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;molecule&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">molecule</span> <span class="o">=</span> <span class="n">PXR_SLD</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">n_xx</span><span class="p">,</span> <span class="n">n_xx</span><span class="p">,</span> <span class="n">n_zz</span><span class="p">])</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;molecule)</span>
+</pre></div>
+</div>
+<p>An PXR_SLD object can be used to create a PXR_Slab:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">n_xx</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">(</span><span class="o">-</span><span class="mf">0.0035</span><span class="p">,</span> <span class="mf">0.0004</span><span class="p">)</span> <span class="c1"># [unitless] #Ordinary Axis</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n_zz</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">(</span><span class="o">-</span><span class="mf">0.0045</span><span class="p">,</span> <span class="mf">0.0009</span><span class="p">)</span> <span class="c1"># [unitless] #Extraordinary Axis</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">molecule</span> <span class="o">=</span> <span class="n">PXR_SLD</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">n_xx</span><span class="p">,</span> <span class="n">n_zz</span><span class="p">]),</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;material&#39;</span><span class="p">)</span> <span class="c1">#molecule</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#Crete a slab with 10 A in thickness and 3 A roughness</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">slab</span> <span class="o">=</span> <span class="n">molecule</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Tensor symmetry can be applied using <cite>symmetry</cite>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1">#&#39;uni&#39; will constrain n_xx = n_yy.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="bp">self</span><span class="o">.</span><span class="n">yy</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xx</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">constraint</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">xx</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="bp">self</span><span class="o">.</span><span class="n">iyy</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ixx</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">constraint</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ixx</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1">#&#39;iso&#39; will constrain n_xx = n_yy = n_zz</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="bp">self</span><span class="o">.</span><span class="n">yy</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xx</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">constraint</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">xx</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="bp">self</span><span class="o">.</span><span class="n">iyy</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ixx</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">constraint</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ixx</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="bp">self</span><span class="o">.</span><span class="n">zz</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xx</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">constraint</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">xx</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="bp">self</span><span class="o">.</span><span class="n">izz</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ixx</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">constraint</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ixx</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt id="pypxr.structure.PXR_SLD.parameters">
+<em class="property">property </em><code class="sig-name descname">parameters</code><a class="headerlink" href="#pypxr.structure.PXR_SLD.parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-class docutils literal notranslate"><span class="pre">refnx.analysis.Parameters</span></code> associated with this component</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pypxr.structure.PXR_SLD.symmetry">
+<em class="property">property </em><code class="sig-name descname">symmetry</code><a class="headerlink" href="#pypxr.structure.PXR_SLD.symmetry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify <cite>symmetry</cite> to automatically constrain the components. Default is ‘uni’</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pypxr.structure.PXR_SLD.tensor">
+<em class="property">property </em><code class="sig-name descname">tensor</code><a class="headerlink" href="#pypxr.structure.PXR_SLD.tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>A full 3x3 matrix composed of the individual parameter values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>out</strong> – complex tensor index of refraction</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.ndarray (3x3)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pypxr.structure.PXR_MaterialSLD">
+<em class="property">class </em><code class="sig-prename descclassname">pypxr.structure.</code><code class="sig-name descname">PXR_MaterialSLD</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">formula</span></em>, <em class="sig-param"><span class="n">density</span></em>, <em class="sig-param"><span class="n">energy</span><span class="o">=</span><span class="default_value">250.0</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pypxr/structure.html#PXR_MaterialSLD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypxr.structure.PXR_MaterialSLD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pypxr.structure.PXR_Scatterer" title="pypxr.structure.PXR_Scatterer"><code class="xref py py-class docutils literal notranslate"><span class="pre">pypxr.structure.PXR_Scatterer</span></code></a></p>
+<p>Object representing complex index of refraction of a chemical formula.
+Only works for an isotropic material, convenient for substrate and superstrate materials
+You can fit the mass density of the material.
+Takes advantage of the PeriodicTable python package for calculations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>formula</strong> (<em>str</em>) – Chemical formula</p></li>
+<li><p><strong>density</strong> (<em>float</em><em> or </em><em>Parameter</em>) – mass density of compound in g / cm**3</p></li>
+<li><p><strong>energy</strong> (<em>float</em><em>, </em><em>optional</em>) – energy of radiation (ev) ~ Converted to Angstrom in function</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of material</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>You need to have the <cite>periodictable</cite> package installed to use this object.
+A PXR_MaterialSLD object can be used to create a PXR_Slab:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># A PXR_MaterialSLD object for a common substrate</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">en</span> <span class="o">=</span> <span class="mf">284.4</span> <span class="c1">#[eV] Evaluate PeriodicTable at this energy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sio2</span> <span class="o">=</span> <span class="n">PXR_MaterialSLD</span><span class="p">(</span><span class="s1">&#39;SiO2&#39;</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">2.4</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="n">en</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;SiO2&#39;</span><span class="p">)</span> <span class="c1">#Substrate</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">si</span> <span class="o">=</span> <span class="n">PXR_MaterialSLD</span><span class="p">(</span><span class="s1">&#39;Si&#39;</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">2.33</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="n">en</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;SiO2&#39;</span><span class="p">)</span> <span class="c1">#Substrate</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt id="pypxr.structure.PXR_MaterialSLD.energy">
+<em class="property">property </em><code class="sig-name descname">energy</code><a class="headerlink" href="#pypxr.structure.PXR_MaterialSLD.energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Photon energy to evaluate index of refraction in eV. Automatically updates wavelength when assigned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>energy</strong> – Photon energy of X-ray probe.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pypxr.structure.PXR_MaterialSLD.formula">
+<em class="property">property </em><code class="sig-name descname">formula</code><a class="headerlink" href="#pypxr.structure.PXR_MaterialSLD.formula" title="Permalink to this definition">¶</a></dt>
+<dd><p>Chemical formula used to calculate the index of refraction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>formula</strong> – Full chemical formula used to calculate index of refraction.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pypxr.structure.PXR_MaterialSLD.parameters">
+<em class="property">property </em><code class="sig-name descname">parameters</code><a class="headerlink" href="#pypxr.structure.PXR_MaterialSLD.parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-class docutils literal notranslate"><span class="pre">refnx.analysis.Parameters</span></code> associated with this component</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pypxr.structure.PXR_MaterialSLD.tensor">
+<em class="property">property </em><code class="sig-name descname">tensor</code><a class="headerlink" href="#pypxr.structure.PXR_MaterialSLD.tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>An isotropic 3x3 tensor composed of <cite>complex(self.delta, self.beta)</cite> along the diagonal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>tensor</strong> – complex tensor index of refraction</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pypxr.structure.PXR_MaterialSLD.wavelength">
+<em class="property">property </em><code class="sig-name descname">wavelength</code><a class="headerlink" href="#pypxr.structure.PXR_MaterialSLD.wavelength" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wavelength to evaluate index of refraction in Angstroms. Automatically updates energy when assigned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>wavelength</strong> – Wavelength of X-ray probe.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pypxr.structure.PXR_Component">
+<em class="property">class </em><code class="sig-prename descclassname">pypxr.structure.</code><code class="sig-name descname">PXR_Component</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pypxr/structure.html#PXR_Component"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypxr.structure.PXR_Component" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A base class for describing the structure of a subset of an interface.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – The name associated with the Component</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Currently limited to Gaussian interfaces.</p>
+<dl class="py method">
+<dt id="pypxr.structure.PXR_Component.logp">
+<code class="sig-name descname">logp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pypxr/structure.html#PXR_Component.logp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypxr.structure.PXR_Component.logp" title="Permalink to this definition">¶</a></dt>
+<dd><p>The log-probability that this Component adds to the total log-prior
+term. Do not include log-probability terms for the actual parameters,
+these are automatically included elsewhere.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>logp</strong> – Log-probability</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pypxr.structure.PXR_Component.parameters">
+<em class="property">property </em><code class="sig-name descname">parameters</code><a class="headerlink" href="#pypxr.structure.PXR_Component.parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-class docutils literal notranslate"><span class="pre">refnx.analysis.Parameters</span></code> associated with this component</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pypxr.structure.PXR_Component.slabs">
+<code class="sig-name descname">slabs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pypxr/structure.html#PXR_Component.slabs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypxr.structure.PXR_Component.slabs" title="Permalink to this definition">¶</a></dt>
+<dd><p>The slab representation of this component</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>structure</strong> (<em>PyPXR.anisotropic_reflect.PXR_Structure</em>) – Summary of the structure that houses the component.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>slabs</strong> (<em>np.ndarray</em>) – Slab representation of this Component.
+Has shape (N, 5).</p>
+<ul>
+<li><dl class="simple">
+<dt>slab[N, 0]</dt><dd><p>thickness of layer N</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>slab[N, 1]</dt><dd><p>SLD.real of layer N (not including solvent)</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>slab[N, 2]</dt><dd><p><em>overall</em> SLD.imag of layer N (not including solvent)</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>slab[N, 3]</dt><dd><p>roughness between layer N and N-1</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>slab[N, 4]</dt><dd><p>volume fraction of solvent in layer N.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</li>
+<li><p><em>If a Component returns None, then it doesn’t have any slabs.</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pypxr.structure.PXR_Slab">
+<em class="property">class </em><code class="sig-prename descclassname">pypxr.structure.</code><code class="sig-name descname">PXR_Slab</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">thick</span></em>, <em class="sig-param"><span class="n">sld</span></em>, <em class="sig-param"><span class="n">rough</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pypxr/structure.html#PXR_Slab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypxr.structure.PXR_Slab" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pypxr.structure.PXR_Component" title="pypxr.structure.PXR_Component"><code class="xref py py-class docutils literal notranslate"><span class="pre">pypxr.structure.PXR_Component</span></code></a></p>
+<p>A slab component has uniform tensor index of refraction associated over its thickness.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>thick</strong> (<em>refnx.analysis.Parameter</em><em> or </em><em>float</em>) – thickness of slab (Angstrom)</p></li>
+<li><p><strong>sld</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">PyPXR.anisotropic_structure.PXR_Scatterer</span></code>, complex, or float) – (complex) tensor index of refraction of film</p></li>
+<li><p><strong>rough</strong> (<em>refnx.analysis.Parameter</em><em> or </em><em>float</em>) – roughness on top of this slab (Angstrom)</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of this slab</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pypxr.structure.PXR_Slab.parameters">
+<em class="property">property </em><code class="sig-name descname">parameters</code><a class="headerlink" href="#pypxr.structure.PXR_Slab.parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-class docutils literal notranslate"><span class="pre">refnx.analysis.Parameters</span></code> associated with this component</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pypxr.structure.PXR_Slab.slabs">
+<code class="sig-name descname">slabs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pypxr/structure.html#PXR_Slab.slabs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypxr.structure.PXR_Slab.slabs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Slab representation of this component. See <code class="xref py py-class docutils literal notranslate"><span class="pre">Component.slabs</span></code></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pypxr.structure.PXR_Slab.tensor">
+<code class="sig-name descname">tensor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">energy</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pypxr/structure.html#PXR_Slab.tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypxr.structure.PXR_Slab.tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stored information pertaining to the tensor dielectric properties of the slab.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>energy</strong> (<em>float</em>) – Updates PXR_SLD energy component associated with slab. Only required for PXR_MaterialSLD objects</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>tensor</strong> – Complex tensor index of refraction associated with slab.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pypxr.structure.PXR_MixedMaterialSlab">
+<em class="property">class </em><code class="sig-prename descclassname">pypxr.structure.</code><code class="sig-name descname">PXR_MixedMaterialSlab</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">thick</span></em>, <em class="sig-param"><span class="n">sld_list</span></em>, <em class="sig-param"><span class="n">vf_list</span></em>, <em class="sig-param"><span class="n">rough</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pypxr/structure.html#PXR_MixedMaterialSlab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypxr.structure.PXR_MixedMaterialSlab" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pypxr.structure.PXR_Component" title="pypxr.structure.PXR_Component"><code class="xref py py-class docutils literal notranslate"><span class="pre">pypxr.structure.PXR_Component</span></code></a></p>
+<p>A slab component made of several components</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>thick</strong> (<em>refnx.analysis.Parameter</em><em> or </em><em>float</em>) – thickness of slab (Angstrom)</p></li>
+<li><p><strong>sld_list</strong> (<em>sequence of {anisotropic_reflect.PXR_Scatterer</em><em>, </em><em>complex</em><em>, </em><em>float}</em>) – Sequence of materials that are contained in the slab.</p></li>
+<li><p><strong>vf_list</strong> (<em>sequence of refnx.analysis.Parameter</em><em> or </em><em>float</em>) – relative volume fractions of each of the materials contained in the
+film.</p></li>
+<li><p><strong>rough</strong> (<em>refnx.analysis.Parameter</em><em> or </em><em>float</em>) – roughness on top of this slab (Angstrom)</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of this slab</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The index of refraction for this slab is calculated using the normalised volume fractions of
+each of the constituent components:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="nb">complex</span><span class="p">(</span><span class="n">sld</span><span class="p">)</span> <span class="o">*</span> <span class="n">vf</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">vf_list</span><span class="p">)</span> <span class="k">for</span> <span class="n">sld</span><span class="p">,</span> <span class="n">vf</span> <span class="ow">in</span>
+<span class="gp">... </span>        <span class="nb">zip</span><span class="p">(</span><span class="n">sld_list</span><span class="p">,</span> <span class="n">vf_list</span><span class="p">)])</span><span class="o">.</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt id="pypxr.structure.PXR_MixedMaterialSlab.parameters">
+<em class="property">property </em><code class="sig-name descname">parameters</code><a class="headerlink" href="#pypxr.structure.PXR_MixedMaterialSlab.parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-class docutils literal notranslate"><span class="pre">refnx.analysis.Parameters</span></code> associated with this component</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pypxr.structure.PXR_MixedMaterialSlab.slabs">
+<code class="sig-name descname">slabs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pypxr/structure.html#PXR_MixedMaterialSlab.slabs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypxr.structure.PXR_MixedMaterialSlab.slabs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Slab representation of this component. See <code class="xref py py-class docutils literal notranslate"><span class="pre">Component.slabs</span></code></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pypxr.structure.PXR_MixedMaterialSlab.tensor">
+<code class="sig-name descname">tensor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">energy</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pypxr/structure.html#PXR_MixedMaterialSlab.tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypxr.structure.PXR_MixedMaterialSlab.tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stored information pertaining to the tensor dielectric properties of the slab.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>energy</strong> (<em>float</em>) – Updates PXR_SLD energy component associated with slab. Only required for PXR_MaterialSLD objects</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>tensor</strong> – Complex tensor index of refraction associated with slab.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pypxr.structure.PXR_Structure">
+<em class="property">class </em><code class="sig-prename descclassname">pypxr.structure.</code><code class="sig-name descname">PXR_Structure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">components</span><span class="o">=</span><span class="default_value">()</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">reverse_structure</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pypxr/structure.html#PXR_Structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypxr.structure.PXR_Structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.UserList</span></code></p>
+<p>Represents the interfacial Structure of a reflectometry sample.
+Successive Components are added to the Structure to construct the interface.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>components</strong> (<em>sequence</em>) – A sequence of PXR_Components to initialise the PXR_Structure.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of this structure</p></li>
+<li><p><strong>reverse_structure</strong> (<em>bool</em>) – If <cite>Structure.reverse_structure</cite> is <cite>True</cite> then  slab representation produced by <cite>Structure.slabs</cite> is reversed.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">PyPXR</span> <span class="kn">import</span> <span class="n">PXR_SLD</span><span class="p">,</span> <span class="n">PXR_MaterialSLD</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">en</span> <span class="o">=</span> <span class="mf">284.4</span> <span class="c1">#[eV]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># make the material with tensor index of refraction</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vac</span> <span class="o">=</span> <span class="n">PXR_MaterialSLD</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="n">en</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;vacuum&#39;</span><span class="p">)</span> <span class="c1">#Superstrate</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">si</span> <span class="o">=</span> <span class="n">PXR_MaterialSLD</span><span class="p">(</span><span class="s1">&#39;Si&#39;</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">2.33</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="n">en</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Si&#39;</span><span class="p">)</span> <span class="c1">#Substrate</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sio2</span> <span class="o">=</span> <span class="n">PXR_MaterialSLD</span><span class="p">(</span><span class="s1">&#39;SiO2&#39;</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">2.4</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="n">en</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;SiO2&#39;</span><span class="p">)</span> <span class="c1">#Substrate</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n_xx</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">(</span><span class="o">-</span><span class="mf">0.0035</span><span class="p">,</span> <span class="mf">0.0004</span><span class="p">)</span> <span class="c1"># [unitless] #Ordinary Axis</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n_zz</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">(</span><span class="o">-</span><span class="mf">0.0045</span><span class="p">,</span> <span class="mf">0.0009</span><span class="p">)</span> <span class="c1"># [unitless] #Extraordinary Axis</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">molecule</span> <span class="o">=</span> <span class="n">PXR_SLD</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">n_xx</span><span class="p">,</span> <span class="n">n_zz</span><span class="p">]),</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;material&#39;</span><span class="p">)</span> <span class="c1">#molecule</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#Make the structure</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#See &#39;PXR_Slab&#39; for details on building layers</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span> <span class="o">=</span> <span class="n">vac</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="o">|</span> <span class="n">molecule</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">|</span> <span class="n">sio2</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">)</span> <span class="o">|</span> <span class="n">si</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt id="pypxr.structure.PXR_Structure.append">
+<code class="sig-name descname">append</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">item</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pypxr/structure.html#PXR_Structure.append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypxr.structure.PXR_Structure.append" title="Permalink to this definition">¶</a></dt>
+<dd><p>Append a <a class="reference internal" href="#pypxr.structure.PXR_Component" title="pypxr.structure.PXR_Component"><code class="xref py py-class docutils literal notranslate"><span class="pre">PXR_Component</span></code></a> to the Structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>item</strong> (<em>refnx.reflect.Component</em>) – The component to be added.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pypxr.structure.PXR_Structure.components">
+<em class="property">property </em><code class="sig-name descname">components</code><a class="headerlink" href="#pypxr.structure.PXR_Structure.components" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of components in the sample.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pypxr.structure.PXR_Structure.logp">
+<code class="sig-name descname">logp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pypxr/structure.html#PXR_Structure.logp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypxr.structure.PXR_Structure.logp" title="Permalink to this definition">¶</a></dt>
+<dd><p>log-probability for the interfacial structure. Note that if a given
+component is present more than once in a Structure then it’s log-prob
+will be counted twice.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>logp</strong> – log-prior for the Structure.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pypxr.structure.PXR_Structure.name">
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#pypxr.structure.PXR_Structure.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pypxr.structure.PXR_Structure.parameters">
+<em class="property">property </em><code class="sig-name descname">parameters</code><a class="headerlink" href="#pypxr.structure.PXR_Structure.parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-class docutils literal notranslate"><span class="pre">refnx.analysis.Parameters</span></code>, all the parameters associated with
+this structure.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pypxr.structure.PXR_Structure.plot">
+<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pvals</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">samples</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">fig</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">difference</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">align</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pypxr/structure.html#PXR_Structure.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypxr.structure.PXR_Structure.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the structure.</p>
+<p>Requires matplotlib be installed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pvals</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – Numeric values for the Parameter’s that are varying</p></li>
+<li><p><strong>samples</strong> (<em>number</em>) – If this structures constituent parameters have been sampled, how
+many samples you wish to plot on the graph.</p></li>
+<li><p><strong>fig</strong> (<em>Figure instance</em><em>, </em><em>optional</em>) – If <cite>fig</cite> is not supplied then a new figure is created. Otherwise
+the graph is created on the current axes on the supplied figure.</p></li>
+<li><p><strong>difference</strong> (<em>boolean</em><em>, </em><em>optional</em>) – If True, plot the birefringence / dichroism on a separate graph.</p></li>
+<li><p><strong>align</strong> (<em>int</em><em>, </em><em>optional</em>) – Aligns the plotted structures around a specified interface in the
+slab representation of a Structure. This interface will appear at
+z = 0 in the sld plot.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>fig, ax</strong> – <cite>matplotlib</cite> figure and axes objects.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.Figure</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.Axes</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pypxr.structure.PXR_Structure.reflectivity">
+<code class="sig-name descname">reflectivity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">q</span></em>, <em class="sig-param"><span class="n">energy</span><span class="o">=</span><span class="default_value">250.0</span></em>, <em class="sig-param"><span class="n">backend</span><span class="o">=</span><span class="default_value">'uni'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pypxr/structure.html#PXR_Structure.reflectivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypxr.structure.PXR_Structure.reflectivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate theoretical polarized reflectivity of this structure</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>q</strong> (<em>array-like</em>) – Q values (Angstrom**-1) for evaluation</p></li>
+<li><p><strong>energy</strong> (<em>float</em>) – Photon energy (eV) for evaluation</p></li>
+<li><p><strong>backend</strong> (<em>'uni'</em><em> or </em><em>'biaxial'</em>) – Specifies if you want to run a uniaxial calculation or a full biaxial calculation.
+Biaxial has NOT been verified through outside means (07/2021 Biaxial currently does not work)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pypxr.structure.PXR_Structure.reverse_structure">
+<em class="property">property </em><code class="sig-name descname">reverse_structure</code><a class="headerlink" href="#pypxr.structure.PXR_Structure.reverse_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>bool</strong>  if <cite>True</cite> then the slab representation produced by
+<a class="reference internal" href="#pypxr.structure.PXR_Structure.slabs" title="pypxr.structure.PXR_Structure.slabs"><code class="xref py py-meth docutils literal notranslate"><span class="pre">PXR_Structure.slabs()</span></code></a> is reversed. The sld profile and calculated
+reflectivity will correspond to this reversed structure.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pypxr.structure.PXR_Structure.slabs">
+<code class="sig-name descname">slabs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pypxr/structure.html#PXR_Structure.slabs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypxr.structure.PXR_Structure.slabs" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><p><strong>slabs</strong> – Slab representation of this structure.
+Has shape (N, 3).
+N - number of slabs</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>slab[N, 0]</dt><dd><p>thickness of layer N</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>slab[N, 1]</dt><dd><p>sld.delta of layer N</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>slab[N, 2]</dt><dd><p>sld.beta of layer N</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>slab[N, 3]</dt><dd><p>roughness between layer N and N-1</p>
+</dd>
+</dl>
+</li>
+</ul>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>If <cite>PXR_Structure.reversed is True</cite> then the slab representation order is
+reversed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pypxr.structure.PXR_Structure.sld_profile">
+<code class="sig-name descname">sld_profile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">z</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">align</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pypxr/structure.html#PXR_Structure.sld_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypxr.structure.PXR_Structure.sld_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates an index of refraction depth profile as a function of distance from the superstrate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>z</strong> (<em>float</em>) – Interfacial distance (Angstrom) measured from interface between the fronting medium and first layer.</p></li>
+<li><p><strong>align</strong> (<em>int</em><em>, </em><em>optional</em>) – Places a specified interface in the slab representation of a PXR_Structure at z =0.
+Python indexing is allowed to select interface.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul>
+<li><p><strong>zed</strong> (<em>np.ndarray</em>) – Interfacial distance measured from superstrate offset by ‘align’.
+Has shape (N, )</p></li>
+<li><p><strong>prof</strong> (<em>np.ndarray (complex)</em>) – Real and imaginary tensor components of index of refraction [unitless]
+Has shape (N, 3)</p>
+<dl class="simple">
+<dt>-prof[N, 0]</dt><dd><p>dielectric component n_xx at depth N</p>
+</dd>
+<dt>-prof[N, 1]</dt><dd><p>dielectric component n_yy at depth N</p>
+</dd>
+<dt>-prof[N, 3]</dt><dd><p>dielectric component n_xx at depth N</p>
+</dd>
+</dl>
+</li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1">#To calculate the isotropic components</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n_iso</span> <span class="o">=</span> <span class="n">prof</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">3</span> <span class="c1">#(nxx + nyy + nzz)/3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#To calculate the birefringence and dichroism</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">diff</span> <span class="o">=</span> <span class="n">prof</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">prof</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span> <span class="c1">#nxx-nzz</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pypxr.structure.PXR_Structure.tensor">
+<code class="sig-name descname">tensor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">energy</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pypxr/structure.html#PXR_Structure.tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypxr.structure.PXR_Structure.tensor" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>energy: float</dt><dd><p>Photon energy used to calculate the tensor index of refraction.
+This only applies for objects that require a specific energy (see PXR_MaterialSLD).
+Common for substrates/superstrates</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><p><strong>tensors</strong> – Supplementary object to self.slabs that contains dielectric tensor for each layer.
+Has shape (N, 3,3).
+N - number of slabs</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>tensor[N, 1, 1]</dt><dd><p>dielectric component xx of layer N</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>tensor[N, 2, 2]</dt><dd><p>dielectric component yy of layer N</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>tensor[N, 3, 3]</dt><dd><p>dielectric component zz of layer N</p>
+</dd>
+</dl>
+</li>
+</ul>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Output as a (3, 3) np.ndarray.
+Used for broadcasting in later calculations. All off-diagonal elements are zero.</p>
+<p>If <cite>Structure.reversed is True</cite> then the representation order is
+reversed. Energy is required for energy-dependent slabs</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="polarized-reflectivity-model">
+<h2>Polarized reflectivity model<a class="headerlink" href="#polarized-reflectivity-model" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pypxr.reflectivity.PXR_ReflectModel">
+<em class="property">class </em><code class="sig-prename descclassname">pypxr.reflectivity.</code><code class="sig-name descname">PXR_ReflectModel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">scale</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">bkg</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">dq</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">energy</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">phi</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">pol</span><span class="o">=</span><span class="default_value">'s'</span></em>, <em class="sig-param"><span class="n">backend</span><span class="o">=</span><span class="default_value">'uni'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pypxr/reflectivity.html#PXR_ReflectModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypxr.reflectivity.PXR_ReflectModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<em>anisotropic_structure.PXR_Structure object</em>) – The interfacial structure.</p></li>
+<li><p><strong>scale</strong> (<em>float</em><em> or </em><em>refnx.analysis.Parameter</em><em>, </em><em>optional</em>) – scale factor. All model values are multiplied by this value before
+the background is added. This is turned into a Parameter during the
+construction of this object.</p></li>
+<li><p><strong>bkg</strong> (<em>float</em><em> or </em><em>refnx.analysis.Parameter</em><em>, </em><em>optional</em>) – Q-independent constant background added to all model values. This is
+turned into a Parameter during the construction of this object.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the Model</p></li>
+<li><p><strong>dq</strong> (<em>float</em><em> or </em><em>refnx.analysis.Parameter</em><em>, </em><em>optional</em>) – <ul>
+<li><p><cite>dq == 0</cite> then no resolution smearing is employed.</p></li>
+<li><dl class="simple">
+<dt><cite>dq</cite> is a float or refnx.analysis.Parameter</dt><dd><p>a constant dQ/Q resolution smearing is employed.  For 5% resolution
+smearing supply 5.This value is turned into a Parameter during the construction of this object.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>If <cite>x_err</cite> is supplied to the <cite>model</cite> method, dq becomes overriden. that
+overrides any setting given here.</p>
+<p>Adding q-smearing greatly reduces the current speed of the calculation.
+Data collected at ALS 11.0.1.2 over the carbon edge likely does not require any q-smearing.</p>
+<dl class="py method">
+<dt id="pypxr.reflectivity.PXR_ReflectModel.bkg">
+<em class="property">property </em><code class="sig-name descname">bkg</code><a class="headerlink" href="#pypxr.reflectivity.PXR_ReflectModel.bkg" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-class docutils literal notranslate"><span class="pre">refnx.analysis.Parameter</span></code> - linear background added to all
+model values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pypxr.reflectivity.PXR_ReflectModel.dq">
+<em class="property">property </em><code class="sig-name descname">dq</code><a class="headerlink" href="#pypxr.reflectivity.PXR_ReflectModel.dq" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-class docutils literal notranslate"><span class="pre">refnx.analysis.Parameter</span></code></p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><cite>dq.value == 0</cite></dt><dd><p>no resolution smearing is employed.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>dq.value &gt; 0</cite></dt><dd><p>a constant dQ/Q resolution smearing is employed.  For 5%
+resolution smearing supply 5. However, if <cite>x_err</cite> is supplied to
+the <cite>model</cite> method, then that overrides any setting reported
+here.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pypxr.reflectivity.PXR_ReflectModel.energy">
+<em class="property">property </em><code class="sig-name descname">energy</code><a class="headerlink" href="#pypxr.reflectivity.PXR_ReflectModel.energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Photon energy to evaluate the resonant reflectivity.
+Automatically updates all PXR_MaterialSLD objects associated with self.structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>energy</strong> – Photon energy of X-ray probe.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pypxr.reflectivity.PXR_ReflectModel.logp">
+<code class="sig-name descname">logp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pypxr/reflectivity.html#PXR_ReflectModel.logp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypxr.reflectivity.PXR_ReflectModel.logp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Additional log-probability terms for the reflectivity model. Do not
+include log-probability terms for model parameters, these are
+automatically included elsewhere.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>logp</strong> – log-probability of structure.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pypxr.reflectivity.PXR_ReflectModel.model">
+<code class="sig-name descname">model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">p</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">x_err</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pypxr/reflectivity.html#PXR_ReflectModel.model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypxr.reflectivity.PXR_ReflectModel.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the reflectivity of this model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em><em> or </em><em>np.ndarray</em>) – q or E values for the calculation.
+specifiy self.qval to be any value to fit energy-space</p></li>
+<li><p><strong>p</strong> (<em>refnx.analysis.Parameters</em><em>, </em><em>optional</em>) – parameters required to calculate the model</p></li>
+<li><p><strong>x_err</strong> (<em>np.ndarray</em>) – dq resolution smearing values for the dataset being considered.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>reflectivity</strong> – Calculated reflectivity. Output is dependent on <cite>self.pol</cite></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pypxr.reflectivity.PXR_ReflectModel.parameters">
+<em class="property">property </em><code class="sig-name descname">parameters</code><a class="headerlink" href="#pypxr.reflectivity.PXR_ReflectModel.parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-class docutils literal notranslate"><span class="pre">refnx.analysis.Parameters</span></code> - parameters associated with this
+model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pypxr.reflectivity.PXR_ReflectModel.phi">
+<em class="property">property </em><code class="sig-name descname">phi</code><a class="headerlink" href="#pypxr.reflectivity.PXR_ReflectModel.phi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Azimuthal angle of incidence [deg]. Only used with a biaxial calculation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>phi</strong> – Azimuthal angle of incidence used in calculation.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pypxr.reflectivity.PXR_ReflectModel.pol">
+<em class="property">property </em><code class="sig-name descname">pol</code><a class="headerlink" href="#pypxr.reflectivity.PXR_ReflectModel.pol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Polarization to calculate the resonant reflectivity.</p>
+<blockquote>
+<div><p>-<cite>pol == ‘s’</cite>
+Calculation returns s-polarization only.
+-<cite>pol == ‘p’</cite>
+Calculation returns p-polarization only.
+-<cite>pol == ‘sp’ or ‘ps’</cite>
+Calulation returns concatenate in order of input.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>pol</strong> – Linear polarizations state of incident raw</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pypxr.reflectivity.PXR_ReflectModel.scale">
+<em class="property">property </em><code class="sig-name descname">scale</code><a class="headerlink" href="#pypxr.reflectivity.PXR_ReflectModel.scale" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-class docutils literal notranslate"><span class="pre">refnx.analysis.Parameter</span></code> - all model values are multiplied by
+this value before the background is added.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pypxr.reflectivity.PXR_ReflectModel.structure">
+<em class="property">property </em><code class="sig-name descname">structure</code><a class="headerlink" href="#pypxr.reflectivity.PXR_ReflectModel.structure" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-class docutils literal notranslate"><span class="pre">PRSoXR.PXR_Structure</span></code> - object describing the interface of
+a reflectometry sample.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="DataCollection/script_gen.html" class="btn btn-neutral float-right" title="prsoxr_script_gen.py" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="DataReduction_API.html" class="btn btn-neutral float-left" title="PrsoxrLoader API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright : Official Contribution of the US Government.  Not subject to copyright in the United States..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

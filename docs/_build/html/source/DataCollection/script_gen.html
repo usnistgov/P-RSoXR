@@ -1,0 +1,606 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>prsoxr_script_gen.py &mdash; p-RSoXR 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/thebelab.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/thebelab-helper.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.0/dist/embed-amd.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="prev" title="PyPXR API" href="../PyPXR_API.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> p-RSoXR
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../DataCollection_home.html">Collecting Data:</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../DataReduction_home.html">Reducing data to 1D profiles:</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../DataModeling_home.html">Modeling/Fitting with PyPXR:</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../references_home.html">References</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../API.html">API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../DataReduction_API.html">PrsoxrLoader API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../PyPXR_API.html">PyPXR API</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">prsoxr_script_gen.py</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">p-RSoXR</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../API.html">API Documentation</a> &raquo;</li>
+        
+      <li>prsoxr_script_gen.py</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../../_sources/source/DataCollection/script_gen.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="prsoxr-script-gen-py">
+<h1>prsoxr_script_gen.py<a class="headerlink" href="#prsoxr-script-gen-py" title="Permalink to this headline">¶</a></h1>
+<p>Example script generator:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Runfile to generate a motor-position script to be read by ALS beamline 11.0.1.2.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1">#Initializations</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Setup Parameters</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="n">save_dir</span> <span class="o">=</span> <span class="s1">&#39;my/path/to/save/location&#39;</span> <span class="c1"># Location to save script</span>
+<span class="n">save_name</span> <span class="o">=</span> <span class="s1">&#39;fancy_name&#39;</span> <span class="c1"># Scipt name</span>
+
+<span class="c1">#Store sample names and energies you want to run</span>
+<span class="n">sample_list</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1">#Do not change this line</span>
+<span class="n">sample_list</span><span class="p">[</span><span class="s1">&#39;Samp_A&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">270.0</span><span class="p">,</span> <span class="mf">284.5</span><span class="p">,</span> <span class="mf">287.3</span><span class="p">,</span> <span class="mf">288.7</span><span class="p">]</span>
+<span class="n">sample_list</span><span class="p">[</span><span class="s1">&#39;Samp_B&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">270.0</span><span class="p">,</span> <span class="mf">284.3</span><span class="p">,</span> <span class="mf">288.7</span><span class="p">]</span>
+<span class="n">sample_list</span><span class="p">[</span><span class="s1">&#39;Samp_C&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">250.0</span><span class="p">,</span> <span class="mf">283.5</span><span class="p">,</span> <span class="mf">284.8</span><span class="p">,</span> <span class="mf">285.3</span><span class="p">]</span>
+
+<span class="c1">#External energy calibration</span>
+<span class="n">EnergyOffset</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># [eV]</span>
+
+<span class="c1"># Inputs to run sample plate</span>
+<span class="n">SampleOrder</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Samp_A&#39;</span><span class="p">,</span> <span class="s1">&#39;Samp_B&#39;</span><span class="p">,</span> <span class="s1">&#39;Samp_C&#39;</span><span class="p">]</span> <span class="c1"># Order that you want to run samples.</span>
+<span class="c1"># Motor positions</span>
+<span class="n">XPosition</span> <span class="o">=</span> <span class="p">[</span><span class="mf">36.52</span><span class="p">,</span> <span class="mf">23.36</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="c1"># &#39;Sample X&#39; motor position</span>
+<span class="n">XOffset</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">]</span> <span class="c1"># Offset to translate beam on sample after each energy.</span>
+<span class="n">YPosition</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">3.2150</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.9750</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="c1"># &#39;Sample Y&#39; motor position</span>
+<span class="n">ZPosition</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.27</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.36</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="c1"># &#39;Sample Z&#39; motor position</span>
+<span class="n">ZFlipPosition</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.21</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="c1"># &#39;Sample Z&#39; motor position when &#39;Sample Theta&#39; is flipped 180deg</span>
+<span class="n">ReverseHolder</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="c1">#Set to True (1) for a sample that is on the reverse side of the holder</span>
+<span class="n">ZDirectBeam</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="c1">#&#39;Sample Z&#39; motor positions to access the direct beam</span>
+<span class="n">ThetaOffset</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.55</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="c1">#&#39;Sample Theta&#39; offset if measuring multiple samples</span>
+
+<span class="c1">##</span>
+<span class="n">SampleThickness</span> <span class="o">=</span> <span class="p">[</span><span class="mi">250</span><span class="p">,</span> <span class="mi">250</span><span class="p">,</span> <span class="mi">250</span><span class="p">]</span> <span class="c1">#Approximate film thickness [A], used to determine dq</span>
+<span class="n">LowAngleDensity</span> <span class="o">=</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">]</span> <span class="c1">#Approximate number of points per fringe at low angles</span>
+<span class="n">HighAngleDensity</span> <span class="o">=</span> <span class="p">[</span><span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">]</span> <span class="c1">#Approximate number of points per fringe at high angles</span>
+<span class="n">AngleCrossover</span> <span class="o">=</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span> <span class="c1">#Angle [deg] to cross from low -&gt; high density</span>
+<span class="c1">##</span>
+<span class="n">OverlapPoints</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="c1">#Number of overlap points upon changing motor. Used for stitching</span>
+<span class="n">CheckUncertainty</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="c1">#Number of points for assessing error at each change in motor conditions. Used for error reduction</span>
+<span class="n">HOSBuffer</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="c1">#Number of points to add upon changing HOS to account for  motor movement.</span>
+<span class="n">I0Points</span> <span class="o">=</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span> <span class="c1">#Number of I0 measureents taken at the start of the scan. Used to calculate direct beam uncertainty</span>
+
+<span class="c1">#Initialize compilation lists:</span>
+<span class="n">VariableMotors</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">MotorPositions</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">COPY THIS BLOCK OF CODE FOR EACH SAMPLE</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1">#########################################</span>
+<span class="c1">#####            Sample 0           #####</span>
+<span class="c1">#########################################</span>
+<span class="n">DEG</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># Angles to change settings</span>
+<span class="n">HOS</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># HOS positions</span>
+<span class="n">HES</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># HES positions</span>
+<span class="n">EXP</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># Exposures</span>
+<span class="c1">#########################################</span>
+
+<span class="c1">#########################################</span>
+<span class="c1">#####           Energy 1            #####</span>
+<span class="c1">#########################################</span>
+<span class="n">DEG</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">75</span><span class="p">])</span>
+<span class="n">HOS</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">12</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">])</span>
+<span class="n">HES</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">150</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">150</span><span class="p">])</span>
+<span class="n">EXP</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">])</span>
+
+<span class="c1">#########################################</span>
+<span class="c1">#####           Energy 2            #####</span>
+<span class="c1">#########################################</span>
+<span class="n">DEG</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">75</span><span class="p">])</span>
+<span class="n">HOS</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">12</span><span class="p">,</span> <span class="mf">11.5</span><span class="p">,</span>  <span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">])</span>
+<span class="n">HES</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">])</span>
+<span class="n">EXP</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">])</span>
+
+<span class="c1">#########################################</span>
+<span class="c1">#####           Energy 3            #####</span>
+<span class="c1">#########################################</span>
+<span class="n">DEG</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">75</span><span class="p">])</span>
+<span class="n">HOS</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">12</span><span class="p">,</span> <span class="mf">11.5</span><span class="p">,</span>  <span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">])</span>
+<span class="n">HES</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">])</span>
+<span class="n">EXP</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">])</span>
+
+<span class="c1">#########################################</span>
+<span class="c1">#####           Energy 4            #####</span>
+<span class="c1">#########################################</span>
+<span class="n">DEG</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">75</span><span class="p">])</span>
+<span class="n">HOS</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">12</span><span class="p">,</span> <span class="mf">11.5</span><span class="p">,</span>  <span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">])</span>
+<span class="n">HES</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1500</span><span class="p">])</span>
+<span class="n">EXP</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">])</span>
+
+<span class="c1">#Consolodate information</span>
+<span class="n">motors</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">DEG</span><span class="p">,</span> <span class="n">HOS</span><span class="p">,</span> <span class="n">HES</span><span class="p">,</span> <span class="n">EXP</span><span class="p">)</span>
+<span class="n">temp_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Angle&#39;</span><span class="p">,</span> <span class="s1">&#39;HOS&#39;</span><span class="p">,</span> <span class="s1">&#39;HES&#39;</span><span class="p">,</span> <span class="s1">&#39;EXPOSURE&#39;</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">deg</span><span class="p">,</span> <span class="n">hos</span><span class="p">,</span> <span class="n">hes</span><span class="p">,</span> <span class="n">exp</span> <span class="ow">in</span> <span class="n">motors</span><span class="p">:</span>
+        <span class="n">temp_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;Angle&#39;</span><span class="p">:</span><span class="n">deg</span><span class="p">,</span> <span class="s1">&#39;HOS&#39;</span><span class="p">:</span><span class="n">hos</span><span class="p">,</span> <span class="s1">&#39;HES&#39;</span><span class="p">:</span><span class="n">hes</span><span class="p">,</span> <span class="s1">&#39;EXPOSURE&#39;</span><span class="p">:</span><span class="n">exp</span><span class="p">}))</span>
+<span class="n">VariableMotors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">temp_list</span><span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">STOP COPYING HERE</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1">#Add samples here ~~</span>
+
+
+
+
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">DON&#39;T ADD SAMPLES BEYOND THIS POINT</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1">#Setting up meta-data</span>
+<span class="n">MotorPositions</span><span class="p">[</span><span class="s1">&#39;XPosition&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Xposition</span>
+<span class="n">MotorPositions</span><span class="p">[</span><span class="s1">&#39;YPosition&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Xposition</span>
+<span class="n">MotorPositions</span><span class="p">[</span><span class="s1">&#39;ZPosition&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Xposition</span>
+<span class="n">MotorPositions</span><span class="p">[</span><span class="s1">&#39;XOffset&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">XOffset</span>
+<span class="n">MotorPositions</span><span class="p">[</span><span class="s1">&#39;ZFlipPosition&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ZFlipPosition</span>
+<span class="n">MotorPositions</span><span class="p">[</span><span class="s1">&#39;ZDirectBeam&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ZDirectBeam</span>
+<span class="n">MotorPositions</span><span class="p">[</span><span class="s1">&#39;ThetaOffset&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ThetaOffset</span>
+<span class="n">MotorPositions</span><span class="p">[</span><span class="s1">&#39;ReverseHolder&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ReverseHolder</span>
+<span class="n">MotorPositions</span><span class="p">[</span><span class="s1">&#39;SampleThickness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">SampleThickness</span>
+<span class="n">MotorPositions</span><span class="p">[</span><span class="s1">&#39;LowAngleDensity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">LowAngleDensity</span>
+<span class="n">MotorPositions</span><span class="p">[</span><span class="s1">&#39;HighAngleDensity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">HighAngleDensity</span>
+<span class="n">MotorPositions</span><span class="p">[</span><span class="s1">&#39;AngleCrossover&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">AngleCrossover</span>
+<span class="n">MotorPositions</span><span class="p">[</span><span class="s1">&#39;OverlapPoints&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OverlapPoints</span>
+<span class="n">MotorPositions</span><span class="p">[</span><span class="s1">&#39;CheckUncertainty&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">CheckUncertainty</span>
+<span class="n">MotorPositions</span><span class="p">[</span><span class="s1">&#39;HOSBuffer&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">HOSBuffer</span>
+<span class="n">MotorPositions</span><span class="p">[</span><span class="s1">&#39;I0Points&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">I0Points</span>
+<span class="n">df_motor</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">MotorPositions</span><span class="p">)</span>
+
+<span class="c1">#Function that will generate beamline inputs</span>
+<span class="k">def</span> <span class="nf">AngleRunGeneration</span><span class="p">(</span><span class="n">MotorPositions</span><span class="p">,</span> <span class="n">VariableMotors</span><span class="p">,</span> <span class="n">Energy</span><span class="p">):</span>
+        <span class="c1">#Constants ## https://www.nist.gov/si-redefinition</span>
+        <span class="n">SOL</span> <span class="o">=</span> <span class="mi">299792458</span> <span class="c1">#m/s</span>
+        <span class="n">PLANCK_JOULE</span> <span class="o">=</span> <span class="mf">6.6267015e-34</span> <span class="c1">#Joule s</span>
+        <span class="n">ELEMCHARGE</span> <span class="o">=</span>  <span class="mf">1.602176634e-19</span> <span class="c1">#coulombs</span>
+        <span class="n">PLANCK</span> <span class="o">=</span> <span class="n">PLANCK_JOULE</span> <span class="o">/</span> <span class="n">ELEMCHARGE</span> <span class="c1">#eV s</span>
+        <span class="n">meterToAng</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+        <span class="c1">##Initialization of needed components</span>
+        <span class="n">Wavelength</span> <span class="o">=</span> <span class="n">SOL</span> <span class="o">*</span> <span class="n">PLANCK</span> <span class="o">*</span> <span class="n">meterToAng</span> <span class="o">/</span> <span class="n">Energy</span>
+        <span class="n">AngleNumber</span> <span class="o">=</span> <span class="n">VariableMotors</span><span class="p">[</span><span class="s1">&#39;Angle&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span>
+        <span class="n">XPosition</span> <span class="o">=</span> <span class="n">MotorPositions</span><span class="p">[</span><span class="s1">&#39;XPosition&#39;</span><span class="p">]</span>
+        <span class="n">YPosition</span> <span class="o">=</span> <span class="n">MotorPositions</span><span class="p">[</span><span class="s1">&#39;YPosition&#39;</span><span class="p">]</span>
+        <span class="n">ZPosition</span> <span class="o">=</span> <span class="n">MotorPositions</span><span class="p">[</span><span class="s1">&#39;ZPosition&#39;</span><span class="p">]</span>
+        <span class="n">Z180Position</span> <span class="o">=</span> <span class="n">MotorPositions</span><span class="p">[</span><span class="s1">&#39;ZFlipPosition&#39;</span><span class="p">]</span>
+        <span class="n">Zdelta</span> <span class="o">=</span> <span class="n">ZPosition</span> <span class="o">-</span> <span class="n">Z180Position</span>
+        <span class="n">ThetaOffset</span> <span class="o">=</span> <span class="n">MotorPositions</span><span class="p">[</span><span class="s1">&#39;ThetaOffset&#39;</span><span class="p">]</span>
+        <span class="n">SampleThickness</span> <span class="o">=</span> <span class="n">MotorPositions</span><span class="p">[</span><span class="s1">&#39;SampleThickness&#39;</span><span class="p">]</span>
+        <span class="n">LowAngleDensity</span> <span class="o">=</span> <span class="n">MotorPositions</span><span class="p">[</span><span class="s1">&#39;LowAngleDensity&#39;</span><span class="p">]</span>
+        <span class="n">HighAngleDensity</span> <span class="o">=</span> <span class="n">MotorPositions</span><span class="p">[</span><span class="s1">&#39;HighAngleDensity&#39;</span><span class="p">]</span>
+        <span class="n">AngleCrossover</span> <span class="o">=</span> <span class="n">MotorPositions</span><span class="p">[</span><span class="s1">&#39;AngleCrossover&#39;</span><span class="p">]</span>
+        <span class="n">OverlapPoints</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">MotorPositions</span><span class="p">[</span><span class="s1">&#39;OverlapPoints&#39;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">AngleNumber</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span><span class="mi">0</span><span class="p">:</span> <span class="c1"># starts the list</span>
+
+                        <span class="c1">##Calculate the start and stop location for Q</span>
+                        <span class="n">AngleStart</span> <span class="o">=</span> <span class="n">VariableMotors</span><span class="p">[</span><span class="s1">&#39;Angle&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="c1"># All of the relevant values are in terms of angles, but Q is calculated as a check</span>
+                        <span class="n">AngleStop</span> <span class="o">=</span> <span class="n">VariableMotors</span><span class="p">[</span><span class="s1">&#39;Angle&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="n">QStart</span> <span class="o">=</span> <span class="mi">4</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">AngleStart</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">180</span><span class="p">)</span><span class="o">/</span><span class="n">Wavelength</span>
+                        <span class="n">QStop</span> <span class="o">=</span> <span class="mi">4</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">AngleStop</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">180</span><span class="p">)</span><span class="o">/</span><span class="n">Wavelength</span>
+
+                        <span class="k">if</span> <span class="n">AngleStop</span> <span class="o">&lt;=</span> <span class="n">AngleCrossover</span><span class="p">:</span>
+                                <span class="n">AngleDensity</span><span class="o">=</span><span class="n">LowAngleDensity</span>
+                        <span class="k">else</span><span class="p">:</span>
+                                <span class="n">AngleDensity</span><span class="o">=</span><span class="n">HighAngleDensity</span>
+
+                        <span class="c1">#Setup dq in terms of an approximate fringe size (L = 2*PI/Thickness)</span>
+                        <span class="c1">#Break it up based on the desired point density per fringe</span>
+                        <span class="n">dq</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="p">(</span><span class="n">SampleThickness</span><span class="o">*</span><span class="n">AngleDensity</span><span class="p">)</span>
+                        <span class="n">QPoints</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="n">QStop</span><span class="o">-</span><span class="n">QStart</span><span class="p">)</span><span class="o">/</span><span class="n">dq</span><span class="p">)</span> <span class="c1">#Number of points to run is going to depend on fringe size</span>
+                        <span class="n">QList</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">QStart</span><span class="p">,</span><span class="n">QStop</span><span class="p">,</span><span class="n">QPoints</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="c1">#Initialize the QList based on initial configuration</span>
+                        <span class="n">SampleTheta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">AngleStart</span><span class="p">,</span><span class="n">AngleStop</span><span class="p">,</span><span class="n">QPoints</span><span class="p">)</span> <span class="c1">##Begin generating list of &#39;Sample Theta&#39; locations to take data</span>
+                        <span class="n">CCDTheta</span> <span class="o">=</span> <span class="n">SampleTheta</span><span class="o">*</span><span class="mi">2</span> <span class="c1">#Make corresponding CCDTheta positions</span>
+                        <span class="n">SampleTheta</span> <span class="o">=</span> <span class="n">SampleTheta</span><span class="o">+</span><span class="n">ThetaOffset</span> <span class="c1">#If running multiple samples in a row this will offset the sample theta based on alignment ##CCD THETA SHOULD NOT BE CHANGED</span>
+
+                        <span class="c1">#Check what side the sample is on. If on the bottom, sample theta starts @ -180</span>
+                        <span class="c1">#if MotorPositions[&#39;ReverseHolder&#39;] == 1:</span>
+                        <span class="c1">#    SampleTheta=SampleTheta-180 # for samples on the backside of the holder, need to check and see if this is correct</span>
+
+                        <span class="n">SampleX</span><span class="o">=</span><span class="p">[</span><span class="n">XPosition</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">QList</span><span class="p">)</span>
+                        <span class="n">BeamLineEnergy</span><span class="o">=</span><span class="p">[</span><span class="n">Energy</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">QList</span><span class="p">)</span>
+                        <span class="n">SampleY</span> <span class="o">=</span> <span class="n">YPosition</span><span class="o">+</span><span class="n">Zdelta</span><span class="o">/</span><span class="mi">2</span><span class="o">+</span><span class="n">Zdelta</span><span class="o">/</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">SampleTheta</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">180</span><span class="p">)</span> <span class="c1">#Adjust &#39;Sample Y&#39; based on the relative axis of rotation</span>
+                        <span class="n">SampleZ</span> <span class="o">=</span> <span class="n">ZPosition</span><span class="o">+</span><span class="n">Zdelta</span><span class="o">/</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">SampleTheta</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">180</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="c1">#Adjust &#39;Sample Z&#39; based on the relative axis of rotation</span>
+
+                        <span class="c1">#Convert numpy arrays into lists for Pandas generation</span>
+                        <span class="n">SampleTheta</span><span class="o">=</span><span class="n">SampleTheta</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                        <span class="n">SampleY</span><span class="o">=</span><span class="n">SampleY</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                        <span class="n">SampleZ</span><span class="o">=</span><span class="n">SampleZ</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                        <span class="n">CCDTheta</span><span class="o">=</span><span class="n">CCDTheta</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+                        <span class="c1">#Generate HOS / HES / Exposure lists for updating flux</span>
+                        <span class="n">HOSList</span><span class="o">=</span><span class="p">[</span><span class="n">VariableMotors</span><span class="p">[</span><span class="s1">&#39;HOS&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">QList</span><span class="p">)</span>
+                        <span class="n">HESList</span><span class="o">=</span><span class="p">[</span><span class="n">VariableMotors</span><span class="p">[</span><span class="s1">&#39;HES&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">QList</span><span class="p">)</span>
+                        <span class="n">ExposureList</span><span class="o">=</span><span class="p">[</span><span class="n">VariableMotors</span><span class="p">[</span><span class="s1">&#39;EXPOSURE&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">QList</span><span class="p">)</span>
+
+                        <span class="c1">#Adding points to assess the error in beam intensity given new HOS / HES / Exposure conditions</span>
+                        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">MotorPositions</span><span class="p">[</span><span class="s1">&#39;I0Points&#39;</span><span class="p">])):</span>
+                                <span class="n">QList</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+                                <span class="c1">#ThetaInsert = 0 if MotorPositions[&#39;ReverseHolder&#39;]==0 else -180</span>
+                                <span class="n">SampleTheta</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+                                <span class="n">CCDTheta</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+                                <span class="n">SampleX</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">SampleX</span><span class="p">[</span><span class="n">d</span><span class="p">])</span>
+                                <span class="n">SampleY</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">YPosition</span><span class="p">)</span>
+                                <span class="n">SampleZ</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">MotorPositions</span><span class="p">[</span><span class="s1">&#39;ZDirectBeam&#39;</span><span class="p">])</span>
+                                <span class="n">HOSList</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">HOSList</span><span class="p">[</span><span class="n">d</span><span class="p">])</span>
+                                <span class="n">HESList</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">HESList</span><span class="p">[</span><span class="n">d</span><span class="p">])</span>
+                                <span class="n">ExposureList</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">ExposureList</span><span class="p">[</span><span class="n">d</span><span class="p">])</span>
+                                <span class="n">BeamLineEnergy</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">BeamLineEnergy</span><span class="p">[</span><span class="n">d</span><span class="p">])</span>
+
+
+                <span class="k">else</span><span class="p">:</span> <span class="c1"># for all of the ranges after the first set of samples</span>
+                        <span class="c1">##Section is identical to the above</span>
+                        <span class="n">AngleStart</span><span class="o">=</span><span class="n">VariableMotors</span><span class="p">[</span><span class="s1">&#39;Angle&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                        <span class="n">AngleStop</span><span class="o">=</span><span class="n">VariableMotors</span><span class="p">[</span><span class="s1">&#39;Angle&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="n">QStart</span><span class="o">=</span><span class="mi">4</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">AngleStart</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">180</span><span class="p">)</span><span class="o">/</span><span class="n">Wavelength</span>
+                        <span class="n">QStop</span><span class="o">=</span><span class="mi">4</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">AngleStop</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">180</span><span class="p">)</span><span class="o">/</span><span class="n">Wavelength</span>
+
+                        <span class="k">if</span> <span class="n">AngleStop</span> <span class="o">&lt;=</span> <span class="n">AngleCrossover</span><span class="p">:</span>
+                                <span class="n">AngleDensity</span><span class="o">=</span><span class="n">LowAngleDensity</span>
+                        <span class="k">else</span><span class="p">:</span>
+                                <span class="n">AngleDensity</span><span class="o">=</span><span class="n">HighAngleDensity</span>
+
+                        <span class="n">dq</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="p">(</span><span class="n">SampleThickness</span><span class="o">*</span><span class="n">AngleDensity</span><span class="p">)</span>
+                        <span class="n">QPoints</span><span class="o">=</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="n">QStop</span><span class="o">-</span><span class="n">QStart</span><span class="p">)</span><span class="o">/</span><span class="n">dq</span><span class="p">)</span>
+                        <span class="n">QListAddition</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">QStart</span><span class="p">,</span><span class="n">QStop</span><span class="p">,</span><span class="n">QPoints</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                        <span class="n">SampleThetaAddition</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">AngleStart</span><span class="p">,</span><span class="n">AngleStop</span><span class="p">,</span><span class="n">QPoints</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                        <span class="c1">##Calculate the points that are used to stitch datasets</span>
+                        <span class="c1">#p+2 selects the appropriate number of points to repeat without doubling at the start of the angle range.</span>
+                        <span class="c1">#Compensate the number of points by reducing OverlapPoints down by 1 (Nominally at 4)</span>
+                        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">OverlapPoints</span><span class="p">):</span>
+                                <span class="n">QListAddition</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">QList</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="mi">2</span><span class="p">)])</span> <span class="c1">#Add to Qlist</span>
+                                <span class="n">SampleThetaAddition</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">SampleTheta</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="mi">2</span><span class="p">)]</span><span class="o">-</span><span class="n">ThetaOffset</span><span class="p">)</span> <span class="c1">#Add to Sample Theta List ###QUICK CHANGE! REMOVE SAMPLE OFFSET TO ADDITION</span>
+                        <span class="n">SampleThetaAdditionArray</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">SampleThetaAddition</span><span class="p">)</span> <span class="c1">#Convert back to numpy array</span>
+
+                        <span class="n">CCDThetaAddition</span><span class="o">=</span><span class="n">SampleThetaAdditionArray</span><span class="o">*</span><span class="mi">2</span> <span class="c1">#Calculate the CCD theta POsitions</span>
+                        <span class="n">CCDThetaAddition</span><span class="o">=</span><span class="n">CCDThetaAddition</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="c1">#Convert to list</span>
+                        <span class="n">SampleThetaAdditionArray</span><span class="o">=</span><span class="n">SampleThetaAdditionArray</span><span class="o">+</span><span class="n">ThetaOffset</span> <span class="c1">#Account for theta offset</span>
+                        <span class="n">SampleThetaAddition</span> <span class="o">=</span> <span class="n">SampleThetaAdditionArray</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                        <span class="c1">#Check what side the sample is on. If on the bottom, sample theta starts @ -180</span>
+                        <span class="c1">#if MotorPositions[&#39;ReverseHolder&#39;]==1:</span>
+                        <span class="c1">#    SampleThetaAdditionArray=SampleThetaAdditionArray-180</span>
+
+                        <span class="n">SampleXAddition</span><span class="o">=</span><span class="p">[</span><span class="n">XPosition</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">QListAddition</span><span class="p">)</span>
+                        <span class="n">BeamLineEnergyAddition</span><span class="o">=</span><span class="p">[</span><span class="n">Energy</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">QListAddition</span><span class="p">)</span>
+                        <span class="n">SampleYAddition</span><span class="o">=</span><span class="n">YPosition</span><span class="o">+</span><span class="n">Zdelta</span><span class="o">/</span><span class="mi">2</span><span class="o">+</span><span class="n">Zdelta</span><span class="o">/</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">SampleThetaAdditionArray</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">180</span><span class="p">)</span>
+                        <span class="n">SampleZAddition</span><span class="o">=</span><span class="n">ZPosition</span><span class="o">+</span><span class="n">Zdelta</span><span class="o">/</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">SampleThetaAdditionArray</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">180</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                        <span class="n">SampleYAddition</span><span class="o">=</span><span class="n">SampleYAddition</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                        <span class="n">SampleZAddition</span><span class="o">=</span><span class="n">SampleZAddition</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+                        <span class="c1">#Generate HOS / HES / Exposure lists for updating flux</span>
+                        <span class="n">HOSListAddition</span><span class="o">=</span><span class="p">[</span><span class="n">VariableMotors</span><span class="p">[</span><span class="s1">&#39;HOS&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">QListAddition</span><span class="p">)</span>
+                        <span class="n">HESListAddition</span> <span class="o">=</span> <span class="p">[</span><span class="n">VariableMotors</span><span class="p">[</span><span class="s1">&#39;HES&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">QListAddition</span><span class="p">)</span>
+                        <span class="n">ExposureListAddition</span><span class="o">=</span><span class="p">[</span><span class="n">VariableMotors</span><span class="p">[</span><span class="s1">&#39;EXPOSURE&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">QListAddition</span><span class="p">)</span>
+
+                        <span class="c1">#Check to see if any of the variable motors have moved to add buffer points</span>
+                        <span class="k">if</span> <span class="n">VariableMotors</span><span class="p">[</span><span class="s1">&#39;HOS&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="n">VariableMotors</span><span class="p">[</span><span class="s1">&#39;HOS&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">or</span> <span class="n">VariableMotors</span><span class="p">[</span><span class="s1">&#39;HES&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="n">VariableMotors</span><span class="p">[</span><span class="s1">&#39;HES&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">or</span> <span class="n">VariableMotors</span><span class="p">[</span><span class="s1">&#39;EXPOSURE&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="n">VariableMotors</span><span class="p">[</span><span class="s1">&#39;EXPOSURE&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                        <span class="c1">#If a change is made, buffer the change with points to judge new counting statistics error and a few points to buffer the motor movements.</span>
+                        <span class="c1">#Motor movements buffer is to make sure motors have fully moved before continuing data collection / may require post process changes</span>
+                        <span class="c1">#Adding points to assess the error in beam intensity given new HOS / HES / Exposure conditions</span>
+                                <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">MotorPositions</span><span class="p">[</span><span class="s1">&#39;CheckUncertainty&#39;</span><span class="p">])):</span>
+                                        <span class="n">QListAddition</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">QListAddition</span><span class="p">[</span><span class="n">d</span><span class="p">])</span>
+                                        <span class="n">SampleThetaAddition</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">SampleThetaAddition</span><span class="p">[</span><span class="n">d</span><span class="p">])</span>
+                                        <span class="n">CCDThetaAddition</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">CCDThetaAddition</span><span class="p">[</span><span class="n">d</span><span class="p">])</span>
+                                        <span class="n">SampleXAddition</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">SampleXAddition</span><span class="p">[</span><span class="n">d</span><span class="p">])</span>
+                                        <span class="n">SampleYAddition</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">SampleYAddition</span><span class="p">[</span><span class="n">d</span><span class="p">])</span>
+                                        <span class="n">SampleZAddition</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">SampleZAddition</span><span class="p">[</span><span class="n">d</span><span class="p">])</span>
+                                        <span class="n">HOSListAddition</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">HOSListAddition</span><span class="p">[</span><span class="n">d</span><span class="p">])</span>
+                                        <span class="n">HESListAddition</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">HESListAddition</span><span class="p">[</span><span class="n">d</span><span class="p">])</span>
+                                        <span class="n">ExposureListAddition</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">ExposureListAddition</span><span class="p">[</span><span class="n">d</span><span class="p">])</span>
+                                        <span class="n">BeamLineEnergyAddition</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">BeamLineEnergyAddition</span><span class="p">[</span><span class="n">d</span><span class="p">])</span>
+
+                                <span class="c1">#Adding dummy points to beginning of to account for HOS movement</span>
+                                <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">MotorPositions</span><span class="p">[</span><span class="s1">&#39;HOSBuffer&#39;</span><span class="p">])):</span>
+                                        <span class="n">QListAddition</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">QListAddition</span><span class="p">[</span><span class="n">d</span><span class="p">])</span>
+                                        <span class="n">SampleThetaAddition</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">SampleThetaAddition</span><span class="p">[</span><span class="n">d</span><span class="p">])</span>
+                                        <span class="n">CCDThetaAddition</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">CCDThetaAddition</span><span class="p">[</span><span class="n">d</span><span class="p">])</span>
+                                        <span class="n">SampleXAddition</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">SampleXAddition</span><span class="p">[</span><span class="n">d</span><span class="p">])</span>
+                                        <span class="n">SampleYAddition</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">SampleYAddition</span><span class="p">[</span><span class="n">d</span><span class="p">])</span>
+                                        <span class="n">SampleZAddition</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">SampleZAddition</span><span class="p">[</span><span class="n">d</span><span class="p">])</span>
+                                        <span class="n">HOSListAddition</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">HOSListAddition</span><span class="p">[</span><span class="n">d</span><span class="p">])</span>
+                                        <span class="n">HESListAddition</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">HESListAddition</span><span class="p">[</span><span class="n">d</span><span class="p">])</span>
+                                        <span class="n">ExposureListAddition</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">ExposureListAddition</span><span class="p">[</span><span class="n">d</span><span class="p">])</span>
+                                        <span class="n">BeamLineEnergyAddition</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">BeamLineEnergyAddition</span><span class="p">[</span><span class="n">d</span><span class="p">])</span>
+
+                        <span class="n">QList</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">QListAddition</span><span class="p">)</span>
+                        <span class="n">HOSList</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">HOSListAddition</span><span class="p">)</span>
+                        <span class="n">HESList</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">HESListAddition</span><span class="p">)</span>
+                        <span class="n">ExposureList</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">ExposureListAddition</span><span class="p">)</span>
+                        <span class="n">SampleTheta</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">SampleThetaAddition</span><span class="p">)</span>
+                        <span class="n">CCDTheta</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">CCDThetaAddition</span><span class="p">)</span>
+                        <span class="n">SampleX</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">SampleXAddition</span><span class="p">)</span>
+                        <span class="n">SampleY</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">SampleYAddition</span><span class="p">)</span>
+                        <span class="n">SampleZ</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">SampleZAddition</span><span class="p">)</span>
+                        <span class="n">BeamLineEnergy</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">BeamLineEnergyAddition</span><span class="p">)</span>
+
+                <span class="c1">#Check what side the sample is on. If on the bottom, sample theta starts @ -180</span>
+        <span class="k">if</span> <span class="n">MotorPositions</span><span class="p">[</span><span class="s1">&#39;ReverseHolder&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">SampleTheta</span><span class="o">=</span><span class="p">[</span><span class="n">theta</span><span class="o">-</span><span class="mi">180</span> <span class="k">for</span> <span class="n">theta</span> <span class="ow">in</span> <span class="n">SampleTheta</span><span class="p">]</span> <span class="c1"># for samples on the backside of the holder, need to check and see if this is correct</span>
+
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">SampleX</span><span class="p">,</span> <span class="n">SampleY</span><span class="p">,</span> <span class="n">SampleZ</span><span class="p">,</span> <span class="n">SampleTheta</span><span class="p">,</span> <span class="n">CCDTheta</span><span class="p">,</span> <span class="n">HOSList</span><span class="p">,</span> <span class="n">HESList</span><span class="p">,</span> <span class="n">BeamLineEnergy</span><span class="p">,</span> <span class="n">ExposureList</span><span class="p">,</span> <span class="n">QList</span><span class="p">)</span>
+
+<span class="c1">##Generate the compiled dataframe for each sample</span>
+
+<span class="n">AdjustableMotors</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Sample X&#39;</span><span class="p">,</span> <span class="s1">&#39;Sample Y&#39;</span><span class="p">,</span> <span class="s1">&#39;Sample Z&#39;</span><span class="p">,</span>
+                                        <span class="s1">&#39;Sample Theta&#39;</span><span class="p">,</span> <span class="s1">&#39;CCD Theta&#39;</span><span class="p">,</span> <span class="s1">&#39;Higher Order Suppressor&#39;</span><span class="p">,</span>
+                                        <span class="s1">&#39;Horizontal Exit Slit Size&#39;</span><span class="p">,</span> <span class="s1">&#39;Beamline Energy&#39;</span><span class="p">,</span> <span class="s1">&#39;Exposure&#39;</span>
+                                        <span class="p">]</span>
+<span class="n">RunFile</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="n">AdjustableMotors</span><span class="p">)</span>
+<span class="c1">#NumSamples = len(VariableMotors) #The number of variable motor scans corresponding to each sample location</span>
+<span class="c1">#NumEnergies = len(Energy) #The number of energies for each sample</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">Samp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">VariableMotors</span><span class="p">):</span>
+        <span class="n">en_list</span> <span class="o">=</span> <span class="n">sample_list</span><span class="p">[</span><span class="n">SampleOrder</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">loc</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">Samp</span><span class="p">):</span>
+                <span class="n">sampdf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+                <span class="n">samp_energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">en_list</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">EnergyOffset</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">MotorPos_En</span> <span class="o">=</span> <span class="n">AngleRunGeneration</span><span class="p">(</span><span class="n">df_motor</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">loc</span><span class="p">,</span> <span class="n">samp_energy</span><span class="p">)</span>
+                <span class="n">sampdf</span><span class="p">[</span><span class="s1">&#39;Sample X&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">MotorPos_En</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">4</span><span class="p">)</span> <span class="o">+</span> <span class="n">XOffset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">j</span> <span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+                <span class="n">sampdf</span><span class="p">[</span><span class="s1">&#39;Sample Y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">MotorPos_En</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">4</span><span class="p">)</span>
+                <span class="n">sampdf</span><span class="p">[</span><span class="s1">&#39;Sample Z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">MotorPos_En</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="mi">4</span><span class="p">)</span>
+                <span class="n">sampdf</span><span class="p">[</span><span class="s1">&#39;Sample Theta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">MotorPos_En</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="mi">4</span><span class="p">)</span>
+                <span class="n">sampdf</span><span class="p">[</span><span class="s1">&#39;CCD Theta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">MotorPos_En</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="mi">4</span><span class="p">)</span>
+                <span class="n">sampdf</span><span class="p">[</span><span class="s1">&#39;Higher Order Suppressor&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">MotorPos_En</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
+                <span class="n">sampdf</span><span class="p">[</span><span class="s1">&#39;Horizontal Exit Slit Size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">MotorPos_En</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>
+                <span class="n">sampdf</span><span class="p">[</span><span class="s1">&#39;Beamline Energy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">MotorPos_En</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span>
+                <span class="n">sampdf</span><span class="p">[</span><span class="s1">&#39;Exposure&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">MotorPos_En</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span>
+
+                <span class="n">RunFile</span> <span class="o">=</span> <span class="n">RunFile</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sampdf</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1">#Cleanup</span>
+<span class="n">runfile_name</span> <span class="o">=</span> <span class="n">save_dir</span> <span class="o">+</span> <span class="n">save_name</span>
+
+<span class="n">HeaderFile</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="n">key</span> <span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">sample_list</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
+<span class="n">RunFile</span><span class="o">.</span><span class="n">to_csv</span><span class="p">((</span><span class="n">runfile_name</span> <span class="o">+</span> <span class="s1">&#39;.txt&#39;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="n">HeaderFile</span><span class="o">.</span><span class="n">to_csv</span><span class="p">((</span><span class="n">runfile_name</span><span class="o">+</span><span class="s1">&#39;_HEADER.txt&#39;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="c1">###Cleanup the output -- Definitly better ways to do this....</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">((</span><span class="n">runfile_name</span> <span class="o">+</span> <span class="s1">&#39;.txt&#39;</span><span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span> <span class="c1">#Loads the file into memory</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+<span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Exposure&#39;</span> <span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="c1">#Remove the &#39;Exposure&#39; header</span>
+<span class="n">lines</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="c1">#Remove the last carriage return</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">((</span><span class="n">runfile_name</span> <span class="o">+</span> <span class="s1">&#39;.txt&#39;</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span> <span class="c1">#Writes it back in</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+
+<span class="k">del</span> <span class="n">lines</span> <span class="c1">#Remove it from memory (it can be large)</span>
+</pre></div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="../PyPXR_API.html" class="btn btn-neutral float-left" title="PyPXR API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright : Official Contribution of the US Government.  Not subject to copyright in the United States..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

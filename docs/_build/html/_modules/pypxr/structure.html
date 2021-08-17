@@ -1,0 +1,1500 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pypxr.structure &mdash; p-RSoXR 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/thebelab.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/thebelab-helper.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.0/dist/embed-amd.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> p-RSoXR
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../source/Installation.html">Software Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/DataCollection_home.html">Tutorial on Collecting Data:</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/DataReduction_home.html">Reducing data to 1D profiles:</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/DataModeling_home.html">Modeling/Fitting with PyPXR:</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/references_home.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/API.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/legal.html">NIST Legal</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">p-RSoXR</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pypxr.structure</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pypxr.structure</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The refnx code is distributed under the following license:</span>
+
+<span class="sd">Copyright (c) 2015 A. R. J. Nelson, ANSTO</span>
+
+<span class="sd">Permission to use and redistribute the source code or binary forms of this</span>
+<span class="sd">software and its documentation, with or without modification is hereby</span>
+<span class="sd">granted provided that the above notice of copyright, these terms of use,</span>
+<span class="sd">and the disclaimer of warranty below appear in the source code and</span>
+<span class="sd">documentation, and that none of the names of above institutions or</span>
+<span class="sd">authors appear in advertising or endorsement of works derived from this</span>
+<span class="sd">software without specific prior written permission from all parties.</span>
+
+<span class="sd">THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR</span>
+<span class="sd">IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,</span>
+<span class="sd">FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL</span>
+<span class="sd">THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER</span>
+<span class="sd">LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING</span>
+<span class="sd">FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER</span>
+<span class="sd">DEALINGS IN THIS SOFTWARE.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">UserList</span>
+<span class="kn">import</span> <span class="nn">numbers</span>
+<span class="kn">import</span> <span class="nn">operator</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">interp1d</span>
+
+<span class="kn">from</span> <span class="nn">refnx.analysis</span> <span class="kn">import</span> <span class="n">Parameters</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">possibly_create_parameter</span>
+<span class="kn">from</span> <span class="nn">refnx.reflect.interface</span> <span class="kn">import</span> <span class="n">Erf</span><span class="p">,</span> <span class="n">Step</span>
+<span class="kn">from</span> <span class="nn">pypxr.reflectivity</span> <span class="kn">import</span> <span class="n">PXR_reflectivity</span>
+
+<span class="n">speed_of_light</span> <span class="o">=</span> <span class="mi">299792458</span>  <span class="c1"># m/s</span>
+<span class="n">plank_constant</span> <span class="o">=</span> <span class="mf">4.135667697e-15</span>  <span class="c1"># ev*s</span>
+<span class="n">hc</span> <span class="o">=</span> <span class="p">(</span><span class="n">speed_of_light</span> <span class="o">*</span> <span class="n">plank_constant</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1e10</span>  <span class="c1"># ev*A</span>
+
+<span class="n">tensor_index</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;xx&#39;</span><span class="p">,</span> <span class="s1">&#39;yy&#39;</span><span class="p">,</span> <span class="s1">&#39;zz&#39;</span><span class="p">]</span>  <span class="c1"># Indexing for later definitions</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Class structure is closely related to the foundations built by refnx. </span>
+<span class="sd">It was designed so prior knowledge of one software will interface with the other.</span>
+<span class="sd">The prefix &#39;PXR&#39; (Resonant X-ray Reflectivity) will designate the objects required for working with </span>
+<span class="sd">polarized resonant soft X-ray reflectivity data. See class PXR_SLD for information on open tensor parameters.</span>
+
+<span class="sd">Only Gaussian roughness is supported at this time.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="PXR_Structure"><a class="viewcode-back" href="../../source/PyPXR_API.html#pypxr.structure.PXR_Structure">[docs]</a><span class="k">class</span> <span class="nc">PXR_Structure</span><span class="p">(</span><span class="n">UserList</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents the interfacial Structure of a reflectometry sample.</span>
+<span class="sd">    Successive Components are added to the Structure to construct the interface.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    </span>
+<span class="sd">    components : sequence</span>
+<span class="sd">        A sequence of PXR_Components to initialise the PXR_Structure.</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Name of this structure</span>
+<span class="sd">    reverse_structure : bool</span>
+<span class="sd">        If `Structure.reverse_structure` is `True` then  slab representation produced by `Structure.slabs` is reversed.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; from PyPXR import PXR_SLD, PXR_MaterialSLD</span>
+<span class="sd">    &gt;&gt;&gt; en = 284.4 #[eV]</span>
+<span class="sd">    &gt;&gt;&gt; # make the material with tensor index of refraction</span>
+<span class="sd">    &gt;&gt;&gt; vac = PXR_MaterialSLD(&#39;&#39;, density=1, energy=en, name=&#39;vacuum&#39;) #Superstrate</span>
+<span class="sd">    &gt;&gt;&gt; si = PXR_MaterialSLD(&#39;Si&#39;, density=2.33, energy=en, name=&#39;Si&#39;) #Substrate</span>
+<span class="sd">    &gt;&gt;&gt; sio2 = PXR_MaterialSLD(&#39;SiO2&#39;, density=2.4, energy=en, name=&#39;SiO2&#39;) #Substrate</span>
+<span class="sd">    &gt;&gt;&gt; n_xx = complex(-0.0035, 0.0004) # [unitless] #Ordinary Axis</span>
+<span class="sd">    &gt;&gt;&gt; n_zz = complex(-0.0045, 0.0009) # [unitless] #Extraordinary Axis</span>
+<span class="sd">    &gt;&gt;&gt; molecule = PXR_SLD(np.array([n_xx, n_zz]), name=&#39;material&#39;) #molecule</span>
+<span class="sd">    &gt;&gt;&gt; #Make the structure</span>
+<span class="sd">    &gt;&gt;&gt; #See &#39;PXR_Slab&#39; for details on building layers</span>
+<span class="sd">    &gt;&gt;&gt; structure = vac(0,0) | molecule(100, 2) | sio2(15, 1.5) | si(1, 1.5)</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">components</span><span class="o">=</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">reverse_structure</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>  <span class="c1"># Removed solvent parameter</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">PXR_Structure</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reverse_structure</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">reverse_structure</span><span class="p">)</span>
+
+        <span class="c1"># if you provide a list of components to start with, then initialise</span>
+        <span class="c1"># the structure from that</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">components</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">Component</span><span class="p">)]</span>
+
+    <span class="k">def</span> <span class="nf">__copy__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">PXR_Structure</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{:_&gt;80}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Structure: </span><span class="si">{0: ^15}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;reverse structure: </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reverse_structure</span><span class="p">)))</span>
+
+        <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">component</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;Structure(components=</span><span class="si">{data!r}</span><span class="s2">,&quot;</span>
+                <span class="s2">&quot; name=</span><span class="si">{_name!r}</span><span class="s2">,&quot;</span>
+                <span class="s2">&quot; reverse_structure=</span><span class="si">{_reverse_structure}</span><span class="s2">,&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">))</span>
+
+<div class="viewcode-block" id="PXR_Structure.append"><a class="viewcode-back" href="../../source/PyPXR_API.html#pypxr.structure.PXR_Structure.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Append a :class:`PXR_Component` to the Structure.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        item: refnx.reflect.Component</span>
+<span class="sd">            The component to be added.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">PXR_Scatterer</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">())</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">PXR_Component</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;You can only add PXR_Component objects to a&quot;</span>
+                             <span class="s2">&quot; structure&quot;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">PXR_Structure</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+    <span class="nd">@name</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">reverse_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        **bool**  if `True` then the slab representation produced by</span>
+<span class="sd">        :meth:`PXR_Structure.slabs` is reversed. The sld profile and calculated</span>
+<span class="sd">        reflectivity will correspond to this reversed structure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_reverse_structure</span><span class="p">)</span>
+
+    <span class="nd">@reverse_structure</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">reverse_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reverse_structure</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reverse_structure</span> <span class="o">=</span> <span class="n">reverse_structure</span>
+
+<div class="viewcode-block" id="PXR_Structure.slabs"><a class="viewcode-back" href="../../source/PyPXR_API.html#pypxr.structure.PXR_Structure.slabs">[docs]</a>    <span class="k">def</span> <span class="nf">slabs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        slabs : :class:`np.ndarray`</span>
+<span class="sd">            Slab representation of this structure.</span>
+<span class="sd">            Has shape (N, 3).</span>
+<span class="sd">            N - number of slabs</span>
+
+<span class="sd">            - slab[N, 0]</span>
+<span class="sd">               thickness of layer N</span>
+<span class="sd">            - slab[N, 1]</span>
+<span class="sd">               sld.delta of layer N</span>
+<span class="sd">            - slab[N, 2]</span>
+<span class="sd">               sld.beta of layer N</span>
+<span class="sd">            - slab[N, 3]</span>
+<span class="sd">               roughness between layer N and N-1</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        If `PXR_Structure.reversed is True` then the slab representation order is</span>
+<span class="sd">        reversed. </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">PXR_Slab</span><span class="p">)</span> <span class="ow">and</span>
+                <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">PXR_Slab</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The first and last PXR_Components in a PXR_Structure&quot;</span>
+                             <span class="s2">&quot; need to be PXR_slabs&quot;</span><span class="p">)</span>
+        <span class="c1"># PRSoXR only supports Gaussian interfaces as of 07/2021</span>
+        <span class="c1"># Potentially be added in the future, please contact developer if interested.</span>
+
+        <span class="n">sl</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">slabs</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">]</span>  <span class="c1"># concatenate PXR_Slab objects</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">slabs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">sl</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="c1"># some of slabs may be None. np can&#39;t concatenate arr and None</span>
+            <span class="n">slabs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sl</span> <span class="k">if</span> <span class="n">s</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">])</span>
+
+        <span class="c1"># if the slab representation needs to be reversed.</span>
+        <span class="n">reverse</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reverse_structure</span>
+        <span class="k">if</span> <span class="n">reverse</span><span class="p">:</span>
+            <span class="n">roughnesses</span> <span class="o">=</span> <span class="n">slabs</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span> <span class="mi">3</span><span class="p">]</span>
+            <span class="n">slabs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">slabs</span><span class="p">)</span>
+            <span class="n">slabs</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">roughnesses</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">slabs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
+
+        <span class="k">return</span> <span class="n">slabs</span></div>
+
+<div class="viewcode-block" id="PXR_Structure.tensor"><a class="viewcode-back" href="../../source/PyPXR_API.html#pypxr.structure.PXR_Structure.tensor">[docs]</a>    <span class="k">def</span> <span class="nf">tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        -----------</span>
+<span class="sd">        energy: float</span>
+<span class="sd">            Photon energy used to calculate the tensor index of refraction.</span>
+<span class="sd">            This only applies for objects that require a specific energy (see PXR_MaterialSLD).</span>
+<span class="sd">            Common for substrates/superstrates</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tensors : :class:`np.ndarray`</span>
+<span class="sd">            Supplementary object to self.slabs that contains dielectric tensor for each layer.</span>
+<span class="sd">            Has shape (N, 3,3).</span>
+<span class="sd">            N - number of slabs</span>
+
+<span class="sd">            - tensor[N, 1, 1]</span>
+<span class="sd">               dielectric component xx of layer N</span>
+<span class="sd">            - tensor[N, 2, 2]</span>
+<span class="sd">               dielectric component yy of layer N</span>
+<span class="sd">            - tensor[N, 3, 3]</span>
+<span class="sd">               dielectric component zz of layer N</span>
+<span class="sd">            </span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Output as a (3, 3) np.ndarray.</span>
+<span class="sd">        Used for broadcasting in later calculations. All off-diagonal elements are zero.</span>
+<span class="sd">        </span>
+<span class="sd">        If `Structure.reversed is True` then the representation order is</span>
+<span class="sd">        reversed. Energy is required for energy-dependent slabs</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d1</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">energy</span><span class="o">=</span><span class="n">energy</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">_tensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">d1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="c1"># some of slabs may be None. np can&#39;t concatenate arr and None</span>
+            <span class="n">_tensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">d1</span> <span class="k">if</span> <span class="n">s</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">reverse</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reverse_structure</span>
+        <span class="k">if</span> <span class="n">reverse</span><span class="p">:</span>
+            <span class="n">_tensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">_tensor</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_tensor</span></div>
+
+<div class="viewcode-block" id="PXR_Structure.reflectivity"><a class="viewcode-back" href="../../source/PyPXR_API.html#pypxr.structure.PXR_Structure.reflectivity">[docs]</a>    <span class="k">def</span> <span class="nf">reflectivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="mf">250.0</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s1">&#39;uni&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate theoretical polarized reflectivity of this structure</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        q : array-like</span>
+<span class="sd">            Q values (Angstrom**-1) for evaluation</span>
+<span class="sd">        energy : float </span>
+<span class="sd">            Photon energy (eV) for evaluation</span>
+<span class="sd">        backend : &#39;uni&#39; or &#39;biaxial&#39;</span>
+<span class="sd">            Specifies if you want to run a uniaxial calculation or a full biaxial calculation.</span>
+<span class="sd">            Biaxial has NOT been verified through outside means (07/2021 Biaxial currently does not work)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">refl</span><span class="p">,</span> <span class="n">tran</span><span class="p">,</span> <span class="o">*</span><span class="n">components</span> <span class="o">=</span> <span class="n">PXR_reflectivity</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">slabs</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">energy</span><span class="o">=</span><span class="n">energy</span><span class="p">),</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">refl</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">refl</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">components</span></div>
+
+<div class="viewcode-block" id="PXR_Structure.sld_profile"><a class="viewcode-back" href="../../source/PyPXR_API.html#pypxr.structure.PXR_Structure.sld_profile">[docs]</a>    <span class="k">def</span> <span class="nf">sld_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates an index of refraction depth profile as a function of distance from the superstrate.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        z : float</span>
+<span class="sd">            Interfacial distance (Angstrom) measured from interface between the fronting medium and first layer.</span>
+<span class="sd">        align : int, optional</span>
+<span class="sd">            Places a specified interface in the slab representation of a PXR_Structure at z =0.</span>
+<span class="sd">            Python indexing is allowed to select interface.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        </span>
+<span class="sd">        zed : np.ndarray</span>
+<span class="sd">            Interfacial distance measured from superstrate offset by &#39;align&#39;.</span>
+<span class="sd">            Has shape (N, )</span>
+<span class="sd">        prof : np.ndarray (complex)</span>
+<span class="sd">            Real and imaginary tensor components of index of refraction [unitless]</span>
+<span class="sd">            Has shape (N, 3)</span>
+<span class="sd">            </span>
+<span class="sd">            -prof[N, 0]</span>
+<span class="sd">                dielectric component n_xx at depth N</span>
+<span class="sd">            -prof[N, 1]</span>
+<span class="sd">                dielectric component n_yy at depth N</span>
+<span class="sd">            -prof[N, 3]</span>
+<span class="sd">                dielectric component n_xx at depth N</span>
+<span class="sd">        </span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        &gt;&gt;&gt; #To calculate the isotropic components</span>
+<span class="sd">        &gt;&gt;&gt; n_iso = prof.sum(axis=1)/3 #(nxx + nyy + nzz)/3</span>
+<span class="sd">        &gt;&gt;&gt; #To calculate the birefringence and dichroism</span>
+<span class="sd">        &gt;&gt;&gt; diff = prof[:,0] - prof[:,2] #nxx-nzz        </span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">slabs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slabs</span><span class="p">()</span>
+        <span class="n">tensor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tensor</span><span class="p">()</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">slabs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span>
+                <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">slabs</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">)</span> <span class="ow">or</span>
+                <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">PXR_Slab</span><span class="p">))</span> <span class="ow">or</span>
+                <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">PXR_Slab</span><span class="p">))):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Structure requires fronting and backing&quot;</span>
+                             <span class="s2">&quot; Slabs in order to calculate.&quot;</span><span class="p">)</span>
+
+        <span class="n">zed</span><span class="p">,</span> <span class="n">prof</span> <span class="o">=</span> <span class="n">birefringence_profile</span><span class="p">(</span><span class="n">slabs</span><span class="p">,</span> <span class="n">tensor</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+
+        <span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">align</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">align</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">align</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">align</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">slabs</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">align</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">slabs</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;abs(align) has to be less than &#39;</span>
+                                   <span class="s1">&#39;len(slabs) - 1&#39;</span><span class="p">)</span>
+            <span class="c1"># to figure out the offset you need to know the cumulative distance</span>
+            <span class="c1"># to the interface</span>
+            <span class="n">slabs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">slabs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>  <span class="c1"># Set the thickness of each end to zero</span>
+            <span class="k">if</span> <span class="n">align</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">offset</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">slabs</span><span class="p">[:</span><span class="n">align</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">offset</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">slabs</span><span class="p">[:</span><span class="n">align</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">zed</span> <span class="o">-</span> <span class="n">offset</span><span class="p">,</span> <span class="n">prof</span></div>
+
+    <span class="k">def</span> <span class="fm">__ior__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build a structure by `IOR`&#39;ing Structures/Components/SLDs.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        other: :class:`PXR_Structure`, :class:`PXR_Component`, :class:`PXR_SLD`</span>
+<span class="sd">            The object to add to the structure.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+
+<span class="sd">        &gt;&gt;&gt; air = SLD(0, name=&#39;air&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; sio2 = SLD(3.47, name=&#39;SiO2&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; si = SLD(2.07, name=&#39;Si&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; structure = air | sio2(20, 3)</span>
+<span class="sd">        &gt;&gt;&gt; structure |= si(0, 4)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># self |= other</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">PXR_Component</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">PXR_Structure</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">PXR_Scatterer</span><span class="p">):</span>
+            <span class="n">slab</span> <span class="o">=</span> <span class="n">other</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">slab</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="fm">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build a structure by `OR`&#39;ing Structures/Components/SLDs.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        other: :class:`PXR_Structure`, :class:`PXR_Component`, :class:`PXR_SLD`</span>
+<span class="sd">            The object to add to the structure.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+
+<span class="sd">        &gt;&gt;&gt; vac = PXR_MaterialSLD(&#39;&#39;, density=1, energy=en, name=&#39;vacuum&#39;) #Superstrate</span>
+<span class="sd">        &gt;&gt;&gt; sio2 = PXR_MaterialSLD(&#39;SiO2&#39;, density=2.4, energy=en, name=&#39;SiO2&#39;) #Substrate</span>
+<span class="sd">        &gt;&gt;&gt; si = PXR_MaterialSLD(&#39;Si&#39;, density=2.33, energy=en, name=&#39;Si&#39;) #Substrate</span>
+<span class="sd">        &gt;&gt;&gt; structure = vac | sio2(10,5) | si(0, 1.5)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># c = self | other</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">PXR_Structure</span><span class="p">()</span>
+        <span class="n">p</span> <span class="o">|=</span> <span class="bp">self</span>
+        <span class="n">p</span> <span class="o">|=</span> <span class="n">other</span>
+        <span class="k">return</span> <span class="n">p</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">components</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The list of components in the sample.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :class:`refnx.analysis.Parameters`, all the parameters associated with</span>
+<span class="sd">        this structure.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">Parameters</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Structure - </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">component</span><span class="o">.</span><span class="n">parameters</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">p</span>
+
+<div class="viewcode-block" id="PXR_Structure.logp"><a class="viewcode-back" href="../../source/PyPXR_API.html#pypxr.structure.PXR_Structure.logp">[docs]</a>    <span class="k">def</span> <span class="nf">logp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        log-probability for the interfacial structure. Note that if a given</span>
+<span class="sd">        component is present more than once in a Structure then it&#39;s log-prob</span>
+<span class="sd">        will be counted twice.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        logp : float</span>
+<span class="sd">            log-prior for the Structure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logp</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">:</span>
+            <span class="n">logp</span> <span class="o">+=</span> <span class="n">component</span><span class="o">.</span><span class="n">logp</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">logp</span></div>
+
+<div class="viewcode-block" id="PXR_Structure.plot"><a class="viewcode-back" href="../../source/PyPXR_API.html#pypxr.structure.PXR_Structure.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pvals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">difference</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot the structure.</span>
+
+<span class="sd">        Requires matplotlib be installed.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pvals : np.ndarray, optional</span>
+<span class="sd">            Numeric values for the Parameter&#39;s that are varying</span>
+<span class="sd">        samples: number</span>
+<span class="sd">            If this structures constituent parameters have been sampled, how</span>
+<span class="sd">            many samples you wish to plot on the graph.</span>
+<span class="sd">        fig: Figure instance, optional</span>
+<span class="sd">            If `fig` is not supplied then a new figure is created. Otherwise</span>
+<span class="sd">            the graph is created on the current axes on the supplied figure.</span>
+<span class="sd">        difference: boolean, optional</span>
+<span class="sd">            If True, plot the birefringence / dichroism on a separate graph.</span>
+<span class="sd">        align: int, optional</span>
+<span class="sd">            Aligns the plotted structures around a specified interface in the</span>
+<span class="sd">            slab representation of a Structure. This interface will appear at</span>
+<span class="sd">            z = 0 in the sld plot.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        fig, ax : :class:`matplotlib.Figure`, :class:`matplotlib.Axes`</span>
+<span class="sd">          `matplotlib` figure and axes objects.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span>
+
+        <span class="k">if</span> <span class="n">pvals</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">params</span><span class="o">.</span><span class="n">pvals</span> <span class="o">=</span> <span class="n">pvals</span>
+
+        <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">samples</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">saved_params</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+            <span class="c1"># Get a number of chains, chosen randomly, and plot the model.</span>
+            <span class="k">for</span> <span class="n">pvec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">pgen</span><span class="p">(</span><span class="n">ngen</span><span class="o">=</span><span class="n">samples</span><span class="p">):</span>
+                <span class="n">params</span><span class="o">.</span><span class="n">pvals</span> <span class="o">=</span> <span class="n">pvec</span>
+
+                <span class="n">temp_zed</span><span class="p">,</span> <span class="n">temp_prof</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sld_profile</span><span class="p">(</span><span class="n">align</span><span class="o">=</span><span class="n">align</span><span class="p">)</span>
+                <span class="n">temp_iso</span> <span class="o">=</span> <span class="n">temp_prof</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">3</span>  <span class="c1"># (nxx + nyy + nzz)/3</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">temp_zed</span><span class="p">,</span> <span class="n">temp_iso</span><span class="p">,</span>
+                        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+
+            <span class="c1"># put back saved_params</span>
+            <span class="n">params</span><span class="o">.</span><span class="n">pvals</span> <span class="o">=</span> <span class="n">saved_params</span>
+
+        <span class="c1"># parameters to plot</span>
+        <span class="n">zed</span><span class="p">,</span> <span class="n">prof</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sld_profile</span><span class="p">(</span><span class="n">align</span><span class="o">=</span><span class="n">align</span><span class="p">)</span>
+        <span class="n">iso</span> <span class="o">=</span> <span class="n">prof</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">3</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">zed</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">iso</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;delta&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">zed</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">prof</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;dxx&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;dashed&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">zed</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">prof</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;dzz&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;dashed&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">zed</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">iso</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;beta&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">zed</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">prof</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;teal&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;bxx&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;dashed&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">zed</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">prof</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;teal&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;bzz&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;dashed&#39;</span><span class="p">)</span>
+        <span class="c1"># ax.plot(*self.sld_profile(align=align), color=&#39;red&#39;, zorder=20)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Index of refraction&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;zed / $</span><span class="se">\\</span><span class="s2">AA$&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">difference</span><span class="p">:</span>
+            <span class="n">fig_diff</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+            <span class="n">ax_diff</span> <span class="o">=</span> <span class="n">fig_diff</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+
+            <span class="n">diff</span> <span class="o">=</span> <span class="n">prof</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">prof</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+            <span class="n">ax_diff</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">zed</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">diff</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;birefringence&#39;</span><span class="p">)</span>
+            <span class="n">ax_diff</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">zed</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">diff</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;dichroism&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div></div>
+
+
+<div class="viewcode-block" id="PXR_Scatterer"><a class="viewcode-back" href="../../source/PyPXR_API.html#pypxr.structure.PXR_Scatterer">[docs]</a><span class="k">class</span> <span class="nc">PXR_Scatterer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract base class for a material with a complex tensor index of refraction</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">sld</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="nb">complex</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>  <span class="c1"># Returns optical constant</span>
+        <span class="k">return</span> <span class="s1">&#39;n = </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sld</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__complex__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thick</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">rough</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a :class:`PXR_Slab`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        thick: refnx.analysis.Parameter or float</span>
+<span class="sd">            Thickness of slab in Angstrom</span>
+<span class="sd">        rough: refnx.analysis.Parameter or float</span>
+<span class="sd">            Roughness of slab in Angstrom</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        slab : refnx.PXR_reflect.PXR_Slab</span>
+<span class="sd">            The newly made Slab with a dielectric tensor.</span>
+
+<span class="sd">        Example</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; n_xx = complex(-0.0035, 0.0004) # [unitless] #Ordinary Axis</span>
+<span class="sd">        &gt;&gt;&gt; n_zz = complex(-0.0045, 0.0009) # [unitless] #Extraordinary Axis</span>
+<span class="sd">        &gt;&gt;&gt; molecule = PXR_SLD(np.array([n_xx, n_zz]), name=&#39;material&#39;) #molecule</span>
+<span class="sd">        &gt;&gt;&gt; #Crete a slab with 10 A in thickness and 3 A roughness</span>
+<span class="sd">        &gt;&gt;&gt; slab = molecule(10, 3)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">PXR_Slab</span><span class="p">(</span><span class="n">thick</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">rough</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="c1"># c = self | other</span>
+        <span class="n">slab</span> <span class="o">=</span> <span class="bp">self</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">slab</span> <span class="o">|</span> <span class="n">other</span></div>
+
+
+<div class="viewcode-block" id="PXR_SLD"><a class="viewcode-back" href="../../source/PyPXR_API.html#pypxr.structure.PXR_SLD">[docs]</a><span class="k">class</span> <span class="nc">PXR_SLD</span><span class="p">(</span><span class="n">PXR_Scatterer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Object representing freely varying complex tensor index of refraction of a material</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    value : float, complex, &#39;np.array&#39;</span>
+<span class="sd">        Valid np.ndarray.shape: (2,), (3,), (3,3) (&#39;xx&#39;, &#39;yy&#39;, &#39;zz&#39;)</span>
+<span class="sd">        tensor index of refraction.</span>
+<span class="sd">        Units (N/A)</span>
+<span class="sd">    symmetry : (&#39;iso&#39;, &#39;uni&#39;, &#39;bi&#39;)</span>
+<span class="sd">        Tensor symmetry. Automatically applies inter-parameter constraints. </span>
+<span class="sd">    name : str, optional</span>
+<span class="sd">        Name of object for later reference.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Components correspond to individual tensor components defined as (&#39;xx&#39;, &#39;yy&#39;, &#39;zz&#39;).</span>
+<span class="sd">    In a uniaxial approximation the following inputs are equivalent.</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; n_xx = complex(-0.0035, 0.0004) # [unitless] #Ordinary Axis</span>
+<span class="sd">    &gt;&gt;&gt; n_zz = complex(-0.0045, 0.0009) # [unitless] #Extraordinary Axis</span>
+<span class="sd">    &gt;&gt;&gt; molecule = PXR_SLD(np.array([n_xx, n_zz]), name=&#39;molecule&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; molecule = PXR_SLD(np.array([n_xx, n_xx, n_zz], name=&#39;molecule&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; molecule = PXR_SLD(np.array([n_xx, n_xx, n_zz])*np.eye(3), name=&#39;molecule)</span>
+<span class="sd">    </span>
+<span class="sd">    An PXR_SLD object can be used to create a PXR_Slab:</span>
+
+<span class="sd">    &gt;&gt;&gt; n_xx = complex(-0.0035, 0.0004) # [unitless] #Ordinary Axis</span>
+<span class="sd">    &gt;&gt;&gt; n_zz = complex(-0.0045, 0.0009) # [unitless] #Extraordinary Axis</span>
+<span class="sd">    &gt;&gt;&gt; molecule = PXR_SLD(np.array([n_xx, n_zz]), name=&#39;material&#39;) #molecule</span>
+<span class="sd">    &gt;&gt;&gt; #Crete a slab with 10 A in thickness and 3 A roughness</span>
+<span class="sd">    &gt;&gt;&gt; slab = molecule(10, 3)</span>
+<span class="sd">    </span>
+<span class="sd">    Tensor symmetry can be applied using `symmetry`.</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; #&#39;uni&#39; will constrain n_xx = n_yy.</span>
+<span class="sd">    &gt;&gt;&gt; self.yy.setp(self.xx, vary=None, constraint=self.xx)</span>
+<span class="sd">    &gt;&gt;&gt; self.iyy.setp(self.ixx, vary=None, constraint=self.ixx)</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; #&#39;iso&#39; will constrain n_xx = n_yy = n_zz</span>
+<span class="sd">    &gt;&gt;&gt; self.yy.setp(self.xx, vary=None, constraint=self.xx)</span>
+<span class="sd">    &gt;&gt;&gt; self.iyy.setp(self.ixx, vary=None, constraint=self.ixx)</span>
+<span class="sd">    &gt;&gt;&gt; self.zz.setp(self.xx, vary=None, constraint=self.xx)</span>
+<span class="sd">    &gt;&gt;&gt; self.izz.setp(self.ixx, vary=None, constraint=self.ixx)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">symmetry</span><span class="o">=</span><span class="s1">&#39;uni&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">PXR_SLD</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">imag</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_isld&#39;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tensor</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Figure out if the input is valid</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>  <span class="c1"># Make sure the input is an array with 3 elements</span>
+            <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">3</span><span class="p">,):</span>  <span class="c1"># 3 element array, assume structure [&#39;xx&#39;, &#39;yy&#39;, &#39;zz&#39;]</span>
+                <span class="k">pass</span>
+                <span class="c1"># Great choice</span>
+            <span class="k">elif</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">2</span><span class="p">,):</span>  <span class="c1"># 2 element array, assume structure [&#39;xx&#39;, &#39;zz&#39;] (uniaxial)</span>
+                <span class="n">temp_val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Make a 3-element array and fill it with &#39;xx&#39;</span>
+                <span class="n">temp_val</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Append the last element as &#39;zz&#39;</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">temp_val</span>  <span class="c1"># Reset value</span>
+            <span class="k">elif</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>  <span class="c1"># 3x3 element array, assume diagonal is [&#39;xx&#39;, &#39;yy&#39;, &#39;zz&#39;]</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">diagonal</span><span class="p">()</span>  <span class="c1"># Just take the inner 3 elements for generating the index of refraction</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span>
+                        <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">complex</span><span class="p">)):</span>  <span class="c1"># If the value is a scalar, convert it into an array for later use.</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">value</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># No input was given</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Please input valid index of refraction&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Suggested format: np.ndarray shape: (3, )&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Build parameters from given tensor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span> <span class="o">=</span> <span class="n">Parameters</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>  <span class="c1"># Generate the parameters for the tensor object</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">delta</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">real</span><span class="p">,</span>
+                               <span class="n">name</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_diso&#39;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>  <span class="c1"># create parameter for the &#39;isotropic&#39; version of the given delta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span>
+                              <span class="n">name</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_biso&#39;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>  <span class="c1"># create parameter for the &#39;isotropic&#39; version of the given beta</span>
+        <span class="c1"># Create parameters for individual tensor components.</span>
+        <span class="c1"># Each element of the tensor becomes its own fit parameter within the PXR machinary</span>
+        <span class="c1"># All tensors are assumed diagonal in the substrate frame</span>
+        <span class="c1"># See documentation for recommended parameter constraints</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xx</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">tensor_index</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ixx</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_i</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">tensor_index</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yy</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">tensor_index</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iyy</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_i</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">tensor_index</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zz</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">tensor_index</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">izz</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_i</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">tensor_index</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">birefringence</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">xx</span><span class="o">.</span><span class="n">value</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">zz</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+                                       <span class="n">name</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_bire&#39;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>  <span class="c1"># Useful parameters to use as constraints</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dichroism</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">ixx</span><span class="o">.</span><span class="n">value</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">izz</span><span class="o">.</span><span class="n">value</span><span class="p">),</span>
+                                   <span class="n">name</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_dichro&#39;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>  <span class="c1"># Defined in terms of xx and zz</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ixx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">yy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">iyy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">zz</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">izz</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">birefringence</span><span class="p">,</span>
+             <span class="bp">self</span><span class="o">.</span><span class="n">dichroism</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">symmetry</span> <span class="o">=</span> <span class="n">symmetry</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;Isotropic Index of Refraction = ([</span><span class="si">{delta!r}</span><span class="s2">, </span><span class="si">{beta!r}</span><span class="s2">],&quot;</span>
+                <span class="s2">&quot; name=</span><span class="si">{name!r}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__complex__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">sldc</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">sldc</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :class:`refnx.analysis.Parameters` associated with this component</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span>
+        <span class="c1"># p = Parameters(name=self.name)</span>
+        <span class="c1"># p.extend([self.real, self.imag])</span>
+        <span class="c1"># return p</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">symmetry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Specify `symmetry` to automatically constrain the components. Default is &#39;uni&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_symmetry</span>
+
+    <span class="nd">@symmetry</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">symmetry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symmetry</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_symmetry</span> <span class="o">=</span> <span class="n">symmetry</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_symmetry</span> <span class="o">==</span> <span class="s1">&#39;iso&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">yy</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xx</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">constraint</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">xx</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">iyy</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ixx</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">constraint</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ixx</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">zz</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xx</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">constraint</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">xx</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">izz</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ixx</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">constraint</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ixx</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_symmetry</span> <span class="o">==</span> <span class="s1">&#39;uni&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">yy</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xx</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">constraint</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">xx</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">iyy</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ixx</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">constraint</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ixx</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_symmetry</span> <span class="o">==</span> <span class="s1">&#39;bi&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">xx</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xx</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">constraint</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ixx</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ixx</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">constraint</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">yy</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">yy</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">constraint</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">iyy</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iyy</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">constraint</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">zz</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zz</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">constraint</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">izz</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">izz</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">constraint</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1">#</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A full 3x3 matrix composed of the individual parameter values.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            out : np.ndarray (3x3)</span>
+<span class="sd">                complex tensor index of refraction</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="bp">self</span><span class="o">.</span><span class="n">xx</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ixx</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                                 <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">yy</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">iyy</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                                 <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">zz</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">izz</span><span class="o">.</span><span class="n">value</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tensor</span></div>
+
+
+<div class="viewcode-block" id="PXR_MaterialSLD"><a class="viewcode-back" href="../../source/PyPXR_API.html#pypxr.structure.PXR_MaterialSLD">[docs]</a><span class="k">class</span> <span class="nc">PXR_MaterialSLD</span><span class="p">(</span><span class="n">PXR_Scatterer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Object representing complex index of refraction of a chemical formula.</span>
+<span class="sd">    Only works for an isotropic material, convenient for substrate and superstrate materials</span>
+<span class="sd">    You can fit the mass density of the material.</span>
+<span class="sd">    Takes advantage of the PeriodicTable python package for calculations</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    formula : str</span>
+<span class="sd">        Chemical formula</span>
+<span class="sd">    density : float or Parameter</span>
+<span class="sd">        mass density of compound in g / cm**3</span>
+<span class="sd">    energy : float, optional</span>
+<span class="sd">        energy of radiation (ev) ~ Converted to Angstrom in function</span>
+<span class="sd">    name : str, optional</span>
+<span class="sd">        Name of material</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    You need to have the `periodictable` package installed to use this object.</span>
+<span class="sd">    A PXR_MaterialSLD object can be used to create a PXR_Slab:</span>
+
+<span class="sd">    &gt;&gt;&gt; # A PXR_MaterialSLD object for a common substrate</span>
+<span class="sd">    &gt;&gt;&gt; en = 284.4 #[eV] Evaluate PeriodicTable at this energy</span>
+<span class="sd">    &gt;&gt;&gt; sio2 = PXR_MaterialSLD(&#39;SiO2&#39;, density=2.4, energy=en, name=&#39;SiO2&#39;) #Substrate</span>
+<span class="sd">    &gt;&gt;&gt; si = PXR_MaterialSLD(&#39;Si&#39;, density=2.33, energy=en, name=&#39;SiO2&#39;) #Substrate</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">formula</span><span class="p">,</span> <span class="n">density</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="mf">250.0</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">periodictable</span> <span class="k">as</span> <span class="nn">pt</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">PXR_MaterialSLD</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__formula</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">formula</span><span class="p">(</span><span class="n">formula</span><span class="p">)</span>  <span class="c1"># Build the PeriodicTable object for storage</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_compound</span> <span class="o">=</span> <span class="n">formula</span>  <span class="c1"># Keep a reference of the str object</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">density</span> <span class="o">=</span> <span class="n">possibly_create_parameter</span><span class="p">(</span><span class="n">density</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;rho&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_energy</span> <span class="o">=</span> <span class="n">energy</span>  <span class="c1"># Store in eV for user interface</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wavelength</span> <span class="o">=</span> <span class="n">hc</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_energy</span>  <span class="c1"># Convert to Angstroms for later calculations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tensor</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Build this when its called based in parameter values</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span> <span class="o">=</span> <span class="n">Parameters</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">density</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;compound&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compound</span><span class="p">,</span>
+             <span class="s1">&#39;density&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">density</span><span class="p">,</span>
+             <span class="s1">&#39;energy&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy</span><span class="p">,</span>
+             <span class="s1">&#39;wavelength&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">wavelength</span><span class="p">,</span>
+             <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">}</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;MaterialSLD(</span><span class="si">{compound!r}</span><span class="s2">, </span><span class="si">{density!r}</span><span class="s2">,&quot;</span>
+                <span class="s2">&quot;energy=</span><span class="si">{energy!r}</span><span class="s2">, wavelength=</span><span class="si">{wavelength!r}</span><span class="s2">, name=</span><span class="si">{name!r}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">d</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">formula</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Chemical formula used to calculate the index of refraction.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            formula : str</span>
+<span class="sd">                Full chemical formula used to calculate index of refraction.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compound</span>
+
+    <span class="nd">@formula</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">formula</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">formula</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">periodictable</span> <span class="k">as</span> <span class="nn">pt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__formula</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">formula</span><span class="p">(</span><span class="n">formula</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_compound</span> <span class="o">=</span> <span class="n">formula</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">energy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Photon energy to evaluate index of refraction in eV. Automatically updates wavelength when assigned.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            energy : float</span>
+<span class="sd">                Photon energy of X-ray probe.  </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_energy</span>
+
+    <span class="nd">@energy</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_energy</span> <span class="o">=</span> <span class="n">energy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wavelength</span> <span class="o">=</span> <span class="n">hc</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_energy</span>  <span class="c1"># Update the wavelength if the energy changes</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">wavelength</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Wavelength to evaluate index of refraction in Angstroms. Automatically updates energy when assigned.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            wavelength : float</span>
+<span class="sd">                Wavelength of X-ray probe.  </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wavelength</span>
+
+    <span class="nd">@wavelength</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">wavelength</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wavelength</span> <span class="o">=</span> <span class="n">wavelength</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_energy</span> <span class="o">=</span> <span class="n">hc</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wavelength</span>  <span class="c1"># Update the energy if the wavelength changes</span>
+
+    <span class="k">def</span> <span class="fm">__complex__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">periodictable</span> <span class="k">as</span> <span class="nn">pt</span>
+        <span class="kn">from</span> <span class="nn">periodictable</span> <span class="kn">import</span> <span class="n">xsf</span>
+        <span class="n">sldc</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">xsf</span><span class="o">.</span><span class="n">index_of_refraction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__formula</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">density</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                                          <span class="n">wavelength</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wavelength</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">sldc</span><span class="p">)</span><span class="o">.</span><span class="vm">__module__</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="vm">__name__</span><span class="p">:</span>  <span class="c1"># check if the type is accidentally cast into numpy.</span>
+            <span class="n">sldc</span> <span class="o">=</span> <span class="n">sldc</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+        <span class="k">return</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">sldc</span>  <span class="c1"># pt.xsf makes the type numpy affiliated...</span>
+        <span class="c1"># __complex__ does not play nice so we reconvert with .item()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :class:`refnx.analysis.Parameters` associated with this component</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        An isotropic 3x3 tensor composed of `complex(self.delta, self.beta)` along the diagonal.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            tensor : np.ndarray</span>
+<span class="sd">                complex tensor index of refraction</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="nb">complex</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tensor</span></div>
+
+
+<div class="viewcode-block" id="PXR_Component"><a class="viewcode-back" href="../../source/PyPXR_API.html#pypxr.structure.PXR_Component">[docs]</a><span class="k">class</span> <span class="nc">PXR_Component</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A base class for describing the structure of a subset of an interface.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str, optional</span>
+<span class="sd">        The name associated with the Component</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Currently limited to Gaussian interfaces.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+
+    <span class="k">def</span> <span class="fm">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        OR&#39;ing components can create a :class:`Structure`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        other: refnx.reflect.Structure, refnx.reflect.Component</span>
+<span class="sd">            Combines with this component to make a Structure</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        s: refnx.reflect.Structure</span>
+<span class="sd">            The created Structure</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+
+<span class="sd">        &gt;&gt;&gt; air = SLD(0, name=&#39;air&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; sio2 = SLD(3.47, name=&#39;SiO2&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; si = SLD(2.07, name=&#39;Si&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; structure = air | sio2(20, 3) | si(0, 3)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># c = self | other</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">PXR_Structure</span><span class="p">()</span>
+        <span class="n">p</span> <span class="o">|=</span> <span class="bp">self</span>
+        <span class="n">p</span> <span class="o">|=</span> <span class="n">other</span>
+        <span class="k">return</span> <span class="n">p</span>
+
+    <span class="k">def</span> <span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        MUL&#39;ing components makes them repeat.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        n: int</span>
+<span class="sd">            How many times you want to repeat the Component</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        s: refnx.reflect.Structure</span>
+<span class="sd">            The created Structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># convert to integer, should raise an error if there&#39;s a problem</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">operator</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">PXR_Structure</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">PXR_Structure</span><span class="p">()</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="bp">self</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">s</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :class:`refnx.analysis.Parameters` associated with this component</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;A component should override the parameters &quot;</span>
+                                  <span class="s2">&quot;property&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PXR_Component.slabs"><a class="viewcode-back" href="../../source/PyPXR_API.html#pypxr.structure.PXR_Component.slabs">[docs]</a>    <span class="k">def</span> <span class="nf">slabs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The slab representation of this component</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        structure : PyPXR.anisotropic_reflect.PXR_Structure</span>
+<span class="sd">            Summary of the structure that houses the component.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        slabs : np.ndarray</span>
+<span class="sd">            Slab representation of this Component.</span>
+<span class="sd">            Has shape (N, 5).</span>
+
+<span class="sd">            - slab[N, 0]</span>
+<span class="sd">               thickness of layer N</span>
+<span class="sd">            - slab[N, 1]</span>
+<span class="sd">               SLD.real of layer N (not including solvent)</span>
+<span class="sd">            - slab[N, 2]</span>
+<span class="sd">               *overall* SLD.imag of layer N (not including solvent)</span>
+<span class="sd">            - slab[N, 3]</span>
+<span class="sd">               roughness between layer N and N-1</span>
+<span class="sd">            - slab[N, 4]</span>
+<span class="sd">               volume fraction of solvent in layer N.</span>
+
+<span class="sd">        If a Component returns None, then it doesn&#39;t have any slabs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;A component should override the slabs &quot;</span>
+                                  <span class="s2">&quot;property&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PXR_Component.logp"><a class="viewcode-back" href="../../source/PyPXR_API.html#pypxr.structure.PXR_Component.logp">[docs]</a>    <span class="k">def</span> <span class="nf">logp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The log-probability that this Component adds to the total log-prior</span>
+<span class="sd">        term. Do not include log-probability terms for the actual parameters,</span>
+<span class="sd">        these are automatically included elsewhere.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        logp : float</span>
+<span class="sd">            Log-probability</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mi">0</span></div></div>
+
+
+<div class="viewcode-block" id="PXR_Slab"><a class="viewcode-back" href="../../source/PyPXR_API.html#pypxr.structure.PXR_Slab">[docs]</a><span class="k">class</span> <span class="nc">PXR_Slab</span><span class="p">(</span><span class="n">PXR_Component</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A slab component has uniform tensor index of refraction associated over its thickness.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    thick : refnx.analysis.Parameter or float</span>
+<span class="sd">        thickness of slab (Angstrom)</span>
+<span class="sd">    sld : :class:`PyPXR.anisotropic_structure.PXR_Scatterer`, complex, or float</span>
+<span class="sd">        (complex) tensor index of refraction of film</span>
+<span class="sd">    rough : refnx.analysis.Parameter or float</span>
+<span class="sd">        roughness on top of this slab (Angstrom)</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Name of this slab</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thick</span><span class="p">,</span> <span class="n">sld</span><span class="p">,</span> <span class="n">rough</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">PXR_Slab</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">thick</span> <span class="o">=</span> <span class="n">possibly_create_parameter</span><span class="p">(</span><span class="n">thick</span><span class="p">,</span>
+                                               <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_thick&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sld</span><span class="p">,</span> <span class="n">PXR_Scatterer</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sld</span> <span class="o">=</span> <span class="n">sld</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sld</span> <span class="o">=</span> <span class="n">PXR_SLD</span><span class="p">(</span><span class="n">sld</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">rough</span> <span class="o">=</span> <span class="n">possibly_create_parameter</span><span class="p">(</span><span class="n">rough</span><span class="p">,</span>
+                                               <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_rough&#39;</span><span class="p">)</span>
+
+        <span class="n">p</span> <span class="o">=</span> <span class="n">Parameters</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">thick</span><span class="p">])</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sld</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">rough</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span> <span class="o">=</span> <span class="n">p</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Slab(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">thick</span><span class="si">!r}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sld</span><span class="si">!r}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">rough</span><span class="si">!r}</span><span class="s2">,&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; name=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2">,&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># sld = repr(self.sld)</span>
+        <span class="c1">#</span>
+        <span class="c1"># s = &#39;Slab: {0}\n    thick = {1} Å, {2}, rough = {3} Å,</span>
+        <span class="c1">#      \u03D5_solv = {4}&#39;</span>
+        <span class="c1"># t = s.format(self.name, self.thick.value, sld, self.rough.value,</span>
+        <span class="c1">#              self.vfsolv.value)</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :class:`refnx.analysis.Parameters` associated with this component</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span>
+
+<div class="viewcode-block" id="PXR_Slab.slabs"><a class="viewcode-back" href="../../source/PyPXR_API.html#pypxr.structure.PXR_Slab.slabs">[docs]</a>    <span class="k">def</span> <span class="nf">slabs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Slab representation of this component. See :class:`Component.slabs`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sldc</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sld</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="bp">self</span><span class="o">.</span><span class="n">thick</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                          <span class="n">sldc</span><span class="o">.</span><span class="n">real</span><span class="p">,</span>
+                          <span class="n">sldc</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span>
+                          <span class="bp">self</span><span class="o">.</span><span class="n">rough</span><span class="o">.</span><span class="n">value</span><span class="p">]])</span></div>
+
+<div class="viewcode-block" id="PXR_Slab.tensor"><a class="viewcode-back" href="../../source/PyPXR_API.html#pypxr.structure.PXR_Slab.tensor">[docs]</a>    <span class="k">def</span> <span class="nf">tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Stored information pertaining to the tensor dielectric properties of the slab.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        energy : float</span>
+<span class="sd">            Updates PXR_SLD energy component associated with slab. Only required for PXR_MaterialSLD objects</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        --------</span>
+<span class="sd">        tensor : np.ndarray</span>
+<span class="sd">            Complex tensor index of refraction associated with slab.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">energy</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sld</span><span class="p">,</span> <span class="s1">&#39;energy&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sld</span><span class="o">.</span><span class="n">energy</span> <span class="o">=</span> <span class="n">energy</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sld</span><span class="o">.</span><span class="n">tensor</span></div></div>
+
+
+<div class="viewcode-block" id="PXR_MixedMaterialSlab"><a class="viewcode-back" href="../../source/PyPXR_API.html#pypxr.structure.PXR_MixedMaterialSlab">[docs]</a><span class="k">class</span> <span class="nc">PXR_MixedMaterialSlab</span><span class="p">(</span><span class="n">PXR_Component</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A slab component made of several components</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    thick : refnx.analysis.Parameter or float</span>
+<span class="sd">        thickness of slab (Angstrom)</span>
+<span class="sd">    sld_list : sequence of {anisotropic_reflect.PXR_Scatterer, complex, float}</span>
+<span class="sd">        Sequence of materials that are contained in the slab.</span>
+<span class="sd">    vf_list : sequence of refnx.analysis.Parameter or float</span>
+<span class="sd">        relative volume fractions of each of the materials contained in the</span>
+<span class="sd">        film.</span>
+<span class="sd">    rough : refnx.analysis.Parameter or float</span>
+<span class="sd">        roughness on top of this slab (Angstrom)</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Name of this slab</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The index of refraction for this slab is calculated using the normalised volume fractions of</span>
+<span class="sd">    each of the constituent components:</span>
+
+<span class="sd">    &gt;&gt;&gt; np.sum([complex(sld) * vf / np.sum(vf_list) for sld, vf in</span>
+<span class="sd">    ...         zip(sld_list, vf_list)]).</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thick</span><span class="p">,</span> <span class="n">sld_list</span><span class="p">,</span> <span class="n">vf_list</span><span class="p">,</span> <span class="n">rough</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">PXR_MixedMaterialSlab</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">thick</span> <span class="o">=</span> <span class="n">possibly_create_parameter</span><span class="p">(</span><span class="n">thick</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> - thick&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sld</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vf</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sld_parameters</span> <span class="o">=</span> <span class="n">Parameters</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> - slds&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vf_parameters</span> <span class="o">=</span> <span class="n">Parameters</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> - volfracs&quot;</span><span class="p">)</span>
+
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">sld_list</span><span class="p">,</span> <span class="n">vf_list</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">PXR_Scatterer</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sld</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sld</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PXR_SLD</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sld_parameters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sld</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+
+            <span class="n">vf</span> <span class="o">=</span> <span class="n">possibly_create_parameter</span><span class="p">(</span>
+                <span class="n">v</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;vf</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">bounds</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vf</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_vf_parameters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vf</span><span class="p">)</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">rough</span> <span class="o">=</span> <span class="n">possibly_create_parameter</span><span class="p">(</span><span class="n">rough</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> - rough&quot;</span><span class="p">)</span>
+
+        <span class="n">p</span> <span class="o">=</span> <span class="n">Parameters</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">thick</span><span class="p">)</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sld_parameters</span><span class="p">)</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_vf_parameters</span><span class="p">)</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">rough</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span> <span class="o">=</span> <span class="n">p</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;PXR_MixedMaterialSlab(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">thick</span><span class="si">!r}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sld</span><span class="si">!r}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">vf</span><span class="si">!r}</span><span class="s2">,&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">rough</span><span class="si">!r}</span><span class="s2">, name=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2">,&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :class:`refnx.analysis.Parameters` associated with this component</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span>
+
+<div class="viewcode-block" id="PXR_MixedMaterialSlab.slabs"><a class="viewcode-back" href="../../source/PyPXR_API.html#pypxr.structure.PXR_MixedMaterialSlab.slabs">[docs]</a>    <span class="k">def</span> <span class="nf">slabs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Slab representation of this component. See :class:`Component.slabs`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">vfs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_vf_parameters</span><span class="p">)</span>
+        <span class="n">sum_vfs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">vfs</span><span class="p">)</span>
+
+        <span class="n">sldc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+            <span class="p">[</span><span class="nb">complex</span><span class="p">(</span><span class="n">sld</span><span class="p">)</span> <span class="o">*</span> <span class="n">vf</span> <span class="o">/</span> <span class="n">sum_vfs</span> <span class="k">for</span> <span class="n">sld</span><span class="p">,</span> <span class="n">vf</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sld</span><span class="p">,</span> <span class="n">vfs</span><span class="p">)]</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">thick</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                    <span class="n">sldc</span><span class="o">.</span><span class="n">real</span><span class="p">,</span>
+                    <span class="n">sldc</span><span class="o">.</span><span class="n">imag</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">rough</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">]</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="PXR_MixedMaterialSlab.tensor"><a class="viewcode-back" href="../../source/PyPXR_API.html#pypxr.structure.PXR_MixedMaterialSlab.tensor">[docs]</a>    <span class="k">def</span> <span class="nf">tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Stored information pertaining to the tensor dielectric properties of the slab.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        energy : float</span>
+<span class="sd">            Updates PXR_SLD energy component associated with slab. Only required for PXR_MaterialSLD objects</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        --------</span>
+<span class="sd">        tensor : np.ndarray</span>
+<span class="sd">            Complex tensor index of refraction associated with slab.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">vfs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_vf_parameters</span><span class="p">)</span>
+        <span class="n">sum_vfs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">vfs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">energy</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sld</span><span class="p">,</span> <span class="s1">&#39;energy&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sld</span><span class="o">.</span><span class="n">energy</span> <span class="o">=</span> <span class="n">energy</span>
+
+        <span class="n">combinetensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">sld</span><span class="o">.</span><span class="n">tensor</span> <span class="o">*</span> <span class="n">vf</span> <span class="o">/</span> <span class="n">sum_vfs</span> <span class="k">for</span> <span class="n">sld</span><span class="p">,</span> <span class="n">vf</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sld</span><span class="p">,</span> <span class="n">vfs</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">combinetensor</span>  <span class="c1"># self.sld.tensor</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">birefringence_profile</span><span class="p">(</span><span class="n">slabs</span><span class="p">,</span> <span class="n">tensor</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates a series of depth profiles corresponding to the slab model used to calculated p-RSoXR</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    slabs : Information regarding the layer stack, see PXR_Structure class</span>
+<span class="sd">    tensor : List of dielectric tensors from each layer stack, see PXR_Structure class</span>
+<span class="sd">    z : float</span>
+<span class="sd">        Interfacial distance (Angstrom) measured from interface between the</span>
+<span class="sd">        fronting medium and the first layer.</span>
+<span class="sd">    step : Boolean</span>
+<span class="sd">        Set &#39;True&#39; for slab model without interfacial widths</span>
+<span class="sd">    </span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    zed : float / np.ndarray</span>
+<span class="sd">        Depth into the film / Angstrom</span>
+<span class="sd">    </span>
+<span class="sd">    index_tensor : complex / np.ndarray</span>
+<span class="sd">        Real and imaginary tensor components of index of refraction / unitless</span>
+<span class="sd">        Array elements: [nxx, nyy, nzz]</span>
+<span class="sd">    </span>
+<span class="sd">    Optional:</span>
+<span class="sd">    </span>
+<span class="sd">    index_step : complex / np.ndarray</span>
+<span class="sd">        Real and imaginary tensor components of index of refraction / unitless</span>
+<span class="sd">        Calculated WITHOUT interfacial roughness </span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This can be called in vectorised fashion.</span>
+<span class="sd">    </span>
+<span class="sd">    To calculate the isotropic components:</span>
+<span class="sd">        index_iso = index_tensor.sum(axis=1)/3 #(nxx + nyy + nzz)/3</span>
+<span class="sd">    To calculate the birefringence/dichroism:</span>
+<span class="sd">        diff = index_tensor[:,0] - index_tensor[:,2] #nxx - nzz</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nlayers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">slabs</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span>  <span class="c1"># Calculate total number of layers (not including fronting/backing)</span>
+
+    <span class="c1"># work on a copy of the input array</span>
+    <span class="n">layers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">slabs</span><span class="p">)</span>
+    <span class="n">layers</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">slabs</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>  <span class="c1"># Ensure the thickness is positive</span>
+    <span class="n">layers</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">slabs</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">])</span>  <span class="c1"># Ensure the roughness is positive</span>
+    <span class="c1"># bounding layers should have zero thickness</span>
+    <span class="n">layers</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">layers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># distance of each interface from the fronting interface</span>
+    <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">layers</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+    <span class="n">total_film_thickness</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">dist</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>  <span class="c1"># Total film thickness for point density</span>
+    <span class="c1"># workout how much space the SLD profile should encompass</span>
+    <span class="c1"># (if z array not provided)</span>
+    <span class="k">if</span> <span class="n">z</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">zstart</span> <span class="o">=</span> <span class="o">-</span><span class="mi">5</span> <span class="o">-</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">slabs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+        <span class="n">zend</span> <span class="o">=</span> <span class="mi">5</span> <span class="o">+</span> <span class="n">dist</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">layers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+        <span class="n">zed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">zstart</span><span class="p">,</span> <span class="n">zend</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">total_film_thickness</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># 0.5 Angstrom resolution default</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">zed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asfarray</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+
+    <span class="c1"># Reduce the dimensionality of the tensor for ease of use</span>
+    <span class="n">reduced_tensor</span> <span class="o">=</span> <span class="n">tensor</span><span class="o">.</span><span class="n">diagonal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+                                     <span class="mi">2</span><span class="p">)</span>  <span class="c1"># 0 - no offset, 1 - first axis of the tensor, 2 - second axis of the tensor</span>
+
+    <span class="n">tensor_erf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">zed</span><span class="p">),</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="o">*</span> <span class="n">reduced_tensor</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Full wave of initial conditions</span>
+    <span class="n">tensor_step</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">tensor_erf</span><span class="p">)</span>  <span class="c1"># Full wave without interfacial roughness</span>
+    <span class="n">delta_n</span> <span class="o">=</span> <span class="n">reduced_tensor</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">-</span> <span class="n">reduced_tensor</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Change in n at each interface</span>
+
+    <span class="c1"># use erf for roughness function, but step if the roughness is zero</span>
+    <span class="n">step_f</span> <span class="o">=</span> <span class="n">Step</span><span class="p">()</span>  <span class="c1"># Step function (see refnx documentation)</span>
+    <span class="n">erf_f</span> <span class="o">=</span> <span class="n">Erf</span><span class="p">()</span>  <span class="c1"># Error function (see refnx documentation)</span>
+    <span class="n">sigma</span> <span class="o">=</span> <span class="n">layers</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span> <span class="mi">3</span><span class="p">]</span>  <span class="c1"># Interfacial width parameter</span>
+
+    <span class="c1"># accumulate the SLD of each step.</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nlayers</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">erf_f</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">step_f</span>
+        <span class="k">if</span> <span class="n">sigma</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">step_f</span>
+        <span class="n">tensor_erf</span> <span class="o">+=</span> <span class="n">delta_n</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">*</span> <span class="n">f</span><span class="p">(</span><span class="n">zed</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sigma</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">loc</span><span class="o">=</span><span class="n">dist</span><span class="p">[</span><span class="n">i</span><span class="p">])[:,</span> <span class="kc">None</span><span class="p">]</span>  <span class="c1"># Broadcast into a single item</span>
+        <span class="n">tensor_step</span> <span class="o">+=</span> <span class="n">delta_n</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">*</span> <span class="n">g</span><span class="p">(</span><span class="n">zed</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">dist</span><span class="p">[</span><span class="n">i</span><span class="p">])[:,</span> <span class="kc">None</span><span class="p">]</span>  <span class="c1"># Broadcast into a single item</span>
+
+    <span class="k">return</span> <span class="n">zed</span><span class="p">,</span> <span class="n">tensor_erf</span> <span class="k">if</span> <span class="n">step</span> <span class="ow">is</span> <span class="kc">False</span> <span class="k">else</span> <span class="n">tensor_step</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright : Official Contribution of the US Government.  Not subject to copyright in the United States..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

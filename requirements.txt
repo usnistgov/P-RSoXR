@@ -1,0 +1,14 @@
+numpy
+scipy
+pandas
+matplotlib
+seaborn
+astropy
+h5py
+xlrd
+pytest
+tqdm
+uncertainties
+attrs
+periodictable
+refnx
