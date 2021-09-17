@@ -1,36 +1,19 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>ALS11012 PRSoXR loader &mdash; p-RSoXR 0.0.1 documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/jupyter-sphinx.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/thebelab.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/jupyter-sphinx.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/thebelab.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
         <script src="../../_static/doctools.js"></script>
@@ -38,41 +21,22 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.0/dist/embed-amd.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
-    
-    <script type="text/javascript" src="../../_static/js/theme.js"></script>
-
-    
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Modeling/Fitting with PyPXR:" href="../DataModeling_home.html" />
     <link rel="prev" title="Reducing data to 1D profiles:" href="../DataReduction_home.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../../index.html" class="icon icon-home"> p-RSoXR
-          
-
-          
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -80,21 +44,10 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../Installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../DataCollection_home.html">Collecting Data:</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Installation.html">Software Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../DataCollection_home.html">Tutorial on Collecting Data:</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../DataReduction_home.html">Reducing data to 1D profiles:</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">ALS11012 PRSoXR loader</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#Loading-your-data">Loading your data</a></li>
@@ -107,75 +60,34 @@
 <li class="toctree-l1"><a class="reference internal" href="../DataModeling_home.html">Modeling/Fitting with PyPXR:</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../references_home.html">References</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../API.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../legal.html">NIST Legal</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../index.html">p-RSoXR</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-        
           <li><a href="../DataReduction_home.html">Reducing data to 1D profiles:</a> &raquo;</li>
-        
       <li>ALS11012 PRSoXR loader</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
             <a href="../../_sources/source/DataReduction/ALSload_Tutorials.ipynb.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   
 <style>
 /* CSS for nbsphinx extension */
@@ -446,12 +358,12 @@ div.rendered_html tbody tr:hover {
     text-align: unset;
 }
 </style>
-<div class="section" id="ALS11012-PRSoXR-loader">
-<h1>ALS11012 PRSoXR loader<a class="headerlink" href="#ALS11012-PRSoXR-loader" title="Permalink to this headline">¶</a></h1>
+<section id="ALS11012-PRSoXR-loader">
+<h1>ALS11012 PRSoXR loader<a class="headerlink" href="#ALS11012-PRSoXR-loader" title="Permalink to this headline"></a></h1>
 <p>This tutorial will guide you toward importing your newly aquired p-RSoXR data using the <code class="docutils literal notranslate"><span class="pre">ALS_PRSoXR_Loader</span></code>. The data can either be exported as a .csv file or the entire dataset can be compiled into an hdf5 file for a more complete meta-data friendly experience.</p>
 <p>The first step will be to sort your newly acquired data. The provided utilities draw all files within a single directory and assume they belong to the same reflectivity curve. In the following example, the data has been sorted into directories by sample/polarization/energy.</p>
-<div class="section" id="Loading-your-data">
-<h2>Loading your data<a class="headerlink" href="#Loading-your-data" title="Permalink to this headline">¶</a></h2>
+<section id="Loading-your-data">
+<h2>Loading your data<a class="headerlink" href="#Loading-your-data" title="Permalink to this headline"></a></h2>
 <p>The following packages are required for loading data</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
@@ -464,7 +376,7 @@ div.rendered_html tbody tr:hover {
 <span class="kn">import</span> <span class="nn">sys</span>
 
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;../../../src/PyPXR/&quot;</span><span class="p">)</span>
-<span class="kn">from</span> <span class="nn">ALS11012_prsoxr_loader</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">prsoxr_loader</span> <span class="kn">import</span> <span class="o">*</span>
 </pre></div>
 </div>
 </div>
@@ -474,7 +386,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">path_s</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../../../../MF114A/spol/250eV/&#39;</span><span class="p">)</span>
+<span></span><span class="n">path_s</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../../../src/PyPXR/example_data/MF201/&#39;</span><span class="p">)</span>
 <span class="n">files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">path_s</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;*fits&#39;</span><span class="p">))</span>
 </pre></div>
 </div>
@@ -494,11 +406,11 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[WindowsPath(&#39;../../../../../MF114A/spol/250eV/MFSeries_spol_67235-01744.fits&#39;),
- WindowsPath(&#39;../../../../../MF114A/spol/250eV/MFSeries_spol_67235-01745.fits&#39;),
- WindowsPath(&#39;../../../../../MF114A/spol/250eV/MFSeries_spol_67235-01746.fits&#39;),
- WindowsPath(&#39;../../../../../MF114A/spol/250eV/MFSeries_spol_67235-01747.fits&#39;),
- WindowsPath(&#39;../../../../../MF114A/spol/250eV/MFSeries_spol_67235-01748.fits&#39;)]
+[WindowsPath(&#39;../../../src/PyPXR/example_data/MF201/MFSeries_spol_67235-01744.fits&#39;),
+ WindowsPath(&#39;../../../src/PyPXR/example_data/MF201/MFSeries_spol_67235-01746.fits&#39;),
+ WindowsPath(&#39;../../../src/PyPXR/example_data/MF201/MFSeries_spol_67235-01747.fits&#39;),
+ WindowsPath(&#39;../../../src/PyPXR/example_data/MF201/MFSeries_spol_67235-01748.fits&#39;),
+ WindowsPath(&#39;../../../src/PyPXR/example_data/MF201/MFSeries_spol_67235-01749.fits&#39;)]
 </pre></div></div>
 </div>
 <p>Note that the files don’t start at ‘00001’. These have been separated from a longer multiple-sample scan.</p>
@@ -508,7 +420,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">loader</span> <span class="o">=</span> <span class="n">PrsoxrLoader</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;MF114A_spol_250eV&#39;</span><span class="p">)</span>
+<span></span><span class="n">loader</span> <span class="o">=</span> <span class="n">PrsoxrLoader</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;MF201_spol_250eV&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -527,14 +439,14 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Sample Name - MF114A_spol_250eV
-Number of scans - 402
+Sample Name - MF201_spol_250eV
+Number of scans - 400
 ______________________________
 Reduction Variables
 ______________________________
 Shutter offset = 0.00389278
 Sample Location = 0
-Angle Offset = 0.376
+Angle Offset = 0.374
 Energy Offset = 0
 SNR Cutoff = 1.01
 ______________________________
@@ -552,20 +464,20 @@ Dizinger Size = 3
 <ol class="arabic simple">
 <li><p>It contains 402 images that need to be reduced</p></li>
 <li><p>The sample was mounted on the top of the sample plate (Sample Location = 0)</p></li>
-<li><p>The Angle Offset is automatically determined to be 0.376</p></li>
+<li><p>The Angle Offset is automatically determined to be 0.375</p></li>
 <li><p>A dark frame will be created on the ‘left hand side’ of the image</p></li>
 </ol>
 <p>All other parameteres can be set by the user depending on their prefered settings. See the API for a full list of variables and how they are used in the reduction.</p>
-</div>
-<div class="section" id="Check-individual-scans">
-<h2>Check individual scans<a class="headerlink" href="#Check-individual-scans" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="Check-individual-scans">
+<h2>Check individual scans<a class="headerlink" href="#Check-individual-scans" title="Permalink to this headline"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">PrsoxrLoader.check_spot()</span></code> utility will allow you to quickly view single scans.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">a</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">check_spot</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span></span><span class="n">a</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">check_spot</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -576,29 +488,29 @@ Dizinger Size = 3
 <div class="highlight"><pre>
 Exposure: 0.00100000004749745
 Beam Current: 0.0
-Angle Theta: 0.0
-T-2T: 0.0
-CCD Theta: 0.0
+Angle Theta: 0.624
+T-2T: 0.624
+CCD Theta: 1.999
 Photon Energy: 249.996035379532
 Polarization: 100.0
-Higher Order Suppressor: 11.9986436398711
+Higher Order Suppressor: 11.9997548899767
 Horizontal Exit Slit Size: 100.0
 
 
 Processed Variables:
-Q: 0.0
-Specular: 1000429
-Background: 174035
-Signal: 826394
-SNR: 5.74843565949378
-Beam center (84, 72)
+Q: 0.002759278437786943
+Specular: 739774
+Background: 173296
+Signal: 566478
+SNR: 4.268846366909796
+Beam center (82, 54)
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/source_DataReduction_ALSload_Tutorials_15_1.png" src="../../_images/source_DataReduction_ALSload_Tutorials_15_1.png" />
+<img alt="../../_images/source_DataReduction_ALSload_Tutorials_16_1.png" src="../../_images/source_DataReduction_ALSload_Tutorials_16_1.png" />
 </div>
 </div>
 <p>This allows us to get a feel for the beamshape, data quality, and important motor positions. The 4 displayed images are, from left to right:</p>
@@ -634,7 +546,7 @@ Beam center (84, 72)
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/source_DataReduction_ALSload_Tutorials_20_0.png" src="../../_images/source_DataReduction_ALSload_Tutorials_20_0.png" />
+<img alt="../../_images/source_DataReduction_ALSload_Tutorials_21_0.png" src="../../_images/source_DataReduction_ALSload_Tutorials_21_0.png" />
 </div>
 </div>
 <p>Oh no! Something odd is happening to our data at higher angles! This inflection around Q=0.17 is not a typical behavior of reflectivity, something may have gone wrong in the processing.</p>
@@ -677,7 +589,7 @@ Beam center (15, 135)
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/source_DataReduction_ALSload_Tutorials_22_1.png" src="../../_images/source_DataReduction_ALSload_Tutorials_22_1.png" />
+<img alt="../../_images/source_DataReduction_ALSload_Tutorials_23_1.png" src="../../_images/source_DataReduction_ALSload_Tutorials_23_1.png" />
 </div>
 </div>
 <p>It looks like the beamspot drifts toward the left edge of the image, it is likely tilted on the sample mount. We can see that this causes the light and dark frames to overlap which artifically reduces the intensity. We can adjust the side of the camera that generates a dark frame by updating the <code class="docutils literal notranslate"><span class="pre">PrsoxrLoader.dark_side</span></code> parameter.</p>
@@ -706,13 +618,13 @@ Beam center (15, 135)
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/source_DataReduction_ALSload_Tutorials_26_0.png" src="../../_images/source_DataReduction_ALSload_Tutorials_26_0.png" />
+<img alt="../../_images/source_DataReduction_ALSload_Tutorials_27_0.png" src="../../_images/source_DataReduction_ALSload_Tutorials_27_0.png" />
 </div>
 </div>
 <p>Much better! The dataset looks good and is ready to be exported.</p>
-</div>
-<div class="section" id="Saving-Data">
-<h2>Saving Data<a class="headerlink" href="#Saving-Data" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="Saving-Data">
+<h2>Saving Data<a class="headerlink" href="#Saving-Data" title="Permalink to this headline"></a></h2>
 <p>Several options exist for saving data.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">loader.to_csv(path,</span> <span class="pre">name,</span> <span class="pre">save_meta=True)</span></code> : This option will save the reflectivity (and meta data) into two .csv. files at the location ‘path’ with the filename ‘name.csv’</p></li>
@@ -720,7 +632,7 @@ Beam center (15, 135)
 </ul>
 <p>The .csv options provides a much simpler user experience for saving/accessing your data outside of python. The .hdf5 file allows you to compile multiple scans into a single file. Additionally, with <code class="docutils literal notranslate"><span class="pre">save_images=True</span></code> every processed image is saved under the <code class="docutils literal notranslate"><span class="pre">meta_data</span></code> umbrella. This will also save the variables used to process the data if you want to review at a later time.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -731,55 +643,38 @@ Beam center (15, 135)
 </div>
 </div>
 <p>Your data is now ready to be modeled with <code class="docutils literal notranslate"><span class="pre">PyPXR</span></code></p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="../DataModeling_home.html" class="btn btn-neutral float-right" title="Modeling/Fitting with PyPXR:" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../DataReduction_home.html" class="btn btn-neutral float-left" title="Reducing data to 1D profiles:" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../DataModeling_home.html" class="btn btn-neutral float-right" title="Modeling/Fitting with PyPXR:" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright : Official Contribution of the US Government.  Not subject to copyright in the United States..
-
-    </p>
+    <p>&#169; Copyright : Official Contribution of the US Government.  Not subject to copyright in the United States..</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

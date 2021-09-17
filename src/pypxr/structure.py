@@ -31,7 +31,12 @@ from scipy.interpolate import interp1d
 
 from refnx.analysis import Parameters, Parameter, possibly_create_parameter
 from refnx.reflect.interface import Erf, Step
-from pypxr.reflectivity import PXR_reflectivity
+
+try: # Check for pip install
+    from pypxr.reflectivity import PXR_reflectivity
+except ImportError:
+    from reflectivity import PXR_reflectivity
+#from pypxr.reflectivity import PXR_reflectivity
 
 speed_of_light = 299792458  # m/s
 plank_constant = 4.135667697e-15  # ev*s

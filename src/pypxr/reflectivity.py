@@ -33,8 +33,10 @@ from scipy.interpolate import splrep, splev
 from refnx.analysis import (Parameters, Parameter, possibly_create_parameter,
                             Transform)
 # from ani_reflect._biaxial_reflect import * ##TFerron Edits 05/20/2020 *Include model for anisotropic calculation
-from pypxr._uniaxial_reflect import *
-
+try:
+    from pypxr._uniaxial_reflect import *
+except ImportError:
+    from _uniaxial_reflect import *
 """
 Calculates the specular reflectivity from a stratified series of layers
 using polarized resonant soft X-ray reflectivity.

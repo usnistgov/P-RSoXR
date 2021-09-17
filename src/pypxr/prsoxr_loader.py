@@ -630,14 +630,12 @@ class PrsoxrLoader:
                         avg_r = np.mean(np.array(dummy_r_list))  # Find the average of the measurements
                         avg_err = np.sqrt(np.sum(np.square(np.array(dummy_err_list))) / len(
                             dummy_err_list))  # Overly complicated method to add variances of the measurement
-                        for iii, stitchpoint in enumerate(refl['Q'].iloc[
-                                                        x - 7:x]):
+                        for iii, stitchpoint in enumerate(refl['Q'].iloc[x - 7:x]):
                             y = x - 7 + iii
                             if stitchpoint == qstitch:
                                 motor_y = refl[motor_change].iloc[x + 1]
                                 scalei = avg_r / (refl['R'].iloc[y])
-                                scale_erri = scalei * ((refl['R_err'].iloc[y] / refl['R'].iloc[y]) ** 2 + (
-                                            avg_err / avg_r) ** 2) ** 0.5
+                                scale_erri = scalei * ((refl['R_err'].iloc[y] / refl['R'].iloc[y]) ** 2 + (avg_err / avg_r) ** 2) ** 0.5
                         break
 
                         # if val == Qx and refl[MOTOR_CHANGE].iloc[i] != MOTORx:
