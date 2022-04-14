@@ -1,7 +1,0 @@
-anisotropic_reflectivity
-========================
-
-.. automodule:: anisotropic_reflectivity
-	:members:
-	:undoc-members:
-	:show-inheritance:
