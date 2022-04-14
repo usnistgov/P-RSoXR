@@ -1,6 +1,6 @@
 # PyPXR
 
-Open-source utilities for modeling Polarized X-ray Reflectivity using a anisotropic transfer matrix formalism. The roots of this package were originally forked from the refnx.reflect layer model developed by Andrew Nelson.
+Open-source python utilities for modeling Polarized X-ray Reflectivity using an anisotropic transfer matrix formalism. The roots of this package were originally forked from the refnx.reflect layer model developed by Andrew Nelson.
 
 This package requires the use of [refnx](https://refnx.readthedocs.io/en/latest/index.html) in order to model and fit data.
 
