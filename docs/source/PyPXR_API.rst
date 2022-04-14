@@ -1,0 +1,51 @@
+PyPXR API
+==============
+
+.. _refnx:	http://refnx.readthedocs.io/en/latest
+.. _emcee:	https://emcee.readthedocs.io/en/stable/
+
+The object oriented approach behind PyPXR was forked from the X-ray/Neutron reflectometry analysis platform `refnx`_ (written by Andrew Nelson). A compatibility between the two packages allows for PyPXR to take advantage of the robust fitting capabilities within refnx. 
+
+Building a structure
+--------------------	
+.. autoclass::	pypxr.structure.PXR_Scatterer
+	:members:
+	:undoc-members:
+	:show-inheritance:
+	
+.. autoclass::	pypxr.structure.PXR_SLD
+	:members:
+	:undoc-members:
+	:show-inheritance:
+	
+.. autoclass::	pypxr.structure.PXR_MaterialSLD
+	:members:
+	:undoc-members:
+	:show-inheritance:
+	
+.. autoclass::	pypxr.structure.PXR_Component
+	:members:
+	:undoc-members:
+	:show-inheritance:
+	
+.. autoclass::	pypxr.structure.PXR_Slab
+	:members:
+	:undoc-members:
+	:show-inheritance:
+
+.. autoclass::	pypxr.structure.PXR_MixedMaterialSlab
+	:members:
+	:undoc-members:
+	:show-inheritance:	
+	
+.. autoclass::	pypxr.structure.PXR_Structure
+	:members:
+	:undoc-members:
+	:show-inheritance:
+	
+Polarized reflectivity model
+----------------------------
+.. autoclass::	pypxr.reflectivity.PXR_ReflectModel
+	:members:
+	:undoc-members:
+	:show-inheritance:

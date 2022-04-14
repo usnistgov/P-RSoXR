@@ -1,0 +1,10 @@
+Tutorial:
+=======
+PyPXR is designed to tackle reflectivity datasets taken with multiple polarizations and photon energies. This tutorial will outline the steps to build and subsequently refine a slab model to fit polarized resonant reflectivty of a model organic semiconductor.
+
+A 
+
+
+.. toctree::
+	:maxdepth:	2
+	

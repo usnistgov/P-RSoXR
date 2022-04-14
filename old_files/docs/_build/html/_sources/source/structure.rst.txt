@@ -1,0 +1,46 @@
+PyPXR API
+==============
+
+Building a structure
+--------------------	
+.. autoclass::	anisotropic_structure.PXR_Scatterer
+	:members:
+	:undoc-members:
+	:show-inheritance:
+	
+.. autoclass::	anisotropic_structure.PXR_SLD
+	:members:
+	:undoc-members:
+	:show-inheritance:
+	
+.. autoclass::	anisotropic_structure.PXR_MaterialSLD
+	:members:
+	:undoc-members:
+	:show-inheritance:
+	
+.. autoclass::	anisotropic_structure.PXR_Component
+	:members:
+	:undoc-members:
+	:show-inheritance:
+	
+.. autoclass::	anisotropic_structure.PXR_Slab
+	:members:
+	:undoc-members:
+	:show-inheritance:
+
+.. autoclass::	anisotropic_structure.PXR_MixedMaterialSlab
+	:members:
+	:undoc-members:
+	:show-inheritance:	
+	
+.. autoclass::	anisotropic_structure.PXR_Structure
+	:members:
+	:undoc-members:
+	:show-inheritance:
+	
+Polarized reflectivity model
+----------------------------
+.. automodule::	anisotropic_reflectivity
+	:members:
+	:undoc-members:
+	:show-inheritance:

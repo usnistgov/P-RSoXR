@@ -1,6 +1,25 @@
-# P-RSoXR
-Codebase for analysis of polarized soft X-ray reflectivity
+# PyPXR
 
-Update 08/04/2020: Added new 'uniaxial_reflect.py' function that calculates the reflectance under a uniaxial approximation. Added a toggle switch in the model to decide type of fit. Improves speed by 8x (as of 08/04/2020) if you do not require the full biaxial solution.
+Open-source python utilities for modeling Polarized X-ray Reflectivity using an anisotropic transfer matrix formalism. The roots of this package were originally forked from the refnx.reflect layer model developed by Andrew Nelson.
 
-Updated 07/13/2020: The refnx/EMpy folders are no longer used. Further development will be done in the suite of python files held in the folder 'ani_reflectivity'
+This package requires the use of [refnx](https://refnx.readthedocs.io/en/latest/index.html) in order to model and fit data.
+
+Some functionalities have been forked and repurposed from other open-source utilities:
+
+  - [D. Dietze : FSRStools](https://github.com/ddietze/FSRStools)
+  - [M. Jeannin : pyGTM](https://github.com/pyMatJ/pyGTM)
+  - [P. Dmitriev : PyATMM](https://github.com/kitchenknif/PyATMM)
+
+
+Results produced from the main-branch uniaxial calculation have been published and can be found online
+
+  - [ACS Appl. Mater. Interfaces 2022, 14, 2, 3455–3466 (DOI:10.1021/acsami.1c19948)](https://pubs.acs.org/doi/abs/10.1021/acsami.1c19948)
+
+
+### Contact information:
+ - Authors: Thomas J. Ferron & Daniel F. Sunday
+ - Affiliation: Materials Measurement Laboratory / Material Science and Engineering Division / Polymers Processing Group
+ - Website: 
+    - [Detailed Documentation (ReadTheDocs)](https://pypxr.readthedocs.io/en/latest/?)
+    - [Resonant Soft X-ray Scattering Group](https://www.nist.gov/programs-projects/resonant-soft-x-ray-scattering-rsoxs)
+ - Email: daniel.sunday@nist.gov

@@ -1,0 +1,1075 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pypxr.prsoxr_loader &mdash; p-RSoXR 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/thebelab.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/thebelab-helper.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.0/dist/embed-amd.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> p-RSoXR
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../source/Installation.html">Software Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/DataCollection_home.html">Tutorial on Collecting Data:</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/DataReduction_home.html">Reducing data to 1D profiles:</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/DataModeling_home.html">Modeling/Fitting with PyPXR:</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/references_home.html">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/API.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/legal.html">NIST Legal</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">p-RSoXR</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pypxr.prsoxr_loader</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pypxr.prsoxr_loader</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Some amount of copyright:</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">astropy.io</span> <span class="kn">import</span> <span class="n">fits</span>
+<span class="kn">import</span> <span class="nn">h5py</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib.colors</span> <span class="k">as</span> <span class="nn">mpl_colors</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+
+<span class="n">sns</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">context</span><span class="o">=</span><span class="s1">&#39;notebook&#39;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">&#39;ticks&#39;</span><span class="p">,</span> <span class="n">font_scale</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">palette</span><span class="o">=</span><span class="s1">&#39;bright&#39;</span><span class="p">)</span>
+
+<span class="c1"># Constants for data reduction</span>
+<span class="n">sol</span> <span class="o">=</span> <span class="mi">299792458</span>  <span class="c1"># m/s</span>
+<span class="n">planck_joule</span> <span class="o">=</span> <span class="mf">6.6267015e-34</span>  <span class="c1"># Joule s</span>
+<span class="n">elemcharge</span> <span class="o">=</span> <span class="mf">1.602176634e-19</span>  <span class="c1"># coulombs</span>
+<span class="n">planck</span> <span class="o">=</span> <span class="n">planck_joule</span> <span class="o">/</span> <span class="n">elemcharge</span>  <span class="c1"># eV s</span>
+<span class="n">metertoang</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="mi">10</span>
+
+
+<div class="viewcode-block" id="PrsoxrLoader"><a class="viewcode-back" href="../../source/DataReduction_API.html#pypxr.prsoxr_loader.PrsoxrLoader">[docs]</a><span class="k">class</span> <span class="nc">PrsoxrLoader</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class to load PRSoXR data from beamline 11.0.1.2 at the ALS</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    files : list</span>
+<span class="sd">        List of .fits to be loaded. Include full filepaths</span>
+<span class="sd">        </span>
+<span class="sd">        &gt;&gt;&gt; #Recommended Usage</span>
+<span class="sd">        &gt;&gt;&gt; import pathlib</span>
+<span class="sd">        &gt;&gt;&gt; path_s = pathlib.Path(&#39;../ALS/2020 Nov/MF114A/spol/250eV&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; files = list(path_s.glob(&#39;*fits&#39;)) # All .fits in path_s</span>
+<span class="sd">        </span>
+<span class="sd">        The newly created &#39;files&#39; is now a list of filepaths to each reflectivity point.</span>
+<span class="sd">    </span>
+<span class="sd">    name : str</span>
+<span class="sd">        Name associated with the dataset. Will be used when saving data.</span>
+<span class="sd">    </span>
+<span class="sd">    mask : np.ndarray (Boolean)</span>
+<span class="sd">        Array with dimensions equal to an image. Elements set to `False` will be excluded when finding beamcenter.</span>
+<span class="sd">        </span>
+<span class="sd">    autoload : Boolean</span>
+<span class="sd">        Set to false if you do not want to load the data upon creation of object.</span>
+<span class="sd">        </span>
+<span class="sd">    Attributes</span>
+<span class="sd">    -----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Human readable string that describes the dataset to be loaded. See &#39;name&#39; parameter</span>
+<span class="sd">    mask : np.ndarray (Bool)</span>
+<span class="sd">        Data mask to be applied to all images. </span>
+<span class="sd">    files : list</span>
+<span class="sd">        List of filepaths</span>
+<span class="sd">    shutter_offset : float</span>
+<span class="sd">        Deadtime added to the piezo shutter exposure.</span>
+<span class="sd">        &gt;&gt;&gt; total_exposure = frame_exposure + shutter_offset</span>
+<span class="sd">         It is recommended to measure at the time of taking data (see online tutorial)</span>
+<span class="sd">    sample_location : int</span>
+<span class="sd">        Sample location on the holder:</span>
+<span class="sd">        Bottom of holder == 180, Top of holder == 0. Should be automatically updated when files load</span>
+<span class="sd">    angle_offset : float</span>
+<span class="sd">        Angle offset [deg] to be added to &#39;Sample Theta&#39; to correctly calculate q. (see online tutorial)</span>
+<span class="sd">    energy_offset : float</span>
+<span class="sd">        Energy offset [eV] to be applied to &#39;Beamline Energy&#39; to correctly calculate q.</span>
+<span class="sd">    snr_cutoff : float</span>
+<span class="sd">        snr is the ratio of light counts vs. dark counts for images used in calculated total signal.</span>
+<span class="sd">        Any image found below this threshold will be excluded from processing.</span>
+<span class="sd">        It is assumed that under this condition the beam is attenuated enough that we are unable to locate its center.</span>
+<span class="sd">        Default value is 1.01 and is suitable for the ALS in most cases.</span>
+<span class="sd">    variable_motors : list(str)</span>
+<span class="sd">        List of upstream optics that were varied to modify flux during data collection.</span>
+<span class="sd">        Defaults are Horizontal Exit Slit Size and Higher Order Suppressor</span>
+<span class="sd">    imagex : int</span>
+<span class="sd">        X-dimension of .fits. Will be automatically updated when files load.</span>
+<span class="sd">    imagey : int</span>
+<span class="sd">        Y-dimension of .fits. Will be automatically updated when files load</span>
+<span class="sd">    edge_trim : tuple(int)</span>
+<span class="sd">        Edge of the detector that you want to ignore in processing.</span>
+<span class="sd">        Edge pixels can sometimes have higher background at longer exposures.</span>
+<span class="sd">        Use this option to exclude them from finding the beamcenter.</span>
+<span class="sd">        Typical value is (5, 5)</span>
+<span class="sd">    darkside : &#39;LHS&#39; or &#39;RHS&#39;</span>
+<span class="sd">        Side of the detector that you want to take dark image.</span>
+<span class="sd">        The same size ROI will be chosen but offset to the edge of the detector.</span>
+<span class="sd">        Will not include pixels cut by edge_trim.</span>
+<span class="sd">    diz_threshold : int</span>
+<span class="sd">        Dizinger intensity threshold to remove &#39;hot&#39; pixels.</span>
+<span class="sd">    diz_size : int</span>
+<span class="sd">        Size of box to average to remove &#39;hot&#39; pixels.</span>
+<span class="sd">        </span>
+<span class="sd">    Notes</span>
+<span class="sd">    ------</span>
+<span class="sd">    </span>
+<span class="sd">    Print the loader to view variables that will be used in reduction. Update them using the attributes listed in this API.</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; loader = PrsoxrLoader(files, name=&#39;MF114A_spol&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; print(loader) #Default values</span>
+<span class="sd">        Sample Name - MF114A</span>
+<span class="sd">        Number of scans - 402</span>
+<span class="sd">        ______________________________</span>
+<span class="sd">        Reduction Variables</span>
+<span class="sd">        ______________________________</span>
+<span class="sd">        Shutter offset = 0.00389278</span>
+<span class="sd">        Sample Location = 0</span>
+<span class="sd">        Angle Offset = -0.0</span>
+<span class="sd">        Energy Offset = 0</span>
+<span class="sd">        SNR Cutoff = 1.01</span>
+<span class="sd">        ______________________________</span>
+<span class="sd">        Image Processing</span>
+<span class="sd">        ______________________________</span>
+<span class="sd">        Image X axis = 200</span>
+<span class="sd">        Image Y axis = 200</span>
+<span class="sd">        Image Edge Trim = (5, 5)</span>
+<span class="sd">        Dark Calc Location = LHS</span>
+<span class="sd">        Dizinger Threshold = 10</span>
+<span class="sd">        Dizinger Size = 3</span>
+<span class="sd">    &gt;&gt;&gt;loader.shutter_offset = 0.004 #Update the shutter offset</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">        </span>
+<span class="sd">    Once process attributes have been setup by the user, the function can be called to load the data. An ROI will need</span>
+<span class="sd">    to be specified at the time of processing. Use the ``self.check_spot()`` function to find appropriate dimensions.</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; refl = loader(h=40, w=30)</span>
+<span class="sd">    </span>
+<span class="sd">    Data that has been loaded can be exported using the ``self.save_csv(path)`` and ``self.save_hdf5(path)`` functions.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">files</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">autoload</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+        <span class="c1"># Sample information</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">files</span> <span class="o">=</span> <span class="n">files</span>  <span class="c1"># List of files to be loaded</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span>  <span class="c1"># Mask to be applied to all images</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>  <span class="c1"># Name of the series to be loaded</span>
+
+        <span class="c1"># Process Variables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_vars</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1">#Composite dictionary for output</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">shutter_offset</span> <span class="o">=</span> <span class="mf">0.00389278</span>  <span class="c1"># [s]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sample_location</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># sample on bottom of holder = 180, sample on top = 0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">angle_offset</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># [deg]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">energy_offset</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># [eV]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">percent_error</span> <span class="o">=</span> <span class="mf">1.5</span>  <span class="c1"># [%] Uncertainty option (legacy option)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">snr_cutoff</span> <span class="o">=</span> <span class="mf">1.01</span>  <span class="c1"># SNR = I_refl/dark ~ Cutoff on if frame is ignored.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">variable_motors</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Higher Order Suppressor&#39;</span><span class="p">,</span> <span class="s1">&#39;Horizontal Exit Slit Size&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_height</span> <span class="o">=</span> <span class="mi">25</span> <span class="c1"># [pixels]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_width</span> <span class="o">=</span> <span class="mi">25</span> <span class="c1"># [pixels]</span>
+        
+        <span class="c1"># Image stats</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">imagex</span> <span class="o">=</span> <span class="mi">200</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">imagey</span> <span class="o">=</span> <span class="mi">200</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">edge_trim</span> <span class="o">=</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">darkside</span> <span class="o">=</span> <span class="s1">&#39;LHS&#39;</span>
+
+        <span class="c1"># Dezinger options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diz_threshold</span> <span class="o">=</span> <span class="mi">10</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diz_size</span> <span class="o">=</span> <span class="mi">3</span>
+
+        <span class="c1"># Build storage lists</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">images</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_data</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">normalized_data</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1">#Files for output</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_locbeam</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_spot</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_dark</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">meta</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refl</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Stats that will be calculated</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">i0</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">i0_err</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">i0_vals</span> <span class="o">=</span> <span class="mi">10</span> <span class="c1"># Default # of I0 files</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_scale_factors</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stitch_points</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">autoload</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta</span> <span class="o">=</span> <span class="n">load_prsoxr_fits</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">)</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_stats</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">i0_vals</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">s</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># [&quot;{:_&gt;50}&quot;.format(&quot;&quot;)]</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Sample Name - </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Number of scans - </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">)))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:_&gt;30}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Reduction Variables&quot;</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:_&gt;30}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Shutter offset = </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shutter_offset</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Sample Location = </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">samp_loc</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Angle Offset = </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angle_offset</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Energy Offset = </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energy_offset</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;SNR Cutoff = </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">snr_cutoff</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:_&gt;30}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Image Processing&quot;</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:_&gt;30}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Image X axis = </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">imagex</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Image Y axis = </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">imagey</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Image Edge Trim = </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edge_trim</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Dark Calc Location = </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">darkside</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Dizinger Threshold = </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">diz_threshold</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Dizinger Size = </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">diz_size</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">25</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">refl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_refl</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">refl</span>
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">process_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compilation of variables used in data reduction.</span>
+<span class="sd">        </span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        --------</span>
+<span class="sd">            process_vars : dict</span>
+<span class="sd">                Dictionary of all variables used for data reduction.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_vars</span><span class="p">[</span><span class="s1">&#39;shutter_offset&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shutter_offset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_vars</span><span class="p">[</span><span class="s1">&#39;sample_location&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_location</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_vars</span><span class="p">[</span><span class="s1">&#39;angle_offset&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">angle_offset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_vars</span><span class="p">[</span><span class="s1">&#39;energy_offset&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_offset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_vars</span><span class="p">[</span><span class="s1">&#39;snr_cutoff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">snr_cutoff</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_vars</span><span class="p">[</span><span class="s1">&#39;variable_motors&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable_motors</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_vars</span><span class="p">[</span><span class="s1">&#39;imageX&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">imagex</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_vars</span><span class="p">[</span><span class="s1">&#39;imageY&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">imagey</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_vars</span><span class="p">[</span><span class="s1">&#39;edgetrim&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge_trim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_vars</span><span class="p">[</span><span class="s1">&#39;darkside&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">darkside</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_vars</span><span class="p">[</span><span class="s1">&#39;diz_threshold&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diz_threshold</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_vars</span><span class="p">[</span><span class="s1">&#39;diz_size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diz_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_vars</span><span class="p">[</span><span class="s1">&#39;box_height&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_height</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_vars</span><span class="p">[</span><span class="s1">&#39;box_width&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_width</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_vars</span><span class="p">[</span><span class="s1">&#39;mask&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_vars</span>
+
+
+<div class="viewcode-block" id="PrsoxrLoader.check_spot"><a class="viewcode-back" href="../../source/DataReduction_API.html#pypxr.prsoxr_loader.PrsoxrLoader.check_spot">[docs]</a>    <span class="k">def</span> <span class="nf">check_spot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function to quickly load, reduce, and display a single frame. </span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            file : int </span>
+<span class="sd">                Frame index to view. Extracts data from self.image and self.meta</span>
+<span class="sd">                </span>
+<span class="sd">            h : int (even number)</span>
+<span class="sd">                height of ROI used to calculate reflectivity. Center is defined as pixel with hightest magnitude.</span>
+<span class="sd">            </span>
+<span class="sd">            w : int (even number)</span>
+<span class="sd">                width of ROI used to calculate reflectivity. Center is defined as pixel with hightest magnitude.</span>
+
+<span class="sd">            d : Boolean </span>
+<span class="sd">                Display a summary plot</span>
+<span class="sd">                </span>
+<span class="sd">        Returns</span>
+<span class="sd">        --------</span>
+<span class="sd">            processed images : list</span>
+<span class="sd">                Arrays of the following images: Raw Image, Median Filter, Beam spot, dark frame</span>
+<span class="sd">                </span>
+<span class="sd">        Notes</span>
+<span class="sd">        ------</span>
+<span class="sd">        Process a single image according to chosen process variables.</span>
+<span class="sd">        Will use: ``self.edge_trim``, ``self.mask``, ``self.darkside``, ``self.diz_threshold``, and ``self.diz_size``</span>
+<span class="sd">        Output will include important motor positions for the select file.</span>
+<span class="sd">        If d==1, the images will be displayed according to the output. Black rectangle represents the beam spot.</span>
+<span class="sd">        Red rectangle represents the dark frame.</span>
+<span class="sd">        </span>
+<span class="sd">        &gt;&gt;&gt; #Quickly verify image stats</span>
+<span class="sd">        &gt;&gt;&gt; frame = loader.check_spot(file=11, h=40, w=20)</span>
+<span class="sd">            Exposure: 0.00100000004749745</span>
+<span class="sd">            Beam Current: 0.0</span>
+<span class="sd">            Angle Theta: 1.112</span>
+<span class="sd">            T-2T: 1.112</span>
+<span class="sd">            CCD Theta: 2.221</span>
+<span class="sd">            Photon Energy: 249.996035379532</span>
+<span class="sd">            Polarization: 100.0</span>
+<span class="sd">            Higher Order Suppressor: 11.9997548899767</span>
+<span class="sd">            Horizontal Exit Slit Size: 100.0</span>
+<span class="sd">            Processed Variables:</span>
+<span class="sd">            Q: 0.004916964189179494</span>
+<span class="sd">            Specular: 845685</span>
+<span class="sd">            Background: 115456</span>
+<span class="sd">            Signal: 730229</span>
+<span class="sd">            SNR: 7.32473842849224</span>
+<span class="sd">            Beam center (85, 51)</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Load frame if it is not yet loaded:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">image</span><span class="p">,</span> <span class="n">meta</span> <span class="o">=</span> <span class="n">load_prsoxr_fits</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="n">file</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">file</span><span class="p">]</span>
+            <span class="n">meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">file</span><span class="p">]</span>
+
+        <span class="n">energy</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;Beamline Energy&#39;</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">angle_theta</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;T-2T&#39;</span><span class="p">]</span>
+
+        <span class="c1"># Calculate q-value</span>
+        <span class="n">lam</span> <span class="o">=</span> <span class="n">metertoang</span> <span class="o">*</span> <span class="n">planck</span> <span class="o">*</span> <span class="n">sol</span> <span class="o">/</span> <span class="n">energy</span>  <span class="c1"># calculate wavelength</span>
+        <span class="n">qval</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle_theta</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">180</span><span class="p">)</span> <span class="o">/</span> <span class="n">lam</span>  <span class="c1"># calculate q-values</span>
+
+        <span class="c1"># Process frame</span>
+        <span class="n">image_spot</span><span class="p">,</span> <span class="n">image_avg</span><span class="p">,</span> <span class="n">beamspot</span><span class="p">,</span> <span class="n">rect_spot</span> <span class="o">=</span> <span class="n">slice_spot</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span>
+                                                                <span class="n">mask</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mask</span><span class="p">,</span> <span class="n">edge_trim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">edge_trim</span><span class="p">,</span>
+                                                                <span class="n">diz_threshold</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">diz_threshold</span><span class="p">,</span>
+                                                                <span class="n">diz_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">diz_size</span>
+                                                                <span class="p">)</span>
+        <span class="n">image_dark</span><span class="p">,</span> <span class="n">rect_dark</span> <span class="o">=</span> <span class="n">slice_dark</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">beamspot</span><span class="o">=</span><span class="n">beamspot</span><span class="p">,</span>
+                                           <span class="n">mask</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mask</span><span class="p">,</span> <span class="n">edge_trim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">edge_trim</span><span class="p">,</span>
+                                           <span class="n">darkside</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">darkside</span>
+                                           <span class="p">)</span>
+
+        <span class="n">i_refl</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">image_spot</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+        <span class="n">dark</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">image_dark</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+        <span class="n">snr</span> <span class="o">=</span> <span class="nb">float</span><span class="p">((</span><span class="n">i_refl</span> <span class="o">/</span> <span class="n">dark</span><span class="p">))</span>  <span class="c1"># &quot;signal to noise ratio&quot;</span>
+
+        <span class="c1"># Relevant outputs that you would want to read.</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Exposure: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;EXPOSURE&#39;</span><span class="p">]))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Beam Current: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;Beam Current&#39;</span><span class="p">]))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Angle Theta: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;Sample Theta&#39;</span><span class="p">]))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;T-2T: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;T-2T&#39;</span><span class="p">]))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;CCD Theta: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;CCD Theta&#39;</span><span class="p">]))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Photon Energy: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;Beamline Energy&#39;</span><span class="p">]))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Polarization: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;EPU Polarization&#39;</span><span class="p">]))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Higher Order Suppressor: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;Higher Order Suppressor&#39;</span><span class="p">]))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Horizontal Exit Slit Size: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;Horizontal Exit Slit Size&#39;</span><span class="p">]))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Processed Variables:&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Q:&#39;</span><span class="p">,</span> <span class="n">qval</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Specular:&#39;</span><span class="p">,</span> <span class="n">i_refl</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Background:&#39;</span><span class="p">,</span> <span class="n">dark</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Signal:&#39;</span><span class="p">,</span> <span class="n">i_refl</span> <span class="o">-</span> <span class="n">dark</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;SNR:&#39;</span><span class="p">,</span> <span class="n">snr</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Beam center&#39;</span><span class="p">,</span> <span class="n">beamspot</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">d</span><span class="p">:</span>
+            <span class="n">dx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge_trim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">dy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge_trim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">subplot_kw</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;xticks&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;yticks&#39;</span><span class="p">:</span> <span class="p">[]},</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">))</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">image</span><span class="p">[</span><span class="n">dx</span><span class="p">:</span><span class="o">-</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">:</span><span class="o">-</span><span class="n">dy</span><span class="p">],</span> <span class="n">norm</span><span class="o">=</span><span class="n">mpl_colors</span><span class="o">.</span><span class="n">LogNorm</span><span class="p">(),</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;terrain&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">image_avg</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">mpl_colors</span><span class="o">.</span><span class="n">LogNorm</span><span class="p">(),</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;terrain&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">mask_display</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mask</span> <span class="o">==</span> <span class="kc">True</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask</span><span class="p">)</span>
+                <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">mask_display</span><span class="p">[</span><span class="n">dx</span><span class="p">:</span><span class="o">-</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">:</span><span class="o">-</span><span class="n">dy</span><span class="p">],</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;Greys_r&#39;</span><span class="p">)</span>
+                <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">mask_display</span><span class="p">[</span><span class="n">dx</span><span class="p">:</span><span class="o">-</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">:</span><span class="o">-</span><span class="n">dy</span><span class="p">],</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;Greys_r&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">rect_spot</span><span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">rect_dark</span><span class="p">)</span>
+
+            <span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">image_spot</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">mpl_colors</span><span class="o">.</span><span class="n">LogNorm</span><span class="p">(),</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;terrain&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">image_dark</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">mpl_colors</span><span class="o">.</span><span class="n">LogNorm</span><span class="p">(),</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;terrain&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">image</span><span class="p">,</span> <span class="n">image_avg</span><span class="p">,</span> <span class="n">image_spot</span><span class="p">,</span> <span class="n">image_dark</span><span class="p">]</span></div>
+        
+<div class="viewcode-block" id="PrsoxrLoader.to_csv"><a class="viewcode-back" href="../../source/DataReduction_API.html#pypxr.prsoxr_loader.PrsoxrLoader.to_csv">[docs]</a>    <span class="k">def</span> <span class="nf">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">save_name</span><span class="p">,</span> <span class="n">save_meta</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function to save the calculated reflectivity as a .csv file</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            path : str </span>
+<span class="sd">                Directory that you want to save your data.</span>
+<span class="sd">                </span>
+<span class="sd">            save_name : str</span>
+<span class="sd">                Name of output file</span>
+<span class="sd">                </span>
+<span class="sd">            save_meta : Boolean</span>
+<span class="sd">                Option to save compilation of meta data along with reflectivity</span>
+<span class="sd">                </span>
+<span class="sd">                </span>
+<span class="sd">        Notes</span>
+<span class="sd">        ------</span>
+<span class="sd">        Will create a folder /meta_data/ if it does not exist in &#39;path&#39; directory to save meta_data</span>
+<span class="sd">        </span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">refl</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Process data prior to saving it&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mi">0</span>
+            
+        <span class="k">if</span> <span class="n">save_meta</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">((</span><span class="n">path</span><span class="o">+</span><span class="s1">&#39;meta_data/&#39;</span><span class="p">)):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">((</span><span class="n">path</span><span class="o">+</span><span class="s1">&#39;meta_data/&#39;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">to_csv</span><span class="p">((</span><span class="n">path</span><span class="o">+</span><span class="s1">&#39;meta_data/&#39;</span> <span class="o">+</span> <span class="n">save_name</span> <span class="o">+</span> <span class="s1">&#39;_META.csv&#39;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                
+        <span class="bp">self</span><span class="o">.</span><span class="n">refl</span><span class="o">.</span><span class="n">to_csv</span><span class="p">((</span><span class="n">path</span><span class="o">+</span><span class="n">save_name</span><span class="o">+</span><span class="s1">&#39;.csv&#39;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+        
+        
+<div class="viewcode-block" id="PrsoxrLoader.to_hdf5"><a class="viewcode-back" href="../../source/DataReduction_API.html#pypxr.prsoxr_loader.PrsoxrLoader.to_hdf5">[docs]</a>    <span class="k">def</span> <span class="nf">to_hdf5</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">hdf5_name</span><span class="p">,</span> <span class="n">save_images</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">compress</span><span class="o">=</span><span class="s1">&#39;gzip&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function to save the calculated reflectivity as a .hdf5 file</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            path : str </span>
+<span class="sd">                Directory that you want to save your data.</span>
+<span class="sd">                </span>
+<span class="sd">            hdf5_name : str</span>
+<span class="sd">                Name of hdf5 file to save data.</span>
+<span class="sd">                </span>
+<span class="sd">            save_images : Boolean</span>
+<span class="sd">                Option to save each image along with the processed data.</span>
+<span class="sd">                </span>
+<span class="sd">            compress : str</span>
+<span class="sd">                Type of compression for image files.</span>
+<span class="sd">                </span>
+<span class="sd">        Notes</span>
+<span class="sd">        ------</span>
+<span class="sd">        Able to save multiple scans to the same .hdf5 file by giving the same ``hdf5_name``. This allows you to compile all measurements on a single sample into a single file.</span>
+<span class="sd">        The .hdf5 folder structure will be as follows::</span>
+<span class="sd">        </span>
+<span class="sd">            SAMPLE_NAME</span>
+<span class="sd">                MEASUREMENT</span>
+<span class="sd">                    EN_1 # Energy</span>
+<span class="sd">                        POL_1 # Polarization</span>
+<span class="sd">                            DATA</span>
+<span class="sd">                                Q,R,R_err</span>
+<span class="sd">                            META_DATA</span>
+<span class="sd">                                IMAGE0 # Meta data and images</span>
+<span class="sd">                                IMAGE1</span>
+<span class="sd">                                ...</span>
+<span class="sd">                        Pol_2</span>
+<span class="sd">                            Data</span>
+<span class="sd">                                ...</span>
+<span class="sd">                    En_2</span>
+<span class="sd">                        ...        </span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">refl</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Process data prior to saving it&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mi">0</span>
+            
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">refl</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="c1"># {&#39;DATA&#39; : self.refl}</span>
+        <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">((</span><span class="n">path</span><span class="o">+</span><span class="n">hdf5_name</span><span class="o">+</span><span class="s1">&#39;.hdf5&#39;</span><span class="p">),</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file_hdf5</span><span class="p">:</span>
+            <span class="c1"># Create HDF5structure for saving data</span>
+            <span class="n">measurement</span> <span class="o">=</span> <span class="n">file_hdf5</span><span class="o">.</span><span class="n">require_group</span><span class="p">(</span><span class="s1">&#39;MEASUREMENT&#39;</span><span class="p">)</span> <span class="c1"># Folder to hold the data</span>
+            <span class="n">pol_label</span> <span class="o">=</span> <span class="s1">&#39;POL_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;EPU Polarization&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">0</span><span class="p">))</span>
+            <span class="n">en_label</span> <span class="o">=</span> <span class="s1">&#39;EN_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;Beamline Energy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;pt&#39;</span><span class="p">)</span>
+            <span class="n">scan_label</span> <span class="o">=</span> <span class="n">measurement</span><span class="o">.</span><span class="n">require_group</span><span class="p">(</span><span class="n">en_label</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">pol_label</span><span class="p">)</span>
+            <span class="c1"># Save Images if desired</span>
+            <span class="k">if</span> <span class="n">save_images</span><span class="p">:</span>
+                <span class="n">raw_image_group</span> <span class="o">=</span> <span class="n">scan_label</span><span class="o">.</span><span class="n">require_group</span><span class="p">(</span><span class="s1">&#39;META_DATA&#39;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">scan</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">):</span>
+                    <span class="n">image_folder</span> <span class="o">=</span> <span class="n">raw_image_group</span><span class="o">.</span><span class="n">require_group</span><span class="p">(</span><span class="s1">&#39;IMAGE&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">index</span><span class="p">))</span>
+                    <span class="n">image_folder</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;FILE_PATH&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">scan</span><span class="p">)</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">image_folder</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;IMAGE_RAW&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">compression</span><span class="o">=</span><span class="n">compress</span><span class="p">)</span>
+                        <span class="n">image_folder</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;IMAGE_LOCBEAM&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">image_locbeam</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">compression</span><span class="o">=</span><span class="n">compress</span><span class="p">)</span>
+                        <span class="n">image_folder</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;IMAGE_SPOT&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">image_spot</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">compression</span><span class="o">=</span><span class="n">compress</span><span class="p">)</span>
+                        <span class="n">image_folder</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;IMAGE_DARK&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">image_dark</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">compression</span><span class="o">=</span><span class="n">compress</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
+                        <span class="k">pass</span>
+                    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="n">image_folder</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>                           
+            <span class="c1"># Save process variables</span>
+            <span class="c1">#data_group = scan_label.require_group(&#39;DATA&#39;)</span>
+            <span class="n">save_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_vars</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">save_vars</span><span class="p">:</span>
+                <span class="n">scan_label</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">save_vars</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+            <span class="n">data_save</span> <span class="o">=</span> <span class="n">scan_label</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s1">&#39;DATA&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">refl</span><span class="p">)</span>
+            <span class="n">data_save</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;Column 1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Q&#39;</span>
+            <span class="n">data_save</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;Column 2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;R&#39;</span>
+            <span class="n">data_save</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;Column 3&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;R_err&#39;</span></div>
+
+            <span class="c1">#scan_label.create_dataset(&#39;META&#39;, data=self.meta.drop([&#39;SIMPLE&#39;, &#39;EXTEND&#39;, &#39;DATE&#39;],axis=1).astype(np.float64))</span>
+
+    <span class="k">def</span> <span class="nf">_calc_refl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function that performs a complete data reduction of prsoxr data </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_height</span> <span class="o">=</span> <span class="n">h</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_width</span> <span class="o">=</span> <span class="n">w</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reduce_2d_images</span><span class="p">(</span><span class="n">h</span><span class="o">=</span><span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="n">w</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_normalize_data</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_find_stitch_points</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_calc_scale_factors</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stitch_refl</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">refl</span>
+
+    <span class="k">def</span> <span class="nf">_reduce_2d_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        Internal function that calculates the reduced specular reflectivity of all files within ``self.files `` </span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">image</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">):</span>
+            <span class="n">_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">wavelength</span> <span class="o">=</span> <span class="n">metertoang</span> <span class="o">*</span> <span class="n">planck</span> <span class="o">*</span> <span class="n">sol</span> <span class="o">/</span> <span class="nb">round</span><span class="p">(</span><span class="n">_vars</span><span class="p">[</span><span class="s1">&#39;Beamline Energy&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_offset</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">_vars</span><span class="p">[</span><span class="s1">&#39;CCD Theta&#39;</span><span class="p">],</span> <span class="n">tol</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># Check if its the direct beam</span>
+                <span class="n">q</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">q</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">((</span><span class="n">_vars</span><span class="p">[</span><span class="s1">&#39;Sample Theta&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">angle_offset</span><span class="p">)))</span> <span class="o">/</span> <span class="n">wavelength</span>
+
+            <span class="n">exposure</span> <span class="o">=</span> <span class="n">_vars</span><span class="p">[</span><span class="s1">&#39;EXPOSURE&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">shutter_offset</span>
+            <span class="n">beamcurrent</span> <span class="o">=</span> <span class="n">_vars</span><span class="p">[</span><span class="s1">&#39;Beam Current&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">_vars</span><span class="p">[</span>
+                                                       <span class="s1">&#39;Beam Current&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">100</span> <span class="k">else</span> <span class="mi">1</span>  <span class="c1"># Ignore current if not measured</span>
+
+            <span class="n">image_spot</span><span class="p">,</span> <span class="n">image_locbeam</span><span class="p">,</span> <span class="n">beamspot</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">slice_spot</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span>
+                                                    <span class="n">mask</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mask</span><span class="p">,</span> <span class="n">edge_trim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">edge_trim</span><span class="p">,</span>
+                                                    <span class="n">diz_threshold</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">diz_threshold</span><span class="p">,</span>
+                                                    <span class="n">diz_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">diz_size</span>
+                                                    <span class="p">)</span>
+            <span class="n">image_dark</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">slice_dark</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span>
+                                       <span class="n">mask</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mask</span><span class="p">,</span> <span class="n">edge_trim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">edge_trim</span><span class="p">,</span>
+                                       <span class="n">darkside</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">darkside</span><span class="p">,</span> <span class="n">beamspot</span><span class="o">=</span><span class="n">beamspot</span>
+                                       <span class="p">)</span>
+
+            <span class="n">i_tot</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">image_spot</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+            <span class="n">i_dark</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">image_dark</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+
+            <span class="n">snr</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">i_tot</span> <span class="o">/</span> <span class="n">i_dark</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">snr</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">snr_cutoff</span> <span class="ow">or</span> <span class="n">snr</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">i_refl</span> <span class="o">=</span> <span class="p">(</span><span class="n">i_tot</span> <span class="o">-</span> <span class="n">i_dark</span><span class="p">)</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="p">(</span><span class="n">i_refl</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">exposure</span> <span class="o">*</span> <span class="n">beamcurrent</span><span class="p">)</span>
+            <span class="n">r_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">i_tot</span> <span class="o">+</span> <span class="n">i_dark</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">exposure</span> <span class="o">*</span> <span class="n">beamcurrent</span><span class="p">)</span>
+
+            <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">i</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">r_err</span><span class="p">])</span>
+            <span class="c1"># Compile data for optional saving</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">image_locbeam</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image_locbeam</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">image_spot</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image_spot</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">image_dark</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image_dark</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">([</span><span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="s1">&#39;Q&#39;</span><span class="p">,</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;R_err&#39;</span><span class="p">]))</span>
+
+    <span class="k">def</span> <span class="nf">_normalize_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        Internal function that normalizes ``self.image_data`` to the direct beam and updates ``self.normalized_data``</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">refl</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">image_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">variable_motors</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">i0_cutoff</span> <span class="o">=</span> <span class="n">refl</span><span class="p">[</span><span class="s1">&#39;Q&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">refl</span><span class="p">[</span><span class="s1">&#39;Q&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">i0_cutoff</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">i0</span> <span class="o">=</span> <span class="n">refl</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="n">i0_cutoff</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+            <span class="n">i0_err</span> <span class="o">=</span> <span class="n">refl</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="n">i0_cutoff</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">i0</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">i0_err</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">refl</span><span class="p">[</span><span class="s1">&#39;R_err&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">refl</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">i0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">((</span><span class="n">refl</span><span class="p">[</span><span class="s1">&#39;R_err&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">refl</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">i0_err</span> <span class="o">/</span> <span class="n">i0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="n">refl</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">refl</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">i0</span>
+        
+        <span class="c1"># Save some values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">i0</span> <span class="o">=</span> <span class="n">i0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">i0_err</span> <span class="o">=</span> <span class="n">i0_err</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">i0_vals</span> <span class="o">=</span> <span class="n">i0_cutoff</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">normalized_data</span> <span class="o">=</span> <span class="n">refl</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">refl</span><span class="o">.</span><span class="n">index</span><span class="p">[:</span><span class="n">i0_cutoff</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">_find_stitch_points</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Internal function that locates the frames that one of the ``self.variable_motors`` has been changed.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalized_data</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="s1">&#39;Q&#39;</span><span class="p">,</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;R_err&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Use legacy code</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">imotor</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">skip</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">skip_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">skip_count_reset</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="k">for</span> <span class="n">motor</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">motor</span><span class="p">])):</span>
+                <span class="k">if</span> <span class="n">skip</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">skip_count</span> <span class="o">&lt;=</span> <span class="n">skip_count_reset</span><span class="p">:</span>
+                        <span class="n">skip_count</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">skip</span> <span class="o">=</span> <span class="kc">False</span>
+                        <span class="n">skip_count</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">elif</span> <span class="nb">abs</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1e-5</span><span class="p">:</span>
+                    <span class="n">idx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                    <span class="n">imotor</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">motor</span><span class="p">)</span>
+                    <span class="n">skip</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">dfx</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">idx</span><span class="p">,</span> <span class="n">imotor</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">dfx</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mark&#39;</span><span class="p">,</span> <span class="s1">&#39;motor&#39;</span><span class="p">]</span>
+        <span class="n">dfx</span> <span class="o">=</span> <span class="n">dfx</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s1">&#39;mark&#39;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">stitch_points</span> <span class="o">=</span> <span class="n">dfx</span>
+
+    <span class="k">def</span> <span class="nf">_calc_scale_factors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Internal function that calcualtes the scale factor between ``self.variable_motors`` positions.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dfx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stitch_points</span>  <span class="c1"># Use legacy code</span>
+        <span class="n">refl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalized_data</span>  <span class="c1"># Use legacy code</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">scale_err</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">idq</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">dfx</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="n">idq</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">dfx</span><span class="o">.</span><span class="n">motor</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">refl</span><span class="p">[</span><span class="n">dfx</span><span class="o">.</span><span class="n">motor</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">scale</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dfx</span><span class="p">[</span><span class="s1">&#39;mark&#39;</span><span class="p">]):</span>
+                <span class="c1"># Qx = refl[&#39;Q&#39;].iloc[x] # The Qposition right BEFORE we change motor</span>
+                <span class="n">qstitch</span> <span class="o">=</span> <span class="n">refl</span><span class="p">[</span><span class="s1">&#39;Q&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>  <span class="c1"># The Qposition where we average over &#39;numavg&#39; points to create ratio</span>
+                <span class="n">motor_change</span> <span class="o">=</span> <span class="n">dfx</span><span class="o">.</span><span class="n">motor</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>  <span class="c1"># The motor that we are tracking for this &#39;mark&#39; point</span>
+                <span class="c1"># MOTORx = refl[motor_change].iloc[x]  # The motor position that we are currently at</span>
+                <span class="n">dummy_r_list</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># Dummy values to average together</span>
+                <span class="n">dummy_err_list</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># Dummy errors to average together</span>
+                <span class="n">scalei</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># init variable</span>
+                <span class="n">scale_erri</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1"># init variable</span>
+                <span class="n">motor_y</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span> <span class="c1"># init string</span>
+                <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">refl</span><span class="p">[</span><span class="s1">&#39;Q&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]):</span>
+                    <span class="n">i</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">ii</span>  <span class="c1"># Realign index from enumerate to coordinate with the list</span>
+                    <span class="k">if</span> <span class="n">val</span> <span class="o">==</span> <span class="n">qstitch</span><span class="p">:</span>
+                        <span class="n">dummy_r_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">refl</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">ii</span><span class="p">])</span>
+                        <span class="n">dummy_err_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">refl</span><span class="p">[</span><span class="s1">&#39;R_err&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">ii</span><span class="p">])</span>
+                    <span class="k">else</span><span class="p">:</span>  <span class="c1"># Collected all the points to be averaged</span>
+                        <span class="n">avg_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dummy_r_list</span><span class="p">))</span>  <span class="c1"># Find the average of the measurements</span>
+                        <span class="n">avg_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dummy_err_list</span><span class="p">)))</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span>
+                            <span class="n">dummy_err_list</span><span class="p">))</span>  <span class="c1"># Overly complicated method to add variances of the measurement</span>
+                        <span class="k">for</span> <span class="n">iii</span><span class="p">,</span> <span class="n">stitchpoint</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">refl</span><span class="p">[</span><span class="s1">&#39;Q&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">x</span> <span class="o">-</span> <span class="mi">7</span><span class="p">:</span><span class="n">x</span><span class="p">]):</span>
+                            <span class="n">y</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="mi">7</span> <span class="o">+</span> <span class="n">iii</span>
+                            <span class="k">if</span> <span class="n">stitchpoint</span> <span class="o">==</span> <span class="n">qstitch</span><span class="p">:</span>
+                                <span class="n">motor_y</span> <span class="o">=</span> <span class="n">refl</span><span class="p">[</span><span class="n">motor_change</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                                <span class="n">scalei</span> <span class="o">=</span> <span class="n">avg_r</span> <span class="o">/</span> <span class="p">(</span><span class="n">refl</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">y</span><span class="p">])</span>
+                                <span class="n">scale_erri</span> <span class="o">=</span> <span class="n">scalei</span> <span class="o">*</span> <span class="p">((</span><span class="n">refl</span><span class="p">[</span><span class="s1">&#39;R_err&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">y</span><span class="p">]</span> <span class="o">/</span> <span class="n">refl</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">y</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">avg_err</span> <span class="o">/</span> <span class="n">avg_r</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span>
+                        <span class="k">break</span>
+
+                        <span class="c1"># if val == Qx and refl[MOTOR_CHANGE].iloc[i] != MOTORx:</span>
+                        <span class="c1"># MOTORy = refl[MOTOR_CHANGE].iloc[i]</span>
+                        <span class="c1"># scalei = (refl[&#39;R&#39;].iloc[i]/refl[&#39;R&#39;].iloc[x])</span>
+                        <span class="c1"># scale_erri= scalei*((refl[&#39;R_err&#39;].iloc[i]/refl[&#39;R&#39;].iloc[i])**2</span>
+                        <span class="c1"># + (refl[&#39;R_err&#39;].iloc[x]/refl[&#39;R&#39;].iloc[x])**2)**(0.5)</span>
+                <span class="n">scale</span> <span class="o">=</span> <span class="n">scale</span> <span class="o">*</span> <span class="n">scalei</span>
+                <span class="n">scale_err</span> <span class="o">=</span> <span class="n">scale</span> <span class="o">*</span> <span class="p">((</span><span class="n">scale_err</span> <span class="o">/</span> <span class="n">scale</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">scale_erri</span> <span class="o">/</span> <span class="n">scalei</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+                <span class="n">idq</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">motor_change</span><span class="p">,</span> <span class="n">motor_y</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">scale_err</span><span class="p">,</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="n">dfx2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">idq</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;motor&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="s1">&#39;Scale&#39;</span><span class="p">,</span> <span class="s1">&#39;Scale_Err&#39;</span><span class="p">,</span> <span class="s1">&#39;mark&#39;</span><span class="p">])</span>
+            <span class="c1"># dfx.sort_values(by=&#39;mark&#39;)</span>
+
+            <span class="n">data_scale</span> <span class="o">=</span> <span class="n">dfx2</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s1">&#39;mark&#39;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data_scale</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;motor&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="s1">&#39;Scale&#39;</span><span class="p">,</span> <span class="s1">&#39;Scale_Err&#39;</span><span class="p">,</span> <span class="s1">&#39;mark&#39;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_factors</span> <span class="o">=</span> <span class="n">data_scale</span>
+
+    <span class="k">def</span> <span class="nf">_stitch_refl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Internal function that stitches the full profile together.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        refl_final : pandas.Dataframe</span>
+<span class="sd">            Normalized and stitched reflectivity profile. </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">refl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalized_data</span>
+        <span class="n">refl_corr</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># Refl_ReMag = []</span>
+        <span class="n">numpoints</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scale_factors</span><span class="o">.</span><span class="n">mark</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numpoints</span><span class="p">):</span>
+            <span class="n">scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_factors</span><span class="o">.</span><span class="n">Scale</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">scale_err</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_factors</span><span class="o">.</span><span class="n">Scale_Err</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">low_trip</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_factors</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="p">(</span><span class="n">numpoints</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">refl_append</span> <span class="o">=</span> <span class="n">refl</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">low_trip</span><span class="p">:]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">high_trip</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_factors</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">refl_append</span> <span class="o">=</span> <span class="n">refl</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">low_trip</span><span class="p">:</span><span class="n">high_trip</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">refl_append</span><span class="p">)):</span>
+                <span class="n">q_corr</span> <span class="o">=</span> <span class="n">refl_append</span><span class="p">[</span><span class="s1">&#39;Q&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                <span class="n">r_corr</span> <span class="o">=</span> <span class="n">refl_append</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">/</span> <span class="n">scale</span>  <span class="c1"># (scale_options.loc[scale_options.value==corr, &#39;Scale&#39;])</span>
+                <span class="n">r_err</span> <span class="o">=</span> <span class="n">r_corr</span> <span class="o">*</span> <span class="p">((</span><span class="n">refl_append</span><span class="p">[</span><span class="s1">&#39;R_err&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">/</span> <span class="n">refl_append</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span>
+                            <span class="n">scale_err</span> <span class="o">/</span> <span class="n">scale</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span>
+
+                <span class="n">refl_corr</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">q_corr</span><span class="p">,</span> <span class="n">r_corr</span><span class="p">,</span> <span class="n">r_err</span><span class="p">])</span>  <span class="c1"># Removed HOS from the processed data</span>
+
+        <span class="n">refl_final</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">refl_corr</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Q&#39;</span><span class="p">,</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;R_err&#39;</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">refl_final</span>
+
+    <span class="k">def</span> <span class="nf">_update_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Quickly update image stats and offsets based on first data-point.</span>
+<span class="sd">        Common practice has this at frame 10.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">frame</span><span class="p">]</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="n">frame</span><span class="p">]</span>
+
+        <span class="c1"># Update size of frame</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">imagex</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">imagey</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;image&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Error: Mask shape mismatch&#39;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Removing mask and continuing&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Check if the sample is on the bottom or not.</span>
+        <span class="k">if</span> <span class="o">-</span><span class="mi">200</span> <span class="o">&lt;=</span> <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;Sample Theta&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">samp_loc</span> <span class="o">=</span> <span class="mi">180</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">samp_loc</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># Updated angle_offset.</span>
+        <span class="c1"># Correct angle should be half &#39;ccd_theta&#39; (corrected for holder position).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">angle_offset</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;CCD Theta&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">samp_loc</span> <span class="o">-</span> <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;Sample Theta&#39;</span><span class="p">],</span> <span class="mi">3</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">meta</span></div>
+        
+
+
+<span class="k">def</span> <span class="nf">slice_spot</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">edge_trim</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">diz_threshold</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">diz_size</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    </span>
+<span class="sd">    Slice an image around the pixel with the highest counts.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        image : np.ndarray </span>
+<span class="sd">            Image to process.</span>
+<span class="sd">        h : int (even)</span>
+<span class="sd">            height of ROI used to calculate reflectivity. Center is defined as pixel with highest magnitude.</span>
+<span class="sd">        w : int (even)</span>
+<span class="sd">            width of ROI used to calculate reflectivity. Center is defined as pixel with highest magnitude.</span>
+<span class="sd">        edge_trim : tuple</span>
+<span class="sd">            number of pixels to trim from the edge of the image before processing.</span>
+<span class="sd">        mask : np.ndarray, Boolean</span>
+<span class="sd">            Array of pixels to ignore during calculation. Only pixels set to `True` will be considered.</span>
+<span class="sd">        diz_threshold / diz_size : int</span>
+<span class="sd">            Dizinger properties to remove &#39;hot&#39; pixels.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dx</span> <span class="o">=</span> <span class="n">edge_trim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">dy</span> <span class="o">=</span> <span class="n">edge_trim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="c1"># Check if mask is an appropriate input, if not, generate dummy mask and ignore.</span>
+    <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>  <span class="c1"># No Mask</span>
+    <span class="k">elif</span> <span class="n">mask</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">image_zinged</span><span class="p">,</span> <span class="n">image_locbeam</span> <span class="o">=</span> <span class="n">dezinger_image</span><span class="p">(</span><span class="n">image</span><span class="p">[</span><span class="n">dx</span><span class="p">:</span><span class="o">-</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">:</span><span class="o">-</span><span class="n">dy</span><span class="p">],</span> <span class="n">threshold</span><span class="o">=</span><span class="n">diz_threshold</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">diz_size</span><span class="p">)</span>
+
+    <span class="n">mask_trim</span> <span class="o">=</span> <span class="n">mask</span><span class="p">[</span><span class="n">dx</span><span class="p">:</span><span class="o">-</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">:</span><span class="o">-</span><span class="n">dy</span><span class="p">]</span>  <span class="c1"># Cut the edge off the mask</span>
+    <span class="n">image_zinged</span><span class="p">[</span><span class="o">~</span><span class="n">mask_trim</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Use Boolean to set all &#39;False&#39; pixel to 0 for the sake of finding the image maximum</span>
+    <span class="n">image_locbeam</span><span class="p">[</span><span class="o">~</span><span class="n">mask_trim</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># y_spot_test,x_spot_test=np.unravel_index(np.argmax(IMAGE_MASKED),IMAGE_MASKED.shape) #Find the highest pixel</span>
+    <span class="n">y_spot</span><span class="p">,</span> <span class="n">x_spot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unravel_index</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">image_locbeam</span><span class="p">),</span> <span class="n">image_locbeam</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>  <span class="c1"># Find the highest pixel</span>
+
+    <span class="n">y_low_bound</span> <span class="o">=</span> <span class="n">y_spot</span> <span class="o">-</span> <span class="p">(</span><span class="n">h</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># + dy Already include trim in image_zinged</span>
+    <span class="n">x_low_bound</span> <span class="o">=</span> <span class="n">x_spot</span> <span class="o">-</span> <span class="p">(</span><span class="n">w</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># + dx Already include trim in image_zinged</span>
+
+    <span class="n">sl1</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">y_low_bound</span><span class="p">,</span> <span class="n">y_low_bound</span> <span class="o">+</span> <span class="n">h</span><span class="p">)</span>
+    <span class="n">sl2</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">x_low_bound</span><span class="p">,</span> <span class="n">x_low_bound</span> <span class="o">+</span> <span class="n">w</span><span class="p">)</span>
+    <span class="n">sl_spot</span> <span class="o">=</span> <span class="p">(</span><span class="n">sl1</span><span class="p">,</span> <span class="n">sl2</span><span class="p">)</span>
+    <span class="n">image_out</span> <span class="o">=</span> <span class="n">image_zinged</span><span class="p">[</span><span class="n">sl_spot</span><span class="p">]</span>
+
+    <span class="n">rect_spot</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">Rectangle</span><span class="p">((</span><span class="n">x_low_bound</span><span class="p">,</span> <span class="n">y_low_bound</span><span class="p">),</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;None&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">image_out</span><span class="p">,</span> <span class="n">image_locbeam</span><span class="p">,</span> <span class="p">(</span><span class="n">x_spot</span><span class="p">,</span> <span class="n">y_spot</span><span class="p">),</span> <span class="n">rect_spot</span>
+
+
+<span class="k">def</span> <span class="nf">slice_dark</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">edge_trim</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">beamspot</span><span class="o">=</span><span class="p">(</span><span class="mi">75</span><span class="p">,</span> <span class="mi">75</span><span class="p">),</span> <span class="n">darkside</span><span class="o">=</span><span class="s1">&#39;LHS&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        image : np.ndarray </span>
+<span class="sd">            Image to process.</span>
+<span class="sd">        h : int (even)</span>
+<span class="sd">            height of ROI used to calculate reflectivity. Center is defined as pixel with highest magnitude.</span>
+<span class="sd">        w : int (even)</span>
+<span class="sd">            width of ROI used to calculate reflectivity. Center defined as pixel with highest magnitude.</span>
+<span class="sd">        edge_trim : tuple</span>
+<span class="sd">            number of pixels to trim from the edge of the image before processing.</span>
+<span class="sd">        beamspot : tuple</span>
+<span class="sd">            Location of the beam as determined by slice_spot</span>
+<span class="sd">        mask : np.ndarray, Boolean</span>
+<span class="sd">            Array of pixels to ignore during calculation. Only pixels set to `True` will be considered.</span>
+<span class="sd">        darkside : (&#39;LHS&#39; or &#39;RHS&#39;)</span>
+<span class="sd">            Side of the image to take the dark frame.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dx</span> <span class="o">=</span> <span class="n">edge_trim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="c1"># dy = edge_trim[1]</span>
+
+    <span class="c1"># Check if mask is an appropriate input, if not, generate dummy mask and ignore.</span>
+    <span class="c1"># if mask is None:</span>
+    <span class="c1">#     mask = np.full(image.shape, True)  # No Mask</span>
+    <span class="c1"># elif mask.shape != image.shape:</span>
+    <span class="c1">#    mask = np.full(image.shape, True)</span>
+
+    <span class="n">y_spot</span> <span class="o">=</span> <span class="n">beamspot</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">darkside</span> <span class="o">==</span> <span class="s1">&#39;LHS&#39;</span><span class="p">:</span>
+        <span class="n">x_dark</span> <span class="o">=</span> <span class="n">dx</span>  <span class="c1"># box on left side of image</span>
+    <span class="k">elif</span> <span class="n">darkside</span> <span class="o">==</span> <span class="s1">&#39;RHS&#39;</span><span class="p">:</span>
+        <span class="n">x_dark</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">dx</span> <span class="o">-</span> <span class="n">w</span>  <span class="c1"># box on right side of image</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># Default to RHS</span>
+        <span class="n">x_dark</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">dx</span> <span class="o">-</span> <span class="n">w</span>  <span class="c1"># box on right side of image</span>
+
+    <span class="n">y_dark</span> <span class="o">=</span> <span class="n">y_spot</span> <span class="o">-</span> <span class="p">(</span><span class="n">h</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># +dy Already include trim in image_zinged</span>
+
+    <span class="n">sl1</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">y_dark</span><span class="p">,</span> <span class="n">y_dark</span> <span class="o">+</span> <span class="n">h</span><span class="p">)</span>
+    <span class="n">sl2</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">x_dark</span><span class="p">,</span> <span class="n">x_dark</span> <span class="o">+</span> <span class="n">w</span><span class="p">)</span>
+    <span class="n">sl_dark</span> <span class="o">=</span> <span class="p">(</span><span class="n">sl1</span><span class="p">,</span> <span class="n">sl2</span><span class="p">)</span>
+    <span class="n">image_dark</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="n">sl_dark</span><span class="p">]</span>
+
+    <span class="n">rect_dark</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">Rectangle</span><span class="p">((</span><span class="n">x_dark</span><span class="p">,</span> <span class="n">y_dark</span><span class="p">),</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;None&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">image_dark</span><span class="p">,</span> <span class="n">rect_dark</span>
+
+
+<span class="k">def</span> <span class="nf">load_prsoxr_fits</span><span class="p">(</span><span class="n">files</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parses every .fits file given in ``files`` and returns the meta and image data</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        images : list</span>
+<span class="sd">            List of each image file associated with the .fits</span>
+<span class="sd">        meta : pd.Dataframe</span>
+<span class="sd">            pandas dataframe composed of all meta data for each image</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+    <span class="n">temp_meta</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">out_images</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">out_meta</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">file</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">files</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">file</span><span class="p">)</span> <span class="k">as</span> <span class="n">hdul</span><span class="p">:</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="n">hdul</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">header</span>
+            <span class="k">del</span> <span class="n">header</span><span class="p">[</span><span class="s1">&#39;COMMENT&#39;</span><span class="p">]</span>  <span class="c1"># Drop all non-values</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">header</span><span class="p">:</span>
+                <span class="n">temp_meta</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">=</span> <span class="n">header</span><span class="p">[</span><span class="n">item</span><span class="p">]</span>
+            <span class="n">out_images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hdul</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">out_meta</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">temp_meta</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">out_meta</span> <span class="o">=</span> <span class="n">out_meta</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">temp_meta</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+
+    <span class="k">return</span> <span class="n">out_images</span><span class="p">,</span> <span class="n">out_meta</span>
+
+
+<span class="c1"># Replace pixels above a threshold with the average defined by a box of SIZE x SIZE around the pixel</span>
+<span class="c1"># Also returns the averaged display (based on size) for use in defining where the beam center is</span>
+<span class="k">def</span> <span class="nf">dezinger_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">ndimage</span>
+    <span class="n">med_result</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">median_filter</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">)</span>  <span class="c1"># Apply Median Filter to image</span>
+    <span class="n">diff_image</span> <span class="o">=</span> <span class="n">image</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">med_result</span><span class="p">)</span>  <span class="c1"># Calculate Ratio of each pixel to compared to a threshold</span>
+    <span class="c1"># Repopulate image by removing pixels that exceed the threshold -- From Jan Ilavsky&#39;s IGOR implementation.</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">image</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">greater</span><span class="p">(</span><span class="n">threshold</span><span class="p">,</span> <span class="n">diff_image</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="o">+</span> <span class="n">med_result</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">greater</span><span class="p">(</span><span class="n">diff_image</span><span class="p">,</span> <span class="n">threshold</span><span class="p">)</span> <span class="c1">#</span>
+    <span class="k">return</span> <span class="n">output</span><span class="p">,</span> <span class="n">med_result</span>  <span class="c1"># Return dezingered image and averaged image</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright : Official Contribution of the US Government.  Not subject to copyright in the United States..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
