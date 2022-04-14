@@ -30,7 +30,7 @@ Several samples plates are available at the beamline suitable for reflectivity. 
 	
 	Sample plate ready for measurements.
 	
-Samples should be at least 1cm x 1cm to allow enough real-estate to raster the beam across the sample during measurements. This helps limit exposure on a single spot and reduces beam damage.
+Samples should be at least 1cm x 1cm to allow enough real-estate to move the beam between different measurement conditions. This helps limit exposure on a single spot and reduces beam damage.
 
 .. note::
 	Be sure to include a piece of YAG (to locate the beamspot) and something to calibrate the energy (polystyrene or HOPG will work). Both can be provided by the beamline scientist. 

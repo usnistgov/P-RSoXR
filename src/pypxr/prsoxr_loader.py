@@ -162,6 +162,7 @@ class PrsoxrLoader:
 
         # Build storage lists
         self.images = []
+        self.beamspot = []
         self.image_data = None
         self.normalized_data = None
 
@@ -169,6 +170,7 @@ class PrsoxrLoader:
         self.image_locbeam = []
         self.image_spot = []
         self.image_dark = []
+        self.beam_drift = None
         self.meta = None
         self.refl = None
 
@@ -192,7 +194,7 @@ class PrsoxrLoader:
         s.append("Reduction Variables")
         s.append("{:_>30}".format(""))
         s.append("Shutter offset = {0}".format(self.shutter_offset))
-        s.append("Sample Location = {0}".format(self.samp_loc))
+        s.append("Sample Location = {0}".format(self.sample_location))
         s.append("Angle Offset = {0}".format(self.angle_offset))
         s.append("Energy Offset = {0}".format(self.energy_offset))
         s.append("SNR Cutoff = {0}".format(self.snr_cutoff))
@@ -208,12 +210,15 @@ class PrsoxrLoader:
 
         return "\n".join(s)
 
-    def __call__(self, h=25, w=25):
+    def __call__(self, h=25, w=25, tol=2, q_correct=False, sadet=130, pixel_dim=0.027):
         """
         
         """
-        refl = self._calc_refl(h, w)
+        refl = self._calc_refl(h, w, q_correct=q_correct, sadet=sadet, pixel_dim=pixel_dim)
         return refl
+        
+    def __len__(self):
+        return len(self.files)
         
     @property
     def process_vars(self):
@@ -326,7 +331,7 @@ class PrsoxrLoader:
 
         i_refl = int(image_spot.sum())
         dark = int(image_dark.sum())
-        snr = float((i_refl / dark))  # "signal to noise ratio"
+        snr = float((i_refl / np.abs(dark)))  # "signal to noise ratio"
 
         # Relevant outputs that you would want to read.
         print('Exposure: {}'.format(meta['EXPOSURE']))
@@ -346,10 +351,10 @@ class PrsoxrLoader:
         print('Signal:', i_refl - dark)
         print('SNR:', snr)
         print('Beam center', beamspot)
-
+        dx = self.edge_trim[0]
+        dy = self.edge_trim[1]
         if d:
-            dx = self.edge_trim[0]
-            dy = self.edge_trim[1]
+
             fig, ax = plt.subplots(1, 4, subplot_kw={'xticks': [], 'yticks': []}, figsize=(12, 12))
             ax[0].imshow(image[dx:-dx, dy:-dy], norm=mpl_colors.LogNorm(), cmap='terrain')
             ax[1].imshow(image_avg, norm=mpl_colors.LogNorm(), cmap='terrain')
@@ -365,7 +370,7 @@ class PrsoxrLoader:
             ax[3].imshow(image_dark, norm=mpl_colors.LogNorm(), cmap='terrain')
             plt.show()
 
-        return [image, image_avg, image_spot, image_dark]
+        return [image[dx:-dx, dy:-dy], image_avg, image_spot, image_dark] # Remove the edge, always
         
     def to_csv(self, path, save_name, save_meta=True):
         """
@@ -402,7 +407,7 @@ class PrsoxrLoader:
         self.refl.to_csv((path+save_name+'.csv'), index=False)
         
         
-    def to_hdf5(self, path, hdf5_name, save_images=False, compress='gzip'):
+    def to_hdf5(self, path, hdf5_name, save_images=False, compress='gzip', en_offset=0):
         """
         Function to save the calculated reflectivity as a .hdf5 file
         
@@ -419,6 +424,9 @@ class PrsoxrLoader:
                 
             compress : str
                 Type of compression for image files.
+                
+            en_offset : float
+                Optional offset to apply to naming convention. Use if energy offset was applied BEFORE taking data.
                 
         Notes
         ------
@@ -450,8 +458,8 @@ class PrsoxrLoader:
         with h5py.File((path+hdf5_name+'.hdf5'), 'a') as file_hdf5:
             # Create HDF5structure for saving data
             measurement = file_hdf5.require_group('MEASUREMENT') # Folder to hold the data
-            pol_label = 'POL_'+str(np.round(self.meta['EPU Polarization'].iloc[0],0))
-            en_label = 'EN_'+str(np.round(self.meta['Beamline Energy'].iloc[0],1)).replace('.', 'pt')
+            pol_label = 'POL_'+str(int(self.meta['EPU Polarization'].iloc[0]))
+            en_label = 'EN_'+str(np.round(self.meta['Beamline Energy'].iloc[0] + en_offset,1)).replace('.', 'pt')
             scan_label = measurement.require_group(en_label + '/' + pol_label)
             # Save Images if desired
             if save_images:
@@ -474,13 +482,14 @@ class PrsoxrLoader:
             for key in save_vars:
                 scan_label.attrs[key] = str(save_vars[key])
             data_save = scan_label.create_dataset('DATA', data=self.refl)
+            data_save.attrs['Energy label offset'] = str(en_offset)
             data_save.attrs['Column 1'] = 'Q'
             data_save.attrs['Column 2'] = 'R'
             data_save.attrs['Column 3'] = 'R_err'
 
             #scan_label.create_dataset('META', data=self.meta.drop(['SIMPLE', 'EXTEND', 'DATE'],axis=1).astype(np.float64))
 
-    def _calc_refl(self, h=25, w=25, tol=2):
+    def _calc_refl(self, h=25, w=25, tol=2, q_correct=False, sadet=130, pixel_dim=0.027):
         """
         Function that performs a complete data reduction of prsoxr data 
         """
@@ -492,7 +501,11 @@ class PrsoxrLoader:
         self._normalize_data()
         self._find_stitch_points()
         self._calc_scale_factors()
-        self.refl = self._stitch_refl()
+        self.refl = self._stitch_refl().dropna() # Remove any NaNs that get introduced from SNR thresholding
+        q_offset = self._calc_beam_drift(sadet=sadet, pixel_dim=pixel_dim) # Calculate the q-offset on a per pixel basis
+        if q_correct:
+            q_offset = q_offset['q_offset'].loc[self.i0_vals:].reset_index(drop=True) # reindex the offset to drop I0 scans
+            self.refl['Q'] = self.refl['Q'] - q_offset # subtract the offset from the q-values
 
         return self.refl
 
@@ -503,6 +516,10 @@ class PrsoxrLoader:
 
         """
         data = []
+        self.image_locbeam = []
+        self.image_spot = []
+        self.image_dark = []
+        self.beamspot = []
         for i, image in enumerate(self.images):
             _vars = self.meta.iloc[i]
             wavelength = metertoang * planck * sol / round(_vars['Beamline Energy'] + self.energy_offset, 1)
@@ -528,7 +545,7 @@ class PrsoxrLoader:
             i_tot = int(image_spot.sum())
             i_dark = int(image_dark.sum())
 
-            snr = float(i_tot / i_dark)
+            snr = float(i_tot / np.abs(i_dark))
             if snr < self.snr_cutoff or snr < 0:
                 continue
             i_refl = (i_tot - i_dark)
@@ -540,6 +557,7 @@ class PrsoxrLoader:
             self.image_locbeam.append(image_locbeam)
             self.image_spot.append(image_spot)
             self.image_dark.append(image_dark)
+            self.beamspot.append(beamspot)
         self.image_data = pd.DataFrame(data, columns=(['index', 'Q', 'R', 'R_err']))
 
     def _normalize_data(self):
@@ -691,7 +709,7 @@ class PrsoxrLoader:
 
         return refl_final
 
-    def _update_stats(self, frame=10):
+    def _update_stats(self, frame=0):
         """
         Quickly update image stats and offsets based on first data-point.
         Common practice has this at frame 10.
@@ -712,14 +730,38 @@ class PrsoxrLoader:
 
         # Check if the sample is on the bottom or not.
         if -200 <= meta['Sample Theta'] < 0:
-            self.samp_loc = 180
+            self.sample_location = 180
         else:
-            self.samp_loc = 0
+            self.sample_location = 0
         # Updated angle_offset.
         # Correct angle should be half 'ccd_theta' (corrected for holder position).
-        self.angle_offset = round(meta['CCD Theta'] / 2 + self.samp_loc - meta['Sample Theta'], 3)
+        self.angle_offset = -1*round(meta['CCD Theta'] / 2 + self.sample_location - meta['Sample Theta'], 3)
 
         return meta
+        
+        
+    def _calc_beam_drift(self, sadet=130, pixel_dim=0.027):
+        """
+        Update the q-position at each point to account for any relative misalignment of the sample
+
+        """
+        beamspot = self.beamspot
+        df = pd.DataFrame(beamspot, columns=['pixX','pixY']) # Grab all beam positions
+        I0_loc = df.loc[0] # Where is the direct beam relative to the CCD
+        df['I0dispX'] = I0_loc.pixX - df['pixX'] # Find difference from expected reflection in terms of pixels
+        df['I0dispY'] = I0_loc.pixY - df['pixY'] # Find difference from expected reflection in terms of pixels
+        
+        df['dispX'] = df['I0dispX'] * 0.027 # Convert pixels into cm
+        df['dispY'] = df['I0dispY'] * 0.027 # Convert pixels into cm
+
+        df['dispX_theta'] = np.arctan(df['dispX']/sadet)*180/np.pi
+        df['dispY_theta'] = np.arctan(df['dispY']/sadet)*180/np.pi
+        
+        df['wavelength'] = metertoang * planck * sol / round(self.meta['Beamline Energy'] + self.energy_offset, 1)
+        df['q_offset'] = 4*np.pi/df['wavelength']*np.sin(df['dispY_theta']*np.pi/180/2)    
+        
+        self.beam_drift = df
+        return self.beam_drift
         
 
 
@@ -807,9 +849,9 @@ def slice_dark(image, h=20, w=20, mask=None, edge_trim=(5, 5), beamspot=(75, 75)
     if darkside == 'LHS':
         x_dark = dx  # box on left side of image
     elif darkside == 'RHS':
-        x_dark = image.shape[0] - dx - w  # box on right side of image
+        x_dark = image.shape[1] - dx - w  # box on right side of image
     else:  # Default to RHS
-        x_dark = image.shape[0] - dx - w  # box on right side of image
+        x_dark = image.shape[1] - dx - w  # box on right side of image
 
     y_dark = y_spot - (h // 2)  # +dy Already include trim in image_zinged
 

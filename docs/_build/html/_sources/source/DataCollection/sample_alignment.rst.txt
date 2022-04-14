@@ -74,13 +74,13 @@ Once each sample has been defined, each one requires a series of motor positions
 	#. **ZDirectBeam**: This is a ``Sample Z`` position that moves the entire plate out of th way enabling a measurement of the direct beam.
 	#. **ThetaOffset**: This is an angle offset to be measured for each sample.
 
-The next settings define the q-spacing. This is defined by an approximate number of measurements that we want to collect per fringe. If we assume that the highest frequency fringe spacing will depend on the total film thickness, ``L = 2*np.pi/thick``, the q-spacing is given by ``dq = L/N`` where N is the chosen point density.
+The next settings define the q-spacing. We define this spacing in terms of the number of measurement points we want to collect per fringe. If we assume that the highest frequency fringe spacing will depend on the total film thickness, ``L = 2*np.pi/thick``, the q-spacing is given by ``dq = L/N`` where N is the chosen point density.
 
 * Settings for point density:
 	#. **SampleThickness**: An approximate sample film thickness in [A]. This will be referenced to determine dq
-	#. **LowAngleDensity**: Number of points per fringe at low angles. Typically high to resolve critical angle
-	#. **HighAngleDensity**: Number of points per fringe at high angles. Typically lower after passing the critical angle.
-	#. **AngleCrossOver**: Angle [deg] to cross from low to high density.
+	#. **LowAngleDensity**: Number of points per fringe at low angles. Nominally high to resolve critical angle, typically on the order of 12-15.
+	#. **HighAngleDensity**: Number of points per fringe at high angles. Lower resolution is often required after the critical angle, typically 8-10.
+	#. **AngleCrossOver**: Angle [deg] to cross from low to high density. We find that 10[deg] is a good location that encompasses the critical angle and at least one full fringe.
 	
 The final settings help with measurement statistics and buffers to help delay for motor movements.
 

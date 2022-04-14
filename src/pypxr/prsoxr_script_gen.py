@@ -12,7 +12,7 @@ import math
 Setup Parameters
 """
 save_dir = '' # Location to save script
-save_name = 'Test_script' # Scipt name
+save_name = 'Test_script_2' # Scipt name
 
 #Store sample names and energies you want to run
 sample_list = {} #Do not change this line
@@ -24,7 +24,7 @@ sample_list['Samp_C'] = [250.0, 283.5, 284.8, 285.3]
 EnergyOffset = 0 # [eV]
 
 # Inputs to run sample plate
-SampleOrder = ['Samp_A']#, 'Samp_B', 'Samp_C'] # Order that you want to run samples.
+SampleOrder = ['Samp_A', 'Samp_C']#, 'Samp_B', 'Samp_C'] # Order that you want to run samples.
 # Motor positions
 XPosition = [36.52, 23.36, 0] # 'Sample X' motor position
 XOffset = [0.15, 0.15, 0.15] # Offset to translate beam on sample after each energy.
@@ -42,7 +42,7 @@ HighAngleDensity = [9, 9, 9] #Approximate number of points per fringe at high an
 AngleCrossover = [10, 10, 10] #Angle [deg] to cross from low -> high density
 ##
 OverlapPoints = [3, 3, 3] #Number of overlap points upon changing motor. Used for stitching
-CheckUncertainty = [3, 3, 3] #Number of points for assessing error at each change in motor conditions. Used for error reduction
+CheckUncertainty = [2, 2, 2] #Number of points for assessing error at each change in motor conditions. Used for error reduction
 HOSBuffer = [2, 2, 2] #Number of points to add upon changing HOS to account for  motor movement. 
 I0Points = [10, 10, 10] #Number of I0 measureents taken at the start of the scan. Used to calculate direct beam uncertainty
 
@@ -105,7 +105,60 @@ VariableMotors.append(temp_list)
 STOP COPYING HERE
 """
 #Add samples here ~~
+"""
+COPY THIS BLOCK OF CODE FOR EACH SAMPLE
+"""
+#########################################
+#####            Sample 1           #####
+#########################################
+DEG = [] # Angles to change settings
+HOS = [] # HOS positions
+HES = [] # HES positions
+EXP = [] # Exposures
+#########################################
 
+#########################################
+#####           Energy 1            #####
+#########################################
+DEG.append([1, 6, 10, 15, 20, 25, 30, 40, 75])
+HOS.append([12, 11, 10, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5])
+HES.append([150, 150, 150, 150, 150, 150, 150, 150, 150])
+EXP.append([0.001, 0.001, 0.001, 0.001, 0.1, 0.5, 0.5, 0.5, 0.5])
+
+#########################################
+#####           Energy 2            #####
+#########################################
+DEG.append([1, 4, 6, 10, 12, 15, 20, 25, 30, 40, 75])
+HOS.append([12, 11.5,  12, 10, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5])
+HES.append([1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500])
+EXP.append([0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.1, 0.1, 0.1, 0.1, 0.1])
+
+#########################################
+#####           Energy 3            #####
+#########################################
+DEG.append([1, 4, 6, 10, 12, 15, 20, 25, 30, 40, 75])
+HOS.append([12, 11.5,  12, 10, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5])
+HES.append([1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500])
+EXP.append([0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.1, 0.1, 0.1, 0.1, 0.1])
+
+#########################################
+#####           Energy 4            #####
+#########################################
+DEG.append([1, 4, 6, 10, 12, 15, 20, 25, 30, 40, 75])
+HOS.append([12, 11.5,  12, 10, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5])
+HES.append([1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500])
+EXP.append([0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.1, 0.1, 0.1, 0.1, 0.1])
+
+#Consolodate information
+motors = zip(DEG, HOS, HES, EXP)
+temp_list = []
+columns = ['Angle', 'HOS', 'HES', 'EXPOSURE']
+for deg, hos, hes, exp in motors:
+    temp_list.append(pd.DataFrame({'Angle':deg, 'HOS':hos, 'HES':hes, 'EXPOSURE':exp}))    
+VariableMotors.append(temp_list)
+"""
+STOP COPYING HERE
+"""
 
 
 

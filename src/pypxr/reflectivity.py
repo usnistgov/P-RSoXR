@@ -78,7 +78,7 @@ class PXR_ReflectModel(object):
 
     """
 
-    def __init__(self, structure, scale=1, bkg=0, name='', dq=0., energy=None, phi=0, pol='s', backend='uni'):
+    def __init__(self, structure, scale=1, bkg=0, name='', dq=0., q_offset=0.0, en_offset=0.0, energy=None, phi=0, pol='s', backend='uni'):
 
         self.name = name
         self._parameters = None
@@ -87,9 +87,14 @@ class PXR_ReflectModel(object):
         self._phi = phi
         self._pol = pol  # Output polarization
 
-        # all reflectometry models need a scale factor and background
+        # all reflectometry models have an optional scale factor and background
         self._scale = possibly_create_parameter(scale, name='scale')
         self._bkg = possibly_create_parameter(bkg, name='bkg')
+        # New model parameter q_offset : 10/21/2021
+        self._q_offset = possibly_create_parameter(q_offset, name='q_offset')
+        
+        # New model parameter en_offset : 10/21/2021
+        self._en_offset = possibly_create_parameter(en_offset, name='en_offset')
 
         # we can optimize the resolution (but this is always overridden by
         # x_err if supplied. There is therefore possibly no dependence on it.
@@ -129,7 +134,8 @@ class PXR_ReflectModel(object):
         return ("ReflectModel({_structure!r}, name={name!r},"
                 " scale={_scale!r}, bkg={_bkg!r},"
                 " dq={_dq!r}, threads={threads},"
-                " quad_order={quad_order})".format(**self.__dict__))
+                " quad_order={quad_order}),"
+                " q_offset={_q_offset!r}".format(**self.__dict__))
 
     @property
     def dq(self):
@@ -176,6 +182,31 @@ class PXR_ReflectModel(object):
     @bkg.setter
     def bkg(self, value):
         self._bkg.value = value
+        
+    @property
+    def q_offset(self):
+        r"""
+        :class:`refnx.analysis.Parameter` - offset in q-vector due to experimental error
+        
+        """
+        return self._q_offset
+    
+    @q_offset.setter
+    def q_offset(self, value):
+        self._q_offset.value = value
+        
+    @property
+    def en_offset(self):
+        r"""
+        :class:`refnx.analysis.Parameter` - offset in q-vector due to experimental error
+        
+        """
+        return self._en_offset
+    
+    @en_offset.setter
+    def en_offset(self, value):
+        self._en_offset.value = value
+
 
     @property
     def energy(self):
@@ -271,7 +302,7 @@ class PXR_ReflectModel(object):
         else:
             qvals = x
 
-        refl, tran, *components = PXR_reflectivity(qvals, self.structure.slabs(),
+        refl, tran, *components = PXR_reflectivity(qvals + self.q_offset.value, self.structure.slabs(),
                                                    self.structure.tensor(energy=self.energy),
                                                    self.energy,
                                                    self.phi,
@@ -328,7 +359,7 @@ class PXR_ReflectModel(object):
     def structure(self, structure):
         self._structure = structure
         p = Parameters(name='instrument parameters')
-        p.extend([self.scale, self.bkg, self.dq])
+        p.extend([self.scale, self.bkg, self.dq, self.q_offset, self.en_offset])
 
         self._parameters = Parameters(name=self.name)
         self._parameters.extend([p, structure.parameters])

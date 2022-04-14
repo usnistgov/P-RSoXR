@@ -245,10 +245,10 @@ class PXR_Structure(UserList):
         """
         d1 = [c.tensor(energy=energy) for c in self.components]
         try:
-            _tensor = np.stack(d1, axis=0)
+            _tensor = np.concatenate(d1, axis=0)
         except ValueError:
             # some of slabs may be None. np can't concatenate arr and None
-            _tensor = np.stack([s for s in d1 if s is not None], axis=0)
+            _tensor = np.concatenate([s for s in d1 if s is not None], axis=0)
 
         reverse = self.reverse_structure
         if reverse:
@@ -609,7 +609,7 @@ class PXR_SLD(PXR_Scatterer):
     >>> self.izz.setp(self.ixx, vary=None, constraint=self.ixx)
     """
 
-    def __init__(self, value, symmetry='uni', name=''):
+    def __init__(self, value, symmetry='uni', name='', en_offset=0):
         super(PXR_SLD, self).__init__(name=name)
         self.imag = Parameter(0, name='%s_isld' % name)
         self._tensor = None
@@ -654,9 +654,11 @@ class PXR_SLD(PXR_Scatterer):
                                        name='%s_bire' % name)  # Useful parameters to use as constraints
         self.dichroism = Parameter((self.ixx.value - self.izz.value),
                                    name='%s_dichro' % name)  # Defined in terms of xx and zz
+                                   
+        self.en_offset = Parameter((en_offset), name='%s_enOffset' % name)
 
         self._parameters.extend(
-            [self.delta, self.beta, self.xx, self.ixx, self.yy, self.iyy, self.zz, self.izz, self.birefringence,
+            [self.delta, self.beta, self.en_offset, self.xx, self.ixx, self.yy, self.iyy, self.zz, self.izz, self.birefringence,
              self.dichroism])
 
         self.symmetry = symmetry
@@ -1073,7 +1075,7 @@ class PXR_Slab(PXR_Component):
         """
         if energy is not None and hasattr(self.sld, 'energy'):
             self.sld.energy = energy
-        return self.sld.tensor
+        return np.array([self.sld.tensor])
 
 
 class PXR_MixedMaterialSlab(PXR_Component):
@@ -1205,6 +1207,150 @@ class PXR_MixedMaterialSlab(PXR_Component):
         )
 
         return combinetensor  # self.sld.tensor
+        
+        
+        
+        
+class PXR_Stack(PXR_Component, UserList):
+    r"""
+    A series of PXR_Components that are considered as a single item. When
+    incorporated into a PXR_Structure the PXR_Stack will be repeated as a multilayer
+    
+    Parameters
+    ------------
+    components : sequence
+        A series of PXR_Components to repeat in a structure
+    name: str
+        Human readable name for the stack
+    repeats: number, Parameter
+        Number of times to repeat the stack within a structure to make a multilayer
+        
+    """
+    
+    def __init__(self, components=(), name="", repeats=1):
+        PXR_Component.__init__(self, name=name)
+        UserList.__init__(self) 
+        
+        self.repeats = possibly_create_parameter(repeats, "repeat")
+        self.repeats.bounds.lb = 1
+        
+        # Construct the list of components
+        for c in components: 
+            if isinstance(c, PXR_Component):
+                self.data.append(c)
+            else:
+                raise ValueError(
+                    "You can only initialise a PXR_Stack with PXR_Components"
+                )
+    def __setitem__(self, i, v):
+        self.data[i] = vac
+        
+    def __str__(self):
+        s = list()
+        s.append("{:=>80}".format(""))
+        
+        s.append(f"Stack start: {int(round(abs(self.repeats.value)))} repeats")
+        for component in self:
+            s.append(str(component))
+        s.append("Stack finish")
+        s.append("{:=>80}".format(""))
+        
+        return "/n".join(s)
+        
+    def __repr__(self):
+        return (
+            "Stack(name={name!r},"
+            " components={data!r},"
+            " repeats={repeats!r}".format(**self.__dict__)
+        )
+    
+    def append(self, item):
+        """
+        Append a PXR_Component to the Stack.
+        
+        Parameters
+        -----------
+        item: PXR_Compponent
+            PXR_Component to be added to the PXR_Stack
+            
+        """
+        
+        if isinstance(item, PXR_Scatterer):
+            self.append(item())
+            return
+        
+        if not isinstance(item, PXR_Component):
+            raise ValueError(
+                "You can only add PXR_Components"
+            )
+        self.data.append(item)
+        
+    def slabs(self, structure=None):
+        """
+        Slab representation of this component.
+
+        Notes
+        -----
+        Returns a list of each slab included within this Stack. 
+
+        """
+        if not len(self):
+            return None
+        
+        repeats = int(round(abs(self.repeats.value)))
+        
+        slabs = np.concatenate(
+            [c.slabs(structure=self) for c in self.components]
+        )
+        
+        if repeats > 1:
+            slabs = np.concatenate([slabs] * repeats)
+            
+        if hasattr(self, "solvent"):
+            delattr(self, "solvent")
+            
+        return slabs
+    
+    def tensor(self, energy=None):
+        """
+        Tensor representation of this component. Builds list of all components
+        """
+        
+        if not len(self):
+            return None
+        
+        repeats = int(round(abs(self.repeats.value)))
+
+        tensor = np.concatenate(
+            [c.tensor(energy=energy) for c in self.components], axis=0
+        )
+        
+        if repeats > 1:
+            tensor = np.concatenate([tensor] * repeats)
+        
+        return tensor
+
+              
+    
+    @property
+    def components(self):
+        """
+        List of components
+        """
+        return self.data
+    
+    @property
+    def parameters(self):
+        r"""
+        All Parameters associated with this Stack
+        
+        """
+        
+        p = Parameters(name="Stack - {0}".format(self.name))
+        p.append(self.repeats)
+        p.extend([component.parameters for component in self.components])
+        return p  
+        
 
 
 def birefringence_profile(slabs, tensor, z=None, step=False):
