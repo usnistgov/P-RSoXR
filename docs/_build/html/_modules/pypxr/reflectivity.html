@@ -244,7 +244,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bkg</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">dq</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">phi</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">pol</span><span class="o">=</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s1">&#39;uni&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bkg</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">dq</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">q_offset</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">en_offset</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">phi</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">pol</span><span class="o">=</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s1">&#39;uni&#39;</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span> <span class="o">=</span> <span class="kc">None</span>
@@ -253,9 +253,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_phi</span> <span class="o">=</span> <span class="n">phi</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pol</span> <span class="o">=</span> <span class="n">pol</span>  <span class="c1"># Output polarization</span>
 
-        <span class="c1"># all reflectometry models need a scale factor and background</span>
+        <span class="c1"># all reflectometry models have an optional scale factor and background</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_scale</span> <span class="o">=</span> <span class="n">possibly_create_parameter</span><span class="p">(</span><span class="n">scale</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;scale&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_bkg</span> <span class="o">=</span> <span class="n">possibly_create_parameter</span><span class="p">(</span><span class="n">bkg</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;bkg&#39;</span><span class="p">)</span>
+        <span class="c1"># New model parameter q_offset : 10/21/2021</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_q_offset</span> <span class="o">=</span> <span class="n">possibly_create_parameter</span><span class="p">(</span><span class="n">q_offset</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;q_offset&#39;</span><span class="p">)</span>
+        
+        <span class="c1"># New model parameter en_offset : 10/21/2021</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_en_offset</span> <span class="o">=</span> <span class="n">possibly_create_parameter</span><span class="p">(</span><span class="n">en_offset</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;en_offset&#39;</span><span class="p">)</span>
 
         <span class="c1"># we can optimize the resolution (but this is always overridden by</span>
         <span class="c1"># x_err if supplied. There is therefore possibly no dependence on it.</span>
@@ -295,7 +300,8 @@
         <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;ReflectModel(</span><span class="si">{_structure!r}</span><span class="s2">, name=</span><span class="si">{name!r}</span><span class="s2">,&quot;</span>
                 <span class="s2">&quot; scale=</span><span class="si">{_scale!r}</span><span class="s2">, bkg=</span><span class="si">{_bkg!r}</span><span class="s2">,&quot;</span>
                 <span class="s2">&quot; dq=</span><span class="si">{_dq!r}</span><span class="s2">, threads=</span><span class="si">{threads}</span><span class="s2">,&quot;</span>
-                <span class="s2">&quot; quad_order=</span><span class="si">{quad_order}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">))</span>
+                <span class="s2">&quot; quad_order=</span><span class="si">{quad_order}</span><span class="s2">),&quot;</span>
+                <span class="s2">&quot; q_offset=</span><span class="si">{_q_offset!r}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">))</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">dq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -342,6 +348,31 @@
     <span class="nd">@bkg</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">bkg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_bkg</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">q_offset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :class:`refnx.analysis.Parameter` - offset in q-vector due to experimental error</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_q_offset</span>
+    
+    <span class="nd">@q_offset</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">q_offset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_q_offset</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">en_offset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :class:`refnx.analysis.Parameter` - offset in q-vector due to experimental error</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_en_offset</span>
+    
+    <span class="nd">@en_offset</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">en_offset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_en_offset</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">energy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -437,7 +468,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">qvals</span> <span class="o">=</span> <span class="n">x</span>
 
-        <span class="n">refl</span><span class="p">,</span> <span class="n">tran</span><span class="p">,</span> <span class="o">*</span><span class="n">components</span> <span class="o">=</span> <span class="n">PXR_reflectivity</span><span class="p">(</span><span class="n">qvals</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">slabs</span><span class="p">(),</span>
+        <span class="n">refl</span><span class="p">,</span> <span class="n">tran</span><span class="p">,</span> <span class="o">*</span><span class="n">components</span> <span class="o">=</span> <span class="n">PXR_reflectivity</span><span class="p">(</span><span class="n">qvals</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_offset</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">slabs</span><span class="p">(),</span>
                                                    <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">energy</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">energy</span><span class="p">),</span>
                                                    <span class="bp">self</span><span class="o">.</span><span class="n">energy</span><span class="p">,</span>
                                                    <span class="bp">self</span><span class="o">.</span><span class="n">phi</span><span class="p">,</span>
@@ -494,7 +525,7 @@
     <span class="k">def</span> <span class="nf">structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_structure</span> <span class="o">=</span> <span class="n">structure</span>
         <span class="n">p</span> <span class="o">=</span> <span class="n">Parameters</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;instrument parameters&#39;</span><span class="p">)</span>
-        <span class="n">p</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bkg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dq</span><span class="p">])</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bkg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dq</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_offset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">en_offset</span><span class="p">])</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span> <span class="o">=</span> <span class="n">Parameters</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">p</span><span class="p">,</span> <span class="n">structure</span><span class="o">.</span><span class="n">parameters</span><span class="p">])</span>

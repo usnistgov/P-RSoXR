@@ -5,3 +5,4 @@ Modeling/Fitting with PyPXR:
    :maxdepth: 2
    
    DataModeling/PyPXR_Tutorials.ipynb
+   DataModeling/PyPXR_MultiEnRefinement.ipynb

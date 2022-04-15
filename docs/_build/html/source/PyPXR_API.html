@@ -221,7 +221,7 @@
 
 <dl class="py class">
 <dt id="pypxr.structure.PXR_SLD">
-<em class="property">class </em><code class="sig-prename descclassname">pypxr.structure.</code><code class="sig-name descname">PXR_SLD</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em>, <em class="sig-param"><span class="n">symmetry</span><span class="o">=</span><span class="default_value">'uni'</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pypxr/structure.html#PXR_SLD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypxr.structure.PXR_SLD" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pypxr.structure.</code><code class="sig-name descname">PXR_SLD</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em>, <em class="sig-param"><span class="n">symmetry</span><span class="o">=</span><span class="default_value">'uni'</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">en_offset</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pypxr/structure.html#PXR_SLD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypxr.structure.PXR_SLD" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pypxr.structure.PXR_Scatterer" title="pypxr.structure.PXR_Scatterer"><code class="xref py py-class docutils literal notranslate"><span class="pre">pypxr.structure.PXR_Scatterer</span></code></a></p>
 <p>Object representing freely varying complex tensor index of refraction of a material</p>
 <dl class="field-list simple">
@@ -828,7 +828,7 @@ reversed. Energy is required for energy-dependent slabs</p>
 <h2>Polarized reflectivity model<a class="headerlink" href="#polarized-reflectivity-model" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="pypxr.reflectivity.PXR_ReflectModel">
-<em class="property">class </em><code class="sig-prename descclassname">pypxr.reflectivity.</code><code class="sig-name descname">PXR_ReflectModel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">scale</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">bkg</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">dq</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">energy</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">phi</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">pol</span><span class="o">=</span><span class="default_value">'s'</span></em>, <em class="sig-param"><span class="n">backend</span><span class="o">=</span><span class="default_value">'uni'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pypxr/reflectivity.html#PXR_ReflectModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypxr.reflectivity.PXR_ReflectModel" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pypxr.reflectivity.</code><code class="sig-name descname">PXR_ReflectModel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em>, <em class="sig-param"><span class="n">scale</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">bkg</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">dq</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">q_offset</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">en_offset</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">energy</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">phi</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">pol</span><span class="o">=</span><span class="default_value">'s'</span></em>, <em class="sig-param"><span class="n">backend</span><span class="o">=</span><span class="default_value">'uni'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pypxr/reflectivity.html#PXR_ReflectModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypxr.reflectivity.PXR_ReflectModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -884,6 +884,12 @@ here.</p>
 </dl>
 </li>
 </ul>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pypxr.reflectivity.PXR_ReflectModel.en_offset">
+<em class="property">property </em><code class="sig-name descname">en_offset</code><a class="headerlink" href="#pypxr.reflectivity.PXR_ReflectModel.en_offset" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-class docutils literal notranslate"><span class="pre">refnx.analysis.Parameter</span></code> - offset in q-vector due to experimental error</p>
 </dd></dl>
 
 <dl class="py method">
@@ -980,6 +986,12 @@ Calulation returns concatenate in order of input.</p>
 <dd class="field-even"><p>str</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pypxr.reflectivity.PXR_ReflectModel.q_offset">
+<em class="property">property </em><code class="sig-name descname">q_offset</code><a class="headerlink" href="#pypxr.reflectivity.PXR_ReflectModel.q_offset" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-class docutils literal notranslate"><span class="pre">refnx.analysis.Parameter</span></code> - offset in q-vector due to experimental error</p>
 </dd></dl>
 
 <dl class="py method">

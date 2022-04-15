@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Tutorial &mdash; p-RSoXR 0.0.1 documentation</title>
+  <title>Tutorial: Getting Started &mdash; p-RSoXR 0.0.1 documentation</title>
   
 
   
@@ -46,7 +46,7 @@
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="References" href="../references_home.html" />
+    <link rel="next" title="Tutorial: Multi-Energy refinement" href="PyPXR_MultiEnRefinement.html" />
     <link rel="prev" title="Modeling/Fitting with PyPXR:" href="../DataModeling_home.html" /> 
 </head>
 
@@ -97,12 +97,13 @@
 <li class="toctree-l1"><a class="reference internal" href="../DataCollection_home.html">Tutorial on Collecting Data:</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../DataReduction_home.html">Reducing data to 1D profiles:</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../DataModeling_home.html">Modeling/Fitting with PyPXR:</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Tutorial</a><ul>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Tutorial: Getting Started</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#Creating-a-model">Creating a model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#Calculating-polarized-X-ray-reflectivity">Calculating polarized X-ray reflectivity</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#Fitting-data">Fitting data</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="PyPXR_MultiEnRefinement.html">Tutorial: Multi-Energy refinement</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../references_home.html">References</a></li>
@@ -158,7 +159,7 @@
         
           <li><a href="../DataModeling_home.html">Modeling/Fitting with PyPXR:</a> &raquo;</li>
         
-      <li>Tutorial</li>
+      <li>Tutorial: Getting Started</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -447,8 +448,8 @@ div.rendered_html tbody tr:hover {
     text-align: unset;
 }
 </style>
-<div class="section" id="Tutorial">
-<h1>Tutorial<a class="headerlink" href="#Tutorial" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="Tutorial:-Getting-Started">
+<h1>Tutorial: Getting Started<a class="headerlink" href="#Tutorial:-Getting-Started" title="Permalink to this headline">¶</a></h1>
 <p>PyPXR is designed to tackle reflectivity datasets measured over many eneriges and polarizations. This process is analogous to changing contrast in Neutron reflectivity that provides more information about a given system. Co-refinement of multiple datasets is essential to achieve a unique solution with PyPXR.</p>
 <p>This tutorial will guide you through the basic steps to build and subsequently refine a slab model to fit polarized reflectivity of a glassy thin film. It is recommended that you are familiar with modeling reflectivity from hard X-rays or neutrons prior to polarized X-ray reflectivity. An excellent example can be found in the ‘Getting Started’ section within the <em>refnx</em> documentation.</p>
 <div class="section" id="Creating-a-model">
@@ -480,15 +481,17 @@ a tensor. PyPXR uses conventions in soft X-ray science so all optical parameters
 <p><code class="docutils literal notranslate"><span class="pre">PXR_SLD</span></code> is ideal when materials are resonant with the chosen photon energy and dielectric function cannot be referenced with <em>PeriodicTable</em>. Objects will be assigned a complex tensor index of refraction defined with the extraordinary axis perpdindicular to the substrate and ordinary axis parallel with the substrate.</p>
 <p><code class="docutils literal notranslate"><span class="pre">PXR_MaterialSLD</span></code> is for materials that are not resonant with the chosen photon energy. This option is commonly used to define substrates and superstrates. It uses <em>PeriodicTable</em> to determine <span class="math notranslate nohighlight">\(n(E)\)</span>. <em>This function requires an explicit photon energy.</em></p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">en</span> <span class="o">=</span> <span class="mf">284.4</span> <span class="c1">#[eV]</span>
+<span></span><span class="n">en</span> <span class="o">=</span> <span class="mf">284.7</span> <span class="c1">#[eV]</span>
 
-<span class="n">si</span> <span class="o">=</span> <span class="n">PXR_MaterialSLD</span><span class="p">(</span><span class="s1">&#39;Si&#39;</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">2.33</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="n">en</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Si&#39;</span><span class="p">)</span> <span class="c1">#Substrate</span>
-<span class="n">sio2</span> <span class="o">=</span> <span class="n">PXR_MaterialSLD</span><span class="p">(</span><span class="s1">&#39;SiO2&#39;</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">2.28</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="n">en</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;SiO2&#39;</span><span class="p">)</span> <span class="c1">#Substrate</span>
-<span class="n">vacuum</span> <span class="o">=</span> <span class="n">PXR_MaterialSLD</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="n">en</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;vacuum&#39;</span><span class="p">)</span> <span class="c1">#Superstrate</span>
+<span class="n">si</span> <span class="o">=</span> <span class="n">PXR_MaterialSLD</span><span class="p">(</span><span class="s1">&#39;Si&#39;</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">2.33</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Si&#39;</span><span class="p">)</span> <span class="c1">#Substrate</span>
+<span class="n">sio2</span> <span class="o">=</span> <span class="n">PXR_MaterialSLD</span><span class="p">(</span><span class="s1">&#39;SiO2&#39;</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">2.28</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;SiO2&#39;</span><span class="p">)</span> <span class="c1">#Substrate</span>
+<span class="n">vacuum</span> <span class="o">=</span> <span class="n">PXR_MaterialSLD</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;vacuum&#39;</span><span class="p">)</span> <span class="c1">#Superstrate</span>
+
+
 <span class="n">n_xx</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">(</span><span class="o">-</span><span class="mf">0.00033</span><span class="p">,</span> <span class="mf">0.000113</span><span class="p">)</span> <span class="c1"># [unitless] #Ordinary Axis</span>
 <span class="n">n_zz</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">(</span><span class="o">-</span><span class="mf">0.0004</span><span class="p">,</span> <span class="mf">0.00028</span><span class="p">)</span> <span class="c1"># [unitless] #Extraordinary Axis</span>
 <span class="n">posa</span> <span class="o">=</span> <span class="n">PXR_SLD</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">n_xx</span><span class="p">,</span> <span class="n">n_zz</span><span class="p">]),</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;posaconazole&#39;</span><span class="p">)</span> <span class="c1">#Molecule</span>
@@ -498,7 +501,7 @@ a tensor. PyPXR uses conventions in soft X-ray science so all optical parameters
 <p>In this example, our thin film is composed of a vapor deposited glassy thin film on a silicon substrate. We are going to assume our film is uniaxial in the laboratory frame and only defined by <code class="docutils literal notranslate"><span class="pre">n_xx</span></code> and <code class="docutils literal notranslate"><span class="pre">n_zz</span></code>.</p>
 <p>We can now build multiple <code class="docutils literal notranslate"><span class="pre">PXR_Slab</span></code> objects using our newly defined materials. Physical dimensions include thickness and surface roughness (both in Angstroms). Currently, the only interface that is supported is a Nevot-Croce roughness and the input corresponds to the width of an error function.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -507,14 +510,14 @@ a tensor. PyPXR uses conventions in soft X-ray science so all optical parameters
 <span class="n">si_slab</span> <span class="o">=</span> <span class="n">si</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span> <span class="c1">#thickness of bounding substrate does not matter</span>
 <span class="n">sio2_slab</span> <span class="o">=</span> <span class="n">sio2</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 <span class="c1">#Film bulk</span>
-<span class="n">posa_slab</span> <span class="o">=</span> <span class="n">posa</span><span class="p">(</span><span class="mi">711</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+<span class="n">posa_slab</span> <span class="o">=</span> <span class="n">posa</span><span class="p">(</span><span class="mi">711</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <p>Our composite <code class="docutils literal notranslate"><span class="pre">PXR_Structure</span></code> can now be generated by combining each<code class="docutils literal notranslate"><span class="pre">PXR_Slab</span></code> with the following convention.</p>
 <p><em>structure = Superstrate | top layer | mid layers | … | bottom layer | Substrate</em></p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -524,16 +527,16 @@ a tensor. PyPXR uses conventions in soft X-ray science so all optical parameters
 </div>
 <p>The current model can be viewed with the <code class="docutils literal notranslate"><span class="pre">structure.plot()</span></code> function. The resulting plot will give a summary of the complex tensor components as a function of depth from the film surface. Setting <code class="docutils literal notranslate"><span class="pre">difference=True</span></code> provides a complimentary plot of the film birefringence: (<span class="math notranslate nohighlight">\(\delta_{xx} - \delta_{zz}\)</span>) and the dichroism: (<span class="math notranslate nohighlight">\(\beta_{xx} - \beta_{zz})\)</span>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">structure</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">difference</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span></span><span class="n">structure</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -542,18 +545,11 @@ a tensor. PyPXR uses conventions in soft X-ray science so all optical parameters
  &lt;AxesSubplot:xlabel=&#39;zed / $\\AA$&#39;, ylabel=&#39;Index of refraction&#39;&gt;)
 </pre></div></div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../../_images/source_DataModeling_PyPXR_Tutorials_14_1.png" src="../../_images/source_DataModeling_PyPXR_Tutorials_14_1.png" />
-</div>
-</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/source_DataModeling_PyPXR_Tutorials_14_2.png" src="../../_images/source_DataModeling_PyPXR_Tutorials_14_2.png" />
+<img alt="../../_images/source_DataModeling_PyPXR_Tutorials_14_1.png" src="../../_images/source_DataModeling_PyPXR_Tutorials_14_1.png" />
 </div>
 </div>
 <p>Note that in addition to the individual components, the <em>delta</em> and <em>beta</em> profiles correspond to the normalized trace of the dielectric tensor. This is equivalent to the components of an <em>isotropic</em> material</p>
@@ -566,7 +562,7 @@ a tensor. PyPXR uses conventions in soft X-ray science so all optical parameters
 <h2>Calculating polarized X-ray reflectivity<a class="headerlink" href="#Calculating-polarized-X-ray-reflectivity" title="Permalink to this headline">¶</a></h2>
 <p>Now that we have a preliminary model, we can define an X-ray probe through the <code class="docutils literal notranslate"><span class="pre">PXR_ReflectModel</span></code> object.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -578,7 +574,7 @@ a tensor. PyPXR uses conventions in soft X-ray science so all optical parameters
 <p><code class="docutils literal notranslate"><span class="pre">PXR_ReflectModel</span></code> requires two additional inputs to specify the incident X-rays: <code class="docutils literal notranslate"><span class="pre">pol</span></code> is used to define the linear polarization state, and <code class="docutils literal notranslate"><span class="pre">en</span></code> is used to specify the photon energy. Any <code class="docutils literal notranslate"><span class="pre">PXR_Slab</span></code> or <code class="docutils literal notranslate"><span class="pre">PXR_MaterialSLD</span></code> that requires an input photon energy will be updated at this time. It is not necessary to create a substrate object for each energy you wish to fit.</p>
 <p>We can plot each profile given the input model and a set of q-values to take a measurement.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -593,12 +589,12 @@ a tensor. PyPXR uses conventions in soft X-ray science so all optical parameters
 </div>
 </div>
 <div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;matplotlib.legend.Legend at 0x22cc290fb48&gt;
+&lt;matplotlib.legend.Legend at 0x1b9860aa970&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -802,7 +798,7 @@ Parameters:      None
 &lt;Parameter:&#39;posaconazole_ixx&#39;, value=0.000113          , bounds=[0.0, 0.01]&gt;
 &lt;Parameter:&#39;posaconazole_zz&#39;, value=-0.0004          , bounds=[-0.01, -1e-05]&gt;
 &lt;Parameter:&#39;posaconazole_izz&#39;, value=0.00028          , bounds=[0.0, 0.01]&gt;
-&lt;Parameter:&#39;posaconazole_rough&#39;, value=0.5          , bounds=[0.2, 20.0]&gt;
+&lt;Parameter:&#39;posaconazole_rough&#39;, value=2          , bounds=[0.2, 20.0]&gt;
 &lt;Parameter: &#39;SiO2_thick&#39;  , value=12          , bounds=[5.0, 20.0]&gt;
 &lt;Parameter: &#39;SiO2_rough&#39;  , value=1          , bounds=[2.0, 10.0]&gt;
 </pre></div></div>
@@ -813,7 +809,7 @@ Parameters:      None
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">fitter</span> <span class="o">=</span> <span class="n">CurveFitter</span><span class="p">(</span><span class="n">objective</span><span class="p">)</span>
+<span></span><span class="n">fitter</span> <span class="o">=</span> <span class="n">CurveFitter</span><span class="p">(</span><span class="n">objective</span><span class="p">,</span> <span class="n">nwalkers</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
 <span class="c1"># Optionalal change to the initialization. Begin chains near initial conditions</span>
 <span class="n">fitter</span><span class="o">.</span><span class="n">initialise</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="s1">&#39;jitter&#39;</span><span class="p">)</span>
 </pre></div>
@@ -827,13 +823,13 @@ Parameters:      None
 </pre></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[52]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">chain</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">2000</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">246681</span><span class="p">)</span> <span class="c1"># seed random number generator for repeatability</span>
-<span class="n">fitter</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
-<span class="n">chain</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">991166</span><span class="p">)</span>
+<span></span><span class="n">chain</span> <span class="o">=</span> <span class="n">fitter</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">246681</span><span class="p">)</span> <span class="c1"># seed random number generator for repeatability</span>
+<span class="c1">#fitter.reset()</span>
+<span class="c1">#chain = fitter.sample(1000, random_state=991166)</span>
 </pre></div>
 </div>
 </div>
@@ -842,13 +838,12 @@ Parameters:      None
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-100%|██████████████████████████████████████████████████████████████████████████████| 2000/2000 [04:04&lt;00:00,  8.19it/s]
-100%|██████████████████████████████████████████████████████████████████████████████| 1000/1000 [02:10&lt;00:00,  7.65it/s]
+100%|██████████████████████████████████████████████████████████████████████████████████| 10/10 [00:06&lt;00:00,  1.49it/s]
 </pre></div></div>
 </div>
 <p>We can now check on our results by replotting the updated <code class="docutils literal notranslate"><span class="pre">Objective</span></code></p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -859,7 +854,7 @@ Parameters:      None
 </div>
 </div>
 <div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -876,7 +871,7 @@ Text(0.5, 0, &#39;q [A-1]&#39;)
 </div>
 <p>Looks great! What about the orientation depth profile?</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -909,7 +904,7 @@ Text(0.5, 0, &#39;q [A-1]&#39;)
 <p>So we found that our best fit model has a highly oriented surface layer and less oriented bulk.</p>
 <p>We can now check on the final parameters</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -924,31 +919,23 @@ Text(0.5, 0, &#39;q [A-1]&#39;)
 <div class="highlight"><pre>
 ________________________________________________________________________________
 Parameters:      None
-&lt;Parameter:&#39;material2_thick&#39;, value=13.3816 +/- 0.0378, bounds=[5.0, 30.0]&gt;
-&lt;Parameter:&#39;material2_xx&#39; , value=-0.00116845 +/- 4.94e-06, bounds=[-0.01, -1e-05]&gt;
-&lt;Parameter:&#39;material2_ixx&#39;, value=0.000898114 +/- 5.6e-06, bounds=[0.0, 0.01]&gt;
-&lt;Parameter:&#39;material2_zz&#39; , value=-1.00429e-05 +/- 5.03e-08, bounds=[-0.01, -1e-05]&gt;
-&lt;Parameter:&#39;material2_izz&#39;, value=6.62665e-08 +/- 8.61e-08, bounds=[0.0, 0.01]&gt;
-&lt;Parameter:&#39;material2_rough&#39;, value=0.504337 +/- 0.00544, bounds=[0.5, 20.0]&gt;
-&lt;Parameter:&#39;posaconazole_thick&#39;, value=706.723 +/- 0.0338, bounds=[400.0, 900.0]&gt;
-&lt;Parameter:&#39;posaconazole_xx&#39;, value=-0.000452722 +/- 7.37e-07, bounds=[-0.01, -1e-05]&gt;
-&lt;Parameter:&#39;posaconazole_ixx&#39;, value=0.000135934 +/- 2.92e-07, bounds=[0.0, 0.01]&gt;
-&lt;Parameter:&#39;posaconazole_zz&#39;, value=-0.000525789 +/- 4.75e-07, bounds=[-0.01, -1e-05]&gt;
-&lt;Parameter:&#39;posaconazole_izz&#39;, value=0.000200092 +/- 2.3e-07, bounds=[0.0, 0.01]&gt;
-&lt;Parameter:&#39;posaconazole_rough&#39;, value=0.278076 +/- 0.0761, bounds=[0.2, 20.0]&gt;
-&lt;Parameter: &#39;SiO2_thick&#39;  , value=15.0222 +/- 0.0218, bounds=[5.0, 20.0]&gt;
-&lt;Parameter: &#39;SiO2_rough&#39;  , value=2.59499 +/- 0.0119, bounds=[2.0, 10.0]&gt;
+&lt;Parameter:&#39;material2_thick&#39;, value=15          , bounds=[5.0, 30.0]&gt;
+&lt;Parameter:&#39;material2_xx&#39; , value=-0.0004          , bounds=[-0.01, -1e-05]&gt;
+&lt;Parameter:&#39;material2_ixx&#39;, value=0.000627          , bounds=[0.0, 0.01]&gt;
+&lt;Parameter:&#39;material2_zz&#39; , value=-0.0005          , bounds=[-0.01, -1e-05]&gt;
+&lt;Parameter:&#39;material2_izz&#39;, value=3e-06          , bounds=[0.0, 0.01]&gt;
+&lt;Parameter:&#39;material2_rough&#39;, value=1          , bounds=[0.5, 20.0]&gt;
+&lt;Parameter:&#39;posaconazole_thick&#39;, value=711          , bounds=[400.0, 900.0]&gt;
+&lt;Parameter:&#39;posaconazole_xx&#39;, value=-0.00033          , bounds=[-0.01, -1e-05]&gt;
+&lt;Parameter:&#39;posaconazole_ixx&#39;, value=0.000113          , bounds=[0.0, 0.01]&gt;
+&lt;Parameter:&#39;posaconazole_zz&#39;, value=-0.0004          , bounds=[-0.01, -1e-05]&gt;
+&lt;Parameter:&#39;posaconazole_izz&#39;, value=0.00028          , bounds=[0.0, 0.01]&gt;
+&lt;Parameter:&#39;posaconazole_rough&#39;, value=2          , bounds=[0.2, 20.0]&gt;
+&lt;Parameter: &#39;SiO2_thick&#39;  , value=12          , bounds=[5.0, 20.0]&gt;
+&lt;Parameter: &#39;SiO2_rough&#39;  , value=1          , bounds=[2.0, 10.0]&gt;
 </pre></div></div>
 </div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span>
-</pre></div>
-</div>
-</div>
+<p>In order to achieve a unique structure with resonant reflectivity it is often convenient to measure multiple energies and refine the models simultaneously. Lets do this now,</p>
 </div>
 </div>
 
@@ -958,7 +945,7 @@ Parameters:      None
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="../references_home.html" class="btn btn-neutral float-right" title="References" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="PyPXR_MultiEnRefinement.html" class="btn btn-neutral float-right" title="Tutorial: Multi-Energy refinement" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
         <a href="../DataModeling_home.html" class="btn btn-neutral float-left" title="Modeling/Fitting with PyPXR:" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 

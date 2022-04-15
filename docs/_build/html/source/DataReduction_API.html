@@ -517,7 +517,7 @@ Red rectangle represents the dark frame.</p>
 
 <dl class="py method">
 <dt id="pypxr.prsoxr_loader.PrsoxrLoader.to_hdf5">
-<code class="sig-name descname">to_hdf5</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em>, <em class="sig-param"><span class="n">hdf5_name</span></em>, <em class="sig-param"><span class="n">save_images</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">compress</span><span class="o">=</span><span class="default_value">'gzip'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pypxr/prsoxr_loader.html#PrsoxrLoader.to_hdf5"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypxr.prsoxr_loader.PrsoxrLoader.to_hdf5" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_hdf5</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em>, <em class="sig-param"><span class="n">hdf5_name</span></em>, <em class="sig-param"><span class="n">save_images</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">compress</span><span class="o">=</span><span class="default_value">'gzip'</span></em>, <em class="sig-param"><span class="n">en_offset</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pypxr/prsoxr_loader.html#PrsoxrLoader.to_hdf5"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pypxr.prsoxr_loader.PrsoxrLoader.to_hdf5" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function to save the calculated reflectivity as a .hdf5 file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -526,6 +526,7 @@ Red rectangle represents the dark frame.</p>
 <li><p><strong>hdf5_name</strong> (<em>str</em>) – Name of hdf5 file to save data.</p></li>
 <li><p><strong>save_images</strong> (<em>Boolean</em>) – Option to save each image along with the processed data.</p></li>
 <li><p><strong>compress</strong> (<em>str</em>) – Type of compression for image files.</p></li>
+<li><p><strong>en_offset</strong> (<em>float</em>) – Optional offset to apply to naming convention. Use if energy offset was applied BEFORE taking data.</p></li>
 </ul>
 </dd>
 </dl>
