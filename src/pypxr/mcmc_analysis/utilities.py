@@ -55,22 +55,22 @@ def load_prsoxr_hdf5(file, path):
         out_en['en'] = energy
         for i in index:
             out_en_pol = out_en['p'+str(int(pol_list[i]))] = hdf5_data[i]
-        
+
     return out
-    
+
 class LogpExtra_rough(object):
     def __init__(self, objective):
         # we'll store the parameters and objective in this object
         # this will be necessary for pickling in the future
         self.objective = objective ##Full list of parameters
-        
+
     def __call__(self, model, data):
-        ##First constraint condition --- 
+        ##First constraint condition ---
         ##Load Parameters of interest for each objective
         for pars in self.objective.parameters:
             thick_pars = sort_pars(pars.flattened(),'thick')
             rough_pars = sort_pars(pars.flattened(),'rough')
-            ##Check that the roughness is not out of control 
+            ##Check that the roughness is not out of control
             for i, rough in enumerate(rough_pars[1:-1], start=1): ##Sort through the layers
                 interface_limit = np.sqrt(2*np.pi)*rough.value/2
                 top = [(thick_pars[i-1].value - interface_limit) < 0, thick_pars[i-1].value != 0]
@@ -79,7 +79,7 @@ class LogpExtra_rough(object):
                     return -np.inf
         return 0 ##If all the layers are within the constraint return 0
 
-    
+
     ##Function to sort through ALL parameters in an objective and return based on name keyword
     ##Returns a list of parameters for further use
 def sort_pars(pars, str_check, vary=None):
@@ -117,15 +117,6 @@ def build_tensor(complex_inputs):
         dzz = r - (2/3)*dr
         bzz = i - (2/3)*di
         nzz = dzz + 1j*bzz
-        
+
         out.append(np.diag([nxx, nxx, nzz]))
     return out
-    
-    
-    
-    
-    
-    
-    
-    
-    
