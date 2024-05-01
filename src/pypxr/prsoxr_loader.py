@@ -25,34 +25,34 @@ metertoang = 10 ** 10
 class PrsoxrLoader:
     """
     Class to load PRSoXR data from beamline 11.0.1.2 at the ALS
-    
+
     Parameters
     -----------
     files : list
         List of .fits to be loaded. Include full filepaths
-        
+
         >>> #Recommended Usage
         >>> import pathlib
         >>> path_s = pathlib.Path('../ALS/2020 Nov/MF114A/spol/250eV')
         >>> files = list(path_s.glob('*fits')) # All .fits in path_s
-        
+
         The newly created 'files' is now a list of filepaths to each reflectivity point.
-    
+
     name : str
         Name associated with the dataset. Will be used when saving data.
-    
+
     mask : np.ndarray (Boolean)
         Array with dimensions equal to an image. Elements set to `False` will be excluded when finding beamcenter.
-        
+
     autoload : Boolean
         Set to false if you do not want to load the data upon creation of object.
-        
+
     Attributes
     -----------
     name : str
         Human readable string that describes the dataset to be loaded. See 'name' parameter
     mask : np.ndarray (Bool)
-        Data mask to be applied to all images. 
+        Data mask to be applied to all images.
     files : list
         List of filepaths
     shutter_offset : float
@@ -91,12 +91,12 @@ class PrsoxrLoader:
         Dizinger intensity threshold to remove 'hot' pixels.
     diz_size : int
         Size of box to average to remove 'hot' pixels.
-        
+
     Notes
     ------
-    
+
     Print the loader to view variables that will be used in reduction. Update them using the attributes listed in this API.
-    
+
     >>> loader = PrsoxrLoader(files, name='MF114A_spol')
     >>> print(loader) #Default values
         Sample Name - MF114A
@@ -120,14 +120,14 @@ class PrsoxrLoader:
         Dizinger Size = 3
     >>>loader.shutter_offset = 0.004 #Update the shutter offset
     >>>
-        
+
     Once process attributes have been setup by the user, the function can be called to load the data. An ROI will need
     to be specified at the time of processing. Use the ``self.check_spot()`` function to find appropriate dimensions.
-    
+
     >>> refl = loader(h=40, w=30)
-    
+
     Data that has been loaded can be exported using the ``self.save_csv(path)`` and ``self.save_hdf5(path)`` functions.
-    
+
     """
 
     def __init__(self, files, name=None, mask=None, autoload=True):
@@ -149,7 +149,7 @@ class PrsoxrLoader:
         self.variable_motors = ['Higher Order Suppressor', 'Horizontal Exit Slit Size']
         self._process_height = 25 # [pixels]
         self._process_width = 25 # [pixels]
-        
+
         # Image stats
         self.imagex = 200
         self.imagey = 200
@@ -212,25 +212,25 @@ class PrsoxrLoader:
 
     def __call__(self, h=25, w=25, tol=2, q_correct=False, sadet=130, pixel_dim=0.027):
         """
-        
+
         """
         refl = self._calc_refl(h, w, q_correct=q_correct, sadet=sadet, pixel_dim=pixel_dim)
         return refl
-        
+
     def __len__(self):
         return len(self.files)
-        
+
     @property
     def process_vars(self):
         """
         Compilation of variables used in data reduction.
-        
-        
+
+
         Returns
         --------
             process_vars : dict
                 Dictionary of all variables used for data reduction.
-        
+
         """
         self._process_vars['shutter_offset'] = self.shutter_offset
         self._process_vars['sample_location'] = self.sample_location
@@ -247,33 +247,33 @@ class PrsoxrLoader:
         self._process_vars['box_height'] = self._process_height
         self._process_vars['box_width'] = self._process_width
         self._process_vars['mask'] = self.mask
-        
+
         return self._process_vars
 
 
     def check_spot(self, file, h=18, w=15, d=True):
         """
-        Function to quickly load, reduce, and display a single frame. 
-        
+        Function to quickly load, reduce, and display a single frame.
+
         Parameters
         ----------
-            file : int 
+            file : int
                 Frame index to view. Extracts data from self.image and self.meta
-                
+
             h : int (even number)
                 height of ROI used to calculate reflectivity. Center is defined as pixel with hightest magnitude.
-            
+
             w : int (even number)
                 width of ROI used to calculate reflectivity. Center is defined as pixel with hightest magnitude.
 
-            d : Boolean 
+            d : Boolean
                 Display a summary plot
-                
+
         Returns
         --------
             processed images : list
                 Arrays of the following images: Raw Image, Median Filter, Beam spot, dark frame
-                
+
         Notes
         ------
         Process a single image according to chosen process variables.
@@ -281,7 +281,7 @@ class PrsoxrLoader:
         Output will include important motor positions for the select file.
         If d==1, the images will be displayed according to the output. Black rectangle represents the beam spot.
         Red rectangle represents the dark frame.
-        
+
         >>> #Quickly verify image stats
         >>> frame = loader.check_spot(file=11, h=40, w=20)
             Exposure: 0.00100000004749745
@@ -301,7 +301,7 @@ class PrsoxrLoader:
             SNR: 7.32473842849224
             Beam center (85, 51)
         >>>
-        
+
         """
 
         # Load frame if it is not yet loaded:
@@ -371,68 +371,68 @@ class PrsoxrLoader:
             plt.show()
 
         return [image[dx:-dx, dy:-dy], image_avg, image_spot, image_dark] # Remove the edge, always
-        
+
     def to_csv(self, path, save_name, save_meta=True):
         """
         Function to save the calculated reflectivity as a .csv file
-        
+
         Parameters
         ----------
-            path : str 
+            path : str
                 Directory that you want to save your data.
-                
+
             save_name : str
                 Name of output file
-                
+
             save_meta : Boolean
                 Option to save compilation of meta data along with reflectivity
-                
-                
+
+
         Notes
         ------
         Will create a folder /meta_data/ if it does not exist in 'path' directory to save meta_data
-        
-        
+
+
         """
-        
+
         if self.refl is None:
             print('Process data prior to saving it')
             return 0
-            
+
         if save_meta and self.meta is not None:
             if not os.path.exists((path+'meta_data/')):
                 os.makedirs((path+'meta_data/'))
             self.meta.to_csv((path+'meta_data/' + save_name + '_META.csv'), index=False)
-                
+
         self.refl.to_csv((path+save_name+'.csv'), index=False)
-        
-        
+
+
     def to_hdf5(self, path, hdf5_name, save_images=False, compress='gzip', en_offset=0):
         """
         Function to save the calculated reflectivity as a .hdf5 file
-        
+
         Parameters
         ----------
-            path : str 
+            path : str
                 Directory that you want to save your data.
-                
+
             hdf5_name : str
                 Name of hdf5 file to save data.
-                
+
             save_images : Boolean
                 Option to save each image along with the processed data.
-                
+
             compress : str
                 Type of compression for image files.
-                
+
             en_offset : float
                 Optional offset to apply to naming convention. Use if energy offset was applied BEFORE taking data.
-                
+
         Notes
         ------
         Able to save multiple scans to the same .hdf5 file by giving the same ``hdf5_name``. This allows you to compile all measurements on a single sample into a single file.
         The .hdf5 folder structure will be as follows::
-        
+
             SAMPLE_NAME
                 MEASUREMENT
                     EN_1 # Energy
@@ -447,13 +447,13 @@ class PrsoxrLoader:
                             Data
                                 ...
                     En_2
-                        ...        
-        
+                        ...
+
         """
         if self.refl is None:
             print('Process data prior to saving it')
             return 0
-            
+
         data = self.refl.to_numpy()# {'DATA' : self.refl}
         with h5py.File((path+hdf5_name+'.hdf5'), 'a') as file_hdf5:
             # Create HDF5structure for saving data
@@ -475,7 +475,7 @@ class PrsoxrLoader:
                     except RuntimeError:
                         pass
                     for key, value in self.meta.iloc[index].items():
-                        image_folder.attrs[key] = value                           
+                        image_folder.attrs[key] = value
             # Save process variables
             #data_group = scan_label.require_group('DATA')
             save_vars = self.process_vars
@@ -491,12 +491,12 @@ class PrsoxrLoader:
 
     def _calc_refl(self, h=25, w=25, tol=2, q_correct=False, sadet=130, pixel_dim=0.027):
         """
-        Function that performs a complete data reduction of prsoxr data 
+        Function that performs a complete data reduction of prsoxr data
         """
-        
+
         self._process_height = h
         self._process_width = w
-        
+
         self._reduce_2d_images(h=h, w=w, tol=2)
         self._normalize_data()
         self._find_stitch_points()
@@ -511,8 +511,8 @@ class PrsoxrLoader:
 
     def _reduce_2d_images(self, h=25, w=25, tol=2):
         """
-        
-        Internal function that calculates the reduced specular reflectivity of all files within ``self.files `` 
+
+        Internal function that calculates the reduced specular reflectivity of all files within ``self.files ``
 
         """
         data = []
@@ -562,9 +562,9 @@ class PrsoxrLoader:
 
     def _normalize_data(self):
         """
-        
+
         Internal function that normalizes ``self.image_data`` to the direct beam and updates ``self.normalized_data``
-        
+
         """
         refl = pd.concat([self.image_data, self.meta[self.variable_motors].round(1)], axis=1)
 
@@ -578,12 +578,12 @@ class PrsoxrLoader:
 
         refl['R_err'] = np.sqrt((refl['R'] / i0) ** 2 * ((refl['R_err'] / refl['R']) ** 2 + (i0_err / i0) ** 2))
         refl['R'] = refl['R'] / i0
-        
+
         # Save some values
         self.i0 = i0
         self.i0_err = i0_err
         self.i0_vals = i0_cutoff
-        
+
         self.normalized_data = refl.drop(refl.index[:i0_cutoff])
 
     def _find_stitch_points(self):
@@ -676,11 +676,11 @@ class PrsoxrLoader:
     def _stitch_refl(self):
         """
         Internal function that stitches the full profile together.
-        
+
         Returns
         -------
         refl_final : pandas.Dataframe
-            Normalized and stitched reflectivity profile. 
+            Normalized and stitched reflectivity profile.
         """
         refl = self.normalized_data
         refl_corr = []
@@ -713,7 +713,7 @@ class PrsoxrLoader:
         """
         Quickly update image stats and offsets based on first data-point.
         Common practice has this at frame 10.
-        
+
         """
 
         meta = self.meta.iloc[frame]
@@ -738,8 +738,8 @@ class PrsoxrLoader:
         self.angle_offset = -1*round(meta['CCD Theta'] / 2 + self.sample_location - meta['Sample Theta'], 3)
 
         return meta
-        
-        
+
+
     def _calc_beam_drift(self, sadet=130, pixel_dim=0.027):
         """
         Update the q-position at each point to account for any relative misalignment of the sample
@@ -750,29 +750,29 @@ class PrsoxrLoader:
         I0_loc = df.loc[0] # Where is the direct beam relative to the CCD
         df['I0dispX'] = I0_loc.pixX - df['pixX'] # Find difference from expected reflection in terms of pixels
         df['I0dispY'] = I0_loc.pixY - df['pixY'] # Find difference from expected reflection in terms of pixels
-        
+
         df['dispX'] = df['I0dispX'] * 0.027 # Convert pixels into cm
         df['dispY'] = df['I0dispY'] * 0.027 # Convert pixels into cm
 
         df['dispX_theta'] = np.arctan(df['dispX']/sadet)*180/np.pi
         df['dispY_theta'] = np.arctan(df['dispY']/sadet)*180/np.pi
-        
+
         df['wavelength'] = metertoang * planck * sol / round(self.meta['Beamline Energy'] + self.energy_offset, 1)
-        df['q_offset'] = 4*np.pi/df['wavelength']*np.sin(df['dispY_theta']*np.pi/180/2)    
-        
+        df['q_offset'] = 4*np.pi/df['wavelength']*np.sin(df['dispY_theta']*np.pi/180/2)
+
         self.beam_drift = df
         return self.beam_drift
-        
+
 
 
 def slice_spot(image, h=20, w=20, mask=None, edge_trim=(5, 5), diz_threshold=10, diz_size=3):
     """
-    
+
     Slice an image around the pixel with the highest counts.
-    
+
     Parameters
     ----------
-        image : np.ndarray 
+        image : np.ndarray
             Image to process.
         h : int (even)
             height of ROI used to calculate reflectivity. Center is defined as pixel with highest magnitude.
@@ -820,7 +820,7 @@ def slice_dark(image, h=20, w=20, mask=None, edge_trim=(5, 5), beamspot=(75, 75)
     """
     Parameters
     ----------
-        image : np.ndarray 
+        image : np.ndarray
             Image to process.
         h : int (even)
             height of ROI used to calculate reflectivity. Center is defined as pixel with highest magnitude.
@@ -867,14 +867,14 @@ def slice_dark(image, h=20, w=20, mask=None, edge_trim=(5, 5), beamspot=(75, 75)
 def load_prsoxr_fits(files):
     """
         Parses every .fits file given in ``files`` and returns the meta and image data
-        
+
         Returns
         -------
         images : list
             List of each image file associated with the .fits
         meta : pd.Dataframe
             pandas dataframe composed of all meta data for each image
-        
+
         """
     temp_meta = {}
     out_images = []

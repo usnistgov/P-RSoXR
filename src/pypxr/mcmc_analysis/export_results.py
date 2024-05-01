@@ -5,7 +5,7 @@ Updated 08/05/2021 For GitHub
 
 
 """
-# Basic imports Items - 
+# Basic imports Items -
 import os.path
 import sys
 import numpy as np
@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import pickle
 import corner
+from typing_extensions import deprecated
 
 from refnx.analysis import GlobalObjective, process_chain
 
@@ -26,7 +27,7 @@ except ImportError:
 
 
 """
-# This is the function you want -- 
+# This is the function you want --
 def export_mcmc_summary(save_path, save_name, fitter, burn_thresh=0.005, convergence_thresh=0.95, numpnts=512000):
 
     objective = fitter.objective
@@ -39,38 +40,38 @@ def export_mcmc_summary(save_path, save_name, fitter, burn_thresh=0.005, converg
         objective_processed = objective
     else:
         objective_processed = GlobalObjective([objective])
-        
+
     # Burn and thin chain to final distribution:
     chainmin_lp = np.max(logpost, axis=0) # Find the best fit for each chain - individual chain minima
     globalmin_lp = np.max(logpost) # Global minima of the fit
     numchain = np.shape(logpost)[1] #[0 - draws] [1 - Chains]
-    
+
     for nburn, array in enumerate(logpost): # Cycle through the draws to find if chain converges
         converge = np.abs(array - chainmin_lp)/np.abs(chainmin_lp) < burn_thresh # How close is each chain to the minima
         numpass = np.sum(converge) # How many have converged at this point
         if numpass/numchain > convergence_thresh: # Have enough converged?
             mask = np.abs(array - globalmin_lp)/np.abs(globalmin_lp) < burn_thresh # Throw away chains that don't reach the minima
             break
-            
+
     totalpoints = np.size(logpost[nburn:,mask]) # Total points not burned
     thinpnts = round(totalpoints/numpnts) # Calculate the number to thin based on desired points
     nthin = thinpnts if thinpnts > 0 else 1 # Don't thin if you don't have enough points
 
     # Reprocess the chain with the appropriate
     processed_chain = process_chain(objective_processed, current_chain[:,mask,:], nburn=nburn, nthin=nthin, flatchain=True)
-    
+
     with open(os.path.join(save_path + save_name+"_fitter.pkl"), 'wb+') as f:
         pickle.dump(fitter, f)
     with open(os.path.join(save_path + save_name+"_obj_processed.pkl"), 'wb+') as f:
         pickle.dump(objective_processed, f)
-    
+
     save_logpost(path=save_path, fitter=fitter)
     save_chains(path=save_path, objective=objective_processed, chain_processed=processed_chain)
     save_fitresults(path=save_path, objective=objective_processed, save_name=save_name)
     save_PSoXR(path=save_path, objective=objective_processed, save_name=save_name)
     save_depthprofile(path=save_path, objective=objective_processed, save_name=save_name)
     save_corner(path=save_path, objective=objective_processed)
-    
+
 def save_logpost(path, fitter):
     lp = fitter.logpost
     fig, ax = plt.subplots(1, 1, figsize=(5,4), constrained_layout=True)
@@ -79,16 +80,16 @@ def save_logpost(path, fitter):
     ax.set_xlabel('Generation [#]')
     plt.savefig(os.path.join(path, 'logpost.png'), dpi=100)
     plt.close()
-    
+
 def save_chains(path, objective, chain_processed):
     # Make a folder to save each chain plot
     savepath = path + 'chain_stats/'
     if not os.path.exists(savepath):
         os.makedirs(savepath)
-    
+
     labels = objective.varying_parameters().names()
     num = len(labels)
-    
+
     for i in range(num):
         fig, ax = plt.subplots(1,1,figsize=(4, 2), constrained_layout=True)
         temp_chain = chain_processed[i].chain
@@ -97,14 +98,14 @@ def save_chains(path, objective, chain_processed):
         ax.set_xlabel('Generation [#]', fontsize=10)
         plt.savefig(os.path.join(savepath + labels[i] + '.png'), dpi=100)
         plt.close()
-        
+
 def save_fitresults(path, objective, save_name):
     import numpy as np
     import pandas as pd
     from scipy.stats import norm
-    
+
     filename = save_name + '_Results.xlsx';
-    
+
     with pd.ExcelWriter(os.path.join(path + filename)) as writer:
         for objective in objective.objectives:
             name = str(objective.name)
@@ -145,7 +146,7 @@ def save_fitresults(path, objective, save_name):
             # Save results
             out.index = index_list
             out.to_excel(writer, sheet_name=(name+'_Values'))
-            
+
             # Save Histogram
             hist_stats = pd.DataFrame(hist_header)
             hist_stats.index = ['bin_min', 'bin_max', 'bin_diff']
@@ -163,7 +164,7 @@ def save_PSoXR(path, objective, save_name):
     import pandas as pd
 
     filename = save_name + '_Profs.xlsx'
-    
+
     with pd.ExcelWriter(os.path.join(path + filename)) as writer:
         for i, objective in enumerate(objective.objectives):
 
@@ -188,7 +189,7 @@ def save_PSoXR(path, objective, save_name):
             # Organize based on pol
             if len(datapol) == 2: # Is it a concatenated model?
                 init_loc = [0, np.argmax(np.abs(np.diff(data.data[0]))) + 1]
-                swap_loc = [np.argmax(np.abs(np.diff(data.data[0]))) + 1, -1] #Run up until the last value in the 
+                swap_loc = [np.argmax(np.abs(np.diff(data.data[0]))) + 1, -1] #Run up until the last value in the
             else:
                 init_loc = [0, 0]
                 swap_loc = [-1, -1]
@@ -212,12 +213,12 @@ def save_PSoXR(path, objective, save_name):
                     prettymodel_qvals = np.linspace(lowq, highq, 1000) + offset
                     prettymodel_refl = model.model(prettymodel_qvals)
 
-                    sheetname = name + '_' + energy_name + '_' + polname 
+                    sheetname = name + '_' + energy_name + '_' + polname
                     cols = ['qvals', str('refl_'+pol+'pol'), str('reflu_'+pol+'pol'), str('model_'+pol+'pol'), str('res_'+pol+'pol')]
                     cols_interp = ['qvals_interp', 'model_'+pol+'pol']
                     output = pd.DataFrame(np.array([data_qvals, data_refl, data_err, model_refl, model_res]).T, columns=cols)
                     output_interp = pd.DataFrame(np.array([prettymodel_qvals, prettymodel_refl]).T, columns=cols_interp)
-                    
+
                     # Save results to spreadsheet
                     output.to_excel(writer, sheet_name=(sheetname + '.xlsx'))
                     output_interp.to_excel(writer, sheet_name=(sheetname + '_interp.xlsx'))
@@ -251,11 +252,11 @@ def save_PSoXR(path, objective, save_name):
                     # Save Figure
                     plt.savefig(os.path.join(path, name + '_' + energy_name + '_' + pol + 'pol' + '.png'),dpi=200)
                     plt.close()
-        
-        
+
+
 def save_depthprofile(path, objective, save_name):
     import pandas as pd
-    
+
     filename = save_name + '_DepthProfiles.xlsx'
     with pd.ExcelWriter(os.path.join(path + filename)) as writer:
 
@@ -276,14 +277,14 @@ def save_depthprofile(path, objective, save_name):
                 'dxx' : np.real(prof[:, 0]), 'bxx' : np.imag(prof[:, 0]), 'dyy' : np.real(prof[:, 1]), 'byy' : np.imag(prof[:, 1]), 'dzz' : np.real(prof[:, 2]), 'bzz': np.imag(prof[:, 1])
             }
             df = pd.DataFrame(depthprofile)
-            
+
             # Save to spreadsheet
             df.to_excel(writer, sheet_name=(structurename+'_prof'))
 
             # Plot results
             fig_depthprofile, ax_dp = plt.subplots(1,1, figsize=(4,3))
             df.plot(ax=ax_dp, x='zed', y='delta_trace', color=['#0072B2'], lw=1.5)
-            df.plot(ax=ax_dp, x='zed', y='beta_trace', color=['#D55E00'], lw=1.5)        
+            df.plot(ax=ax_dp, x='zed', y='beta_trace', color=['#D55E00'], lw=1.5)
 
             df.plot(ax=ax_dp, x='zed', y='dxx', style=[':'], color=['#0072B2'], lw=1, legend=False); df.plot(ax=ax_dp, x='zed', y='dzz', style=['--'],color=['#0072B2'], lw=1, legend=False)
             df.plot(ax=ax_dp, x='zed', y='bxx', style=[':'], color=['#D55E00'], lw=1, legend=False); df.plot(ax=ax_dp, x='zed', y='bzz', style=['--'], color=['#D55E00'], lw=1, legend=False)
@@ -329,33 +330,34 @@ def save_corner(path, objective):
                 ax.xaxis.set_label_coords(0.5,-0.4)
                 ax.tick_params(axis='both', which='major', labelsize=12)
 
-            
+
         plt.savefig(os.path.join(path, 'corner_'+name+'.png'),dpi=100)
         plt.close()
-        
+
+@deprecated("Function `save_integratedtime` is deprecated and will throw an exception")
 def save_integratedtime(objective, input_chain, name='auto_correlation_time'):
     import numpy as np
     list_name = objective.varying_parameters().names()
-    
+
     labels = np.full(len(list_name) ,'',dtype=object)
     auto = np.full(len(list_name) ,0 ,dtype=float)
 
-    
+
     for i in range(len(list_name)):
         labels[i] = list_name[i]
         temp_chain = input_chain[i].chain
         auto[i] = integrated_time(temp_chain[i],quiet=True)
-    
+
     out = np.rollaxis(np.array([labels,auto]),1,0)
     np.savetxt(name + '.txt',out,fmt="%s, %f",delimiter=',')
-    
-        
+
+
 def save_correlation_diagram(path, corr, name):
     import seaborn as sns
     fig, ax = plt.subplots(figsize=(10,10))
-    
+
     sns.heatmap(
-        corr.round(decimals=1), 
+        corr.round(decimals=1),
         vmin=-1, vmax=1, center=0,
         cmap=sns.diverging_palette(240, 10, n=200),
         square=True,
@@ -375,12 +377,10 @@ def save_correlation_diagram(path, corr, name):
         ax.get_yticklabels(),
         fontsize=12
     )
-    
+
     # Got this from stackexchange...works by changing fontsize
     cbar = ax.collections[0].colorbar
     cbar.ax.tick_params(labelsize=12)
-    
+
     plt.savefig(os.path.join(path, name + '_corr_plot.png'),dpi=200)
     plt.close()
-
-    
