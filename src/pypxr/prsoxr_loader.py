@@ -889,7 +889,7 @@ def load_prsoxr_fits(files):
         if i == 0:
             out_meta = pd.DataFrame(temp_meta, index=[i])
         else:
-            out_meta = out_meta.append(pd.DataFrame(temp_meta, index=[i]))
+            out_meta = pd.concat([out_meta,pd.DataFrame(temp_meta, index=[i])],axis=0)  
 
     return out_images, out_meta
 
