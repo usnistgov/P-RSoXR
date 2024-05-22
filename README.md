@@ -19,7 +19,7 @@ Results produced from the main-branch uniaxial calculation have been published a
 ### Contact information:
  - Authors: Thomas J. Ferron & Daniel F. Sunday
  - Affiliation: Materials Measurement Laboratory / Material Science and Engineering Division / Polymers Processing Group
- - Website: 
+ - Website:
     - [Detailed Documentation (ReadTheDocs)](https://p-rsoxr.readthedocs.io/en/latest/)
     - [Resonant Soft X-ray Scattering Group](https://www.nist.gov/programs-projects/resonant-soft-x-ray-scattering-rsoxs)
  - Email: daniel.sunday@nist.gov

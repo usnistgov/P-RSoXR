@@ -21,33 +21,32 @@ DEALINGS IN THIS SOFTWARE.
 
 """
 
-from collections import UserList
 import numbers
 import operator
+from collections import UserList
 
 import numpy as np
-from scipy.stats import norm
-from scipy.interpolate import interp1d
-
-from refnx.analysis import Parameters, Parameter, possibly_create_parameter
+from refnx.analysis import Parameter, Parameters, possibly_create_parameter
 from refnx.reflect.interface import Erf, Step
+from scipy.interpolate import interp1d
+from scipy.stats import norm
 
-try: # Check for pip install
+try:  # Check for pip install
     from pypxr.reflectivity import PXR_reflectivity
 except ImportError:
     from reflectivity import PXR_reflectivity
-#from pypxr.reflectivity import PXR_reflectivity
+# from pypxr.reflectivity import PXR_reflectivity
 
 speed_of_light = 299792458  # m/s
 plank_constant = 4.135667697e-15  # ev*s
 hc = (speed_of_light * plank_constant) * 1e10  # ev*A
 
-tensor_index = ['xx', 'yy', 'zz']  # Indexing for later definitions
+tensor_index = ["xx", "yy", "zz"]  # Indexing for later definitions
 
 """
-Class structure is closely related to the foundations built by refnx. 
+Class structure is closely related to the foundations built by refnx.
 It was designed so prior knowledge of one software will interface with the other.
-The prefix 'PXR' (Resonant X-ray Reflectivity) will designate the objects required for working with 
+The prefix 'PXR' (Resonant X-ray Reflectivity) will designate the objects required for working with
 polarized resonant soft X-ray reflectivity data. See class PXR_SLD for information on open tensor parameters.
 
 Only Gaussian roughness is supported at this time.
@@ -61,7 +60,7 @@ class PXR_Structure(UserList):
 
     Parameters
     ----------
-    
+
     components : sequence
         A sequence of PXR_Components to initialise the PXR_Structure.
     name : str
@@ -83,10 +82,12 @@ class PXR_Structure(UserList):
     >>> #Make the structure
     >>> #See 'PXR_Slab' for details on building layers
     >>> structure = vac(0,0) | molecule(100, 2) | sio2(15, 1.5) | si(1, 1.5)
-    
+
     """
 
-    def __init__(self, components=(), name='', reverse_structure=False):  # Removed solvent parameter
+    def __init__(
+        self, components=(), name="", reverse_structure=False
+    ):  # Removed solvent parameter
         super(PXR_Structure, self).__init__()
         self._name = name
 
@@ -106,19 +107,21 @@ class PXR_Structure(UserList):
 
     def __str__(self):
         s = list()
-        s.append('{:_>80}'.format(''))
-        s.append('Structure: {0: ^15}'.format(str(self.name)))
-        s.append('reverse structure: {0}'.format(str(self.reverse_structure)))
+        s.append("{:_>80}".format(""))
+        s.append("Structure: {0: ^15}".format(str(self.name)))
+        s.append("reverse structure: {0}".format(str(self.reverse_structure)))
 
         for component in self:
             s.append(str(component))
 
-        return '\n'.join(s)
+        return "\n".join(s)
 
     def __repr__(self):
-        return ("Structure(components={data!r},"
-                " name={_name!r},"
-                " reverse_structure={_reverse_structure},".format(**self.__dict__))
+        return (
+            "Structure(components={data!r},"
+            " name={_name!r},"
+            " reverse_structure={_reverse_structure},".format(**self.__dict__)
+        )
 
     def append(self, item):
         """
@@ -134,8 +137,7 @@ class PXR_Structure(UserList):
             return
 
         if not isinstance(item, PXR_Component):
-            raise ValueError("You can only add PXR_Component objects to a"
-                             " structure")
+            raise ValueError("You can only add PXR_Component objects to a" " structure")
         super(PXR_Structure, self).append(item)
 
     @property
@@ -181,19 +183,24 @@ class PXR_Structure(UserList):
         Notes
         -----
         If `PXR_Structure.reversed is True` then the slab representation order is
-        reversed. 
+        reversed.
         """
         if not len(self):
             return None
 
-        if not (isinstance(self.data[-1], PXR_Slab) and
-                isinstance(self.data[0], PXR_Slab)):
-            raise ValueError("The first and last PXR_Components in a PXR_Structure"
-                             " need to be PXR_slabs")
+        if not (
+            isinstance(self.data[-1], PXR_Slab) and isinstance(self.data[0], PXR_Slab)
+        ):
+            raise ValueError(
+                "The first and last PXR_Components in a PXR_Structure"
+                " need to be PXR_slabs"
+            )
         # PRSoXR only supports Gaussian interfaces as of 07/2021
         # Potentially be added in the future, please contact developer if interested.
 
-        sl = [c.slabs(structure=self) for c in self.components]  # concatenate PXR_Slab objects
+        sl = [
+            c.slabs(structure=self) for c in self.components
+        ]  # concatenate PXR_Slab objects
         try:
             slabs = np.concatenate(sl)
         except ValueError:
@@ -206,13 +213,13 @@ class PXR_Structure(UserList):
             roughnesses = slabs[1:, 3]
             slabs = np.flipud(slabs)
             slabs[1:, 3] = roughnesses[::-1]
-            slabs[0, 3] = 0.
+            slabs[0, 3] = 0.0
 
         return slabs
 
     def tensor(self, energy=None):
         """
-        
+
         Parameters:
         -----------
         energy: float
@@ -233,12 +240,12 @@ class PXR_Structure(UserList):
                dielectric component yy of layer N
             - tensor[N, 3, 3]
                dielectric component zz of layer N
-            
+
         Notes
         -----
         Output as a (3, 3) np.ndarray.
         Used for broadcasting in later calculations. All off-diagonal elements are zero.
-        
+
         If `Structure.reversed is True` then the representation order is
         reversed. Energy is required for energy-dependent slabs
 
@@ -255,7 +262,7 @@ class PXR_Structure(UserList):
             _tensor = np.flip(_tensor, axis=0)
         return _tensor
 
-    def reflectivity(self, q, energy=250.0, backend='uni'):
+    def reflectivity(self, q, energy=250.0, backend="uni"):
         """
         Calculate theoretical polarized reflectivity of this structure
 
@@ -263,7 +270,7 @@ class PXR_Structure(UserList):
         ----------
         q : array-like
             Q values (Angstrom**-1) for evaluation
-        energy : float 
+        energy : float
             Photon energy (eV) for evaluation
         backend : 'uni' or 'biaxial'
             Specifies if you want to run a uniaxial calculation or a full biaxial calculation.
@@ -271,13 +278,15 @@ class PXR_Structure(UserList):
 
         """
 
-        refl, tran, *components = PXR_reflectivity(q, self.slabs(), self.tensor(energy=energy), backend=backend)
+        refl, tran, *components = PXR_reflectivity(
+            q, self.slabs(), self.tensor(energy=energy), backend=backend
+        )
         return refl[:, 1, 1], refl[:, 0, 0], components
 
     def sld_profile(self, z=None, align=0):
         """
         Calculates an index of refraction depth profile as a function of distance from the superstrate.
-        
+
         Parameters
         -----------
         z : float
@@ -285,40 +294,44 @@ class PXR_Structure(UserList):
         align : int, optional
             Places a specified interface in the slab representation of a PXR_Structure at z =0.
             Python indexing is allowed to select interface.
-            
+
         Returns
         -------
-        
+
         zed : np.ndarray
             Interfacial distance measured from superstrate offset by 'align'.
             Has shape (N, )
         prof : np.ndarray (complex)
             Real and imaginary tensor components of index of refraction [unitless]
             Has shape (N, 3)
-            
+
             -prof[N, 0]
                 dielectric component n_xx at depth N
             -prof[N, 1]
                 dielectric component n_yy at depth N
             -prof[N, 3]
                 dielectric component n_xx at depth N
-        
+
         Notes
         -----
         >>> #To calculate the isotropic components
         >>> n_iso = prof.sum(axis=1)/3 #(nxx + nyy + nzz)/3
         >>> #To calculate the birefringence and dichroism
-        >>> diff = prof[:,0] - prof[:,2] #nxx-nzz        
-        
+        >>> diff = prof[:,0] - prof[:,2] #nxx-nzz
+
         """
         slabs = self.slabs()
         tensor = self.tensor()
-        if ((slabs is None) or
-                (len(slabs) < 2) or
-                (not isinstance(self.data[0], PXR_Slab)) or
-                (not isinstance(self.data[-1], PXR_Slab))):
-            raise ValueError("Structure requires fronting and backing"
-                             " Slabs in order to calculate.")
+        if (
+            (slabs is None)
+            or (len(slabs) < 2)
+            or (not isinstance(self.data[0], PXR_Slab))
+            or (not isinstance(self.data[-1], PXR_Slab))
+        ):
+            raise ValueError(
+                "Structure requires fronting and backing"
+                " Slabs in order to calculate."
+            )
 
         zed, prof = birefringence_profile(slabs, tensor, z)
 
@@ -326,13 +339,12 @@ class PXR_Structure(UserList):
         if align != 0:
             align = int(align)
             if align >= len(slabs) - 1 or align < -1 * len(slabs):
-                raise RuntimeError('abs(align) has to be less than '
-                                   'len(slabs) - 1')
+                raise RuntimeError("abs(align) has to be less than " "len(slabs) - 1")
             # to figure out the offset you need to know the cumulative distance
             # to the interface
-            slabs[0, 0] = slabs[-1, 0] = 0.  # Set the thickness of each end to zero
+            slabs[0, 0] = slabs[-1, 0] = 0.0  # Set the thickness of each end to zero
             if align >= 0:
-                offset = np.sum(slabs[:align + 1, 0])
+                offset = np.sum(slabs[: align + 1, 0])
             else:
                 offset = np.sum(slabs[:align, 0])
         return zed - offset, prof
@@ -407,7 +419,7 @@ class PXR_Structure(UserList):
         this structure.
 
         """
-        p = Parameters(name='Structure - {0}'.format(self.name))
+        p = Parameters(name="Structure - {0}".format(self.name))
         p.extend([component.parameters for component in self.components])
         return p
 
@@ -478,8 +490,7 @@ class PXR_Structure(UserList):
 
                 temp_zed, temp_prof = self.sld_profile(align=align)
                 temp_iso = temp_prof.sum(axis=1) / 3  # (nxx + nyy + nzz)/3
-                ax.plot(temp_zed, temp_iso,
-                        color="k", alpha=0.01)
+                ax.plot(temp_zed, temp_iso, color="k", alpha=0.01)
 
             # put back saved_params
             params.pvals = saved_params
@@ -487,14 +498,42 @@ class PXR_Structure(UserList):
         # parameters to plot
         zed, prof = self.sld_profile(align=align)
         iso = prof.sum(axis=1) / 3
-        ax.plot(zed, np.real(iso), color='red', zorder=20, label='delta')
-        ax.plot(zed, np.real(prof[:, 0]), color='orange', zorder=10, label='dxx', linestyle='dashed')
-        ax.plot(zed, np.real(prof[:, 2]), color='orange', zorder=10, label='dzz', linestyle='dashed')
-        ax.plot(zed, np.imag(iso), color='blue', zorder=20, label='beta')
-        ax.plot(zed, np.imag(prof[:, 0]), color='teal', zorder=10, label='bxx', linestyle='dashed')
-        ax.plot(zed, np.imag(prof[:, 2]), color='teal', zorder=10, label='bzz', linestyle='dashed')
+        ax.plot(zed, np.real(iso), color="red", zorder=20, label="delta")
+        ax.plot(
+            zed,
+            np.real(prof[:, 0]),
+            color="orange",
+            zorder=10,
+            label="dxx",
+            linestyle="dashed",
+        )
+        ax.plot(
+            zed,
+            np.real(prof[:, 2]),
+            color="orange",
+            zorder=10,
+            label="dzz",
+            linestyle="dashed",
+        )
+        ax.plot(zed, np.imag(iso), color="blue", zorder=20, label="beta")
+        ax.plot(
+            zed,
+            np.imag(prof[:, 0]),
+            color="teal",
+            zorder=10,
+            label="bxx",
+            linestyle="dashed",
+        )
+        ax.plot(
+            zed,
+            np.imag(prof[:, 2]),
+            color="teal",
+            zorder=10,
+            label="bzz",
+            linestyle="dashed",
+        )
         # ax.plot(*self.sld_profile(align=align), color='red', zorder=20)
-        ax.set_ylabel('Index of refraction')
+        ax.set_ylabel("Index of refraction")
         ax.set_xlabel("zed / $\\AA$")
         plt.legend()
 
@@ -503,8 +542,10 @@ class PXR_Structure(UserList):
             ax_diff = fig_diff.add_subplot(111)
 
             diff = prof[:, 0] - prof[:, 2]
-            ax_diff.plot(zed, np.real(diff), color='red', zorder=20, label='birefringence')
-            ax_diff.plot(zed, np.imag(diff), color='blue', zorder=20, label='dichroism')
+            ax_diff.plot(
+                zed, np.real(diff), color="red", zorder=20, label="birefringence"
+            )
+            ax_diff.plot(zed, np.imag(diff), color="blue", zorder=20, label="dichroism")
             plt.legend()
 
         return fig, ax
@@ -515,12 +556,12 @@ class PXR_Scatterer(object):
     Abstract base class for a material with a complex tensor index of refraction
     """
 
-    def __init__(self, name=''):
+    def __init__(self, name=""):
         self.name = name
 
     def __str__(self):
         sld = 1 - complex(self)  # Returns optical constant
-        return 'n = {0}'.format(sld)
+        return "n = {0}".format(sld)
 
     def __complex__(self):
         raise NotImplementedError
@@ -573,7 +614,7 @@ class PXR_SLD(PXR_Scatterer):
         tensor index of refraction.
         Units (N/A)
     symmetry : ('iso', 'uni', 'bi')
-        Tensor symmetry. Automatically applies inter-parameter constraints. 
+        Tensor symmetry. Automatically applies inter-parameter constraints.
     name : str, optional
         Name of object for later reference.
 
@@ -581,13 +622,13 @@ class PXR_SLD(PXR_Scatterer):
     -----
     Components correspond to individual tensor components defined as ('xx', 'yy', 'zz').
     In a uniaxial approximation the following inputs are equivalent.
-    
+
     >>> n_xx = complex(-0.0035, 0.0004) # [unitless] #Ordinary Axis
     >>> n_zz = complex(-0.0045, 0.0009) # [unitless] #Extraordinary Axis
     >>> molecule = PXR_SLD(np.array([n_xx, n_zz]), name='molecule')
     >>> molecule = PXR_SLD(np.array([n_xx, n_xx, n_zz], name='molecule')
     >>> molecule = PXR_SLD(np.array([n_xx, n_xx, n_zz])*np.eye(3), name='molecule)
-    
+
     An PXR_SLD object can be used to create a PXR_Slab:
 
     >>> n_xx = complex(-0.0035, 0.0004) # [unitless] #Ordinary Axis
@@ -595,13 +636,13 @@ class PXR_SLD(PXR_Scatterer):
     >>> molecule = PXR_SLD(np.array([n_xx, n_zz]), name='material') #molecule
     >>> #Crete a slab with 10 A in thickness and 3 A roughness
     >>> slab = molecule(10, 3)
-    
+
     Tensor symmetry can be applied using `symmetry`.
-    
+
     >>> #'uni' will constrain n_xx = n_yy.
     >>> self.yy.setp(self.xx, vary=None, constraint=self.xx)
     >>> self.iyy.setp(self.ixx, vary=None, constraint=self.ixx)
-    
+
     >>> #'iso' will constrain n_xx = n_yy = n_zz
     >>> self.yy.setp(self.xx, vary=None, constraint=self.xx)
     >>> self.iyy.setp(self.ixx, vary=None, constraint=self.ixx)
@@ -609,24 +650,36 @@ class PXR_SLD(PXR_Scatterer):
     >>> self.izz.setp(self.ixx, vary=None, constraint=self.ixx)
     """
 
-    def __init__(self, value, symmetry='uni', name='', en_offset=0):
+    def __init__(self, value, symmetry="uni", name="", en_offset=0):
         super(PXR_SLD, self).__init__(name=name)
-        self.imag = Parameter(0, name='%s_isld' % name)
+        self.imag = Parameter(0, name="%s_isld" % name)
         self._tensor = None
 
         # Figure out if the input is valid
-        if isinstance(value, np.ndarray):  # Make sure the input is an array with 3 elements
-            if value.shape == (3,):  # 3 element array, assume structure ['xx', 'yy', 'zz']
+        if isinstance(
+            value, np.ndarray
+        ):  # Make sure the input is an array with 3 elements
+            if value.shape == (
+                3,
+            ):  # 3 element array, assume structure ['xx', 'yy', 'zz']
                 pass
                 # Great choice
-            elif value.shape == (2,):  # 2 element array, assume structure ['xx', 'zz'] (uniaxial)
-                temp_val = np.ones(3) * value[0]  # Make a 3-element array and fill it with 'xx'
+            elif value.shape == (
+                2,
+            ):  # 2 element array, assume structure ['xx', 'zz'] (uniaxial)
+                temp_val = (
+                    np.ones(3) * value[0]
+                )  # Make a 3-element array and fill it with 'xx'
                 temp_val[2] = value[1]  # Append the last element as 'zz'
                 value = temp_val  # Reset value
-            elif value.shape == (3, 3):  # 3x3 element array, assume diagonal is ['xx', 'yy', 'zz']
+            elif value.shape == (
+                3,
+                3,
+            ):  # 3x3 element array, assume diagonal is ['xx', 'yy', 'zz']
                 value = value.diagonal()  # Just take the inner 3 elements for generating the index of refraction
-        elif isinstance(value,
-                        (int, float, complex)):  # If the value is a scalar, convert it into an array for later use.
+        elif isinstance(
+            value, (int, float, complex)
+        ):  # If the value is a scalar, convert it into an array for later use.
             value = value * np.ones(3)
         else:
             # No input was given
@@ -634,38 +687,58 @@ class PXR_SLD(PXR_Scatterer):
             print("Suggested format: np.ndarray shape: (3, )")
 
         # Build parameters from given tensor
-        self._parameters = Parameters(name=name)  # Generate the parameters for the tensor object
-        self.delta = Parameter(np.average(value).real,
-                               name='%s_diso' % name)  # create parameter for the 'isotropic' version of the given delta
-        self.beta = Parameter(np.average(value).imag,
-                              name='%s_biso' % name)  # create parameter for the 'isotropic' version of the given beta
+        self._parameters = Parameters(
+            name=name
+        )  # Generate the parameters for the tensor object
+        self.delta = Parameter(
+            np.average(value).real, name="%s_diso" % name
+        )  # create parameter for the 'isotropic' version of the given delta
+        self.beta = Parameter(
+            np.average(value).imag, name="%s_biso" % name
+        )  # create parameter for the 'isotropic' version of the given beta
         # Create parameters for individual tensor components.
         # Each element of the tensor becomes its own fit parameter within the PXR machinary
         # All tensors are assumed diagonal in the substrate frame
         # See documentation for recommended parameter constraints
-        self.xx = Parameter(value[0].real, name='%s_%s' % (name, tensor_index[0]))
-        self.ixx = Parameter(value[0].imag, name='%s_i%s' % (name, tensor_index[0]))
-        self.yy = Parameter(value[1].real, name='%s_%s' % (name, tensor_index[1]))
-        self.iyy = Parameter(value[1].imag, name='%s_i%s' % (name, tensor_index[1]))
-        self.zz = Parameter(value[2].real, name='%s_%s' % (name, tensor_index[2]))
-        self.izz = Parameter(value[2].imag, name='%s_i%s' % (name, tensor_index[2]))
+        self.xx = Parameter(value[0].real, name="%s_%s" % (name, tensor_index[0]))
+        self.ixx = Parameter(value[0].imag, name="%s_i%s" % (name, tensor_index[0]))
+        self.yy = Parameter(value[1].real, name="%s_%s" % (name, tensor_index[1]))
+        self.iyy = Parameter(value[1].imag, name="%s_i%s" % (name, tensor_index[1]))
+        self.zz = Parameter(value[2].real, name="%s_%s" % (name, tensor_index[2]))
+        self.izz = Parameter(value[2].imag, name="%s_i%s" % (name, tensor_index[2]))
 
-        self.birefringence = Parameter((self.xx.value - self.zz.value),
-                                       name='%s_bire' % name)  # Useful parameters to use as constraints
-        self.dichroism = Parameter((self.ixx.value - self.izz.value),
-                                   name='%s_dichro' % name)  # Defined in terms of xx and zz
-                                   
-        self.en_offset = Parameter((en_offset), name='%s_enOffset' % name)
+        self.birefringence = Parameter(
+            (self.xx.value - self.zz.value), name="%s_bire" % name
+        )  # Useful parameters to use as constraints
+        self.dichroism = Parameter(
+            (self.ixx.value - self.izz.value), name="%s_dichro" % name
+        )  # Defined in terms of xx and zz
+
+        self.en_offset = Parameter((en_offset), name="%s_enOffset" % name)
 
         self._parameters.extend(
-            [self.delta, self.beta, self.en_offset, self.xx, self.ixx, self.yy, self.iyy, self.zz, self.izz, self.birefringence,
-             self.dichroism])
+            [
+                self.delta,
+                self.beta,
+                self.en_offset,
+                self.xx,
+                self.ixx,
+                self.yy,
+                self.iyy,
+                self.zz,
+                self.izz,
+                self.birefringence,
+                self.dichroism,
+            ]
+        )
 
         self.symmetry = symmetry
 
     def __repr__(self):
-        return ("Isotropic Index of Refraction = ([{delta!r}, {beta!r}],"
-                " name={name!r})".format(**self.__dict__))
+        return (
+            "Isotropic Index of Refraction = ([{delta!r}, {beta!r}],"
+            " name={name!r})".format(**self.__dict__)
+        )
 
     def __complex__(self):
         sldc = complex(self.delta.value, self.beta.value)
@@ -693,15 +766,15 @@ class PXR_SLD(PXR_Scatterer):
     @symmetry.setter
     def symmetry(self, symmetry):
         self._symmetry = symmetry
-        if self._symmetry == 'iso':
+        if self._symmetry == "iso":
             self.yy.setp(self.xx, vary=None, constraint=self.xx)
             self.iyy.setp(self.ixx, vary=None, constraint=self.ixx)
             self.zz.setp(self.xx, vary=None, constraint=self.xx)
             self.izz.setp(self.ixx, vary=None, constraint=self.ixx)
-        elif self._symmetry == 'uni':
+        elif self._symmetry == "uni":
             self.yy.setp(self.xx, vary=None, constraint=self.xx)
             self.iyy.setp(self.ixx, vary=None, constraint=self.ixx)
-        elif self._symmetry == 'bi':
+        elif self._symmetry == "bi":
             self.xx.setp(self.xx, vary=None, constraint=None)
             self.ixx.setp(self.ixx, vary=None, constraint=None)
             self.yy.setp(self.yy, vary=None, constraint=None)
@@ -713,15 +786,20 @@ class PXR_SLD(PXR_Scatterer):
     def tensor(self):  #
         """
         A full 3x3 matrix composed of the individual parameter values.
-        
+
         Returns
         -------
             out : np.ndarray (3x3)
                 complex tensor index of refraction
         """
-        self._tensor = np.array([[self.xx.value + 1j * self.ixx.value, 0, 0],
-                                 [0, self.yy.value + 1j * self.iyy.value, 0],
-                                 [0, 0, self.zz.value + 1j * self.izz.value]], dtype=complex)
+        self._tensor = np.array(
+            [
+                [self.xx.value + 1j * self.ixx.value, 0, 0],
+                [0, self.yy.value + 1j * self.iyy.value, 0],
+                [0, 0, self.zz.value + 1j * self.izz.value],
+            ],
+            dtype=complex,
+        )
         return self._tensor
 
 
@@ -752,32 +830,41 @@ class PXR_MaterialSLD(PXR_Scatterer):
     >>> en = 284.4 #[eV] Evaluate PeriodicTable at this energy
     >>> sio2 = PXR_MaterialSLD('SiO2', density=2.4, energy=en, name='SiO2') #Substrate
     >>> si = PXR_MaterialSLD('Si', density=2.33, energy=en, name='SiO2') #Substrate
-    
+
     """
 
-    def __init__(self, formula, density, energy=250.0, name=''):
+    def __init__(self, formula, density, energy=250.0, name=""):
         import periodictable as pt
+
         super(PXR_MaterialSLD, self).__init__(name=name)
 
-        self.__formula = pt.formula(formula)  # Build the PeriodicTable object for storage
+        self.__formula = pt.formula(
+            formula
+        )  # Build the PeriodicTable object for storage
         self._compound = formula  # Keep a reference of the str object
-        self.density = possibly_create_parameter(density, name='rho')
+        self.density = possibly_create_parameter(density, name="rho")
 
         self._energy = energy  # Store in eV for user interface
-        self._wavelength = hc / self._energy  # Convert to Angstroms for later calculations
+        self._wavelength = (
+            hc / self._energy
+        )  # Convert to Angstroms for later calculations
         self._tensor = None  # Build this when its called based in parameter values
 
         self._parameters = Parameters(name=name)
         self._parameters.extend([self.density])
 
     def __repr__(self):
-        d = {'compound': self._compound,
-             'density': self.density,
-             'energy': self.energy,
-             'wavelength': self.wavelength,
-             'name': self.name}
-        return ("MaterialSLD({compound!r}, {density!r},"
-                "energy={energy!r}, wavelength={wavelength!r}, name={name!r})".format(**d))
+        d = {
+            "compound": self._compound,
+            "density": self.density,
+            "energy": self.energy,
+            "wavelength": self.wavelength,
+            "name": self.name,
+        }
+        return (
+            "MaterialSLD({compound!r}, {density!r},"
+            "energy={energy!r}, wavelength={wavelength!r}, name={name!r})".format(**d)
+        )
 
     @property
     def formula(self):
@@ -788,13 +875,14 @@ class PXR_MaterialSLD(PXR_Scatterer):
         -------
             formula : str
                 Full chemical formula used to calculate index of refraction.
-        
+
         """
         return self._compound
 
     @formula.setter
     def formula(self, formula):
         import periodictable as pt
+
         self.__formula = pt.formula(formula)
         self._compound = formula
 
@@ -802,42 +890,50 @@ class PXR_MaterialSLD(PXR_Scatterer):
     def energy(self):
         """
         Photon energy to evaluate index of refraction in eV. Automatically updates wavelength when assigned.
-        
+
         Returns
         -------
             energy : float
-                Photon energy of X-ray probe.  
+                Photon energy of X-ray probe.
         """
         return self._energy
 
     @energy.setter
     def energy(self, energy):
         self._energy = energy
-        self._wavelength = hc / self._energy  # Update the wavelength if the energy changes
+        self._wavelength = (
+            hc / self._energy
+        )  # Update the wavelength if the energy changes
 
     @property
     def wavelength(self):
         """
         Wavelength to evaluate index of refraction in Angstroms. Automatically updates energy when assigned.
-        
+
         Returns
         -------
             wavelength : float
-                Wavelength of X-ray probe.  
+                Wavelength of X-ray probe.
         """
         return self._wavelength
 
     @wavelength.setter
     def wavelength(self, wavelength):
         self._wavelength = wavelength
-        self._energy = hc / self._wavelength  # Update the energy if the wavelength changes
+        self._energy = (
+            hc / self._wavelength
+        )  # Update the energy if the wavelength changes
 
     def __complex__(self):
         import periodictable as pt
         from periodictable import xsf
-        sldc = pt.xsf.index_of_refraction(self.__formula, density=self.density.value,
-                                          wavelength=self.wavelength)
-        if type(sldc).__module__ == np.__name__:  # check if the type is accidentally cast into numpy.
+
+        sldc = pt.xsf.index_of_refraction(
+            self.__formula, density=self.density.value, wavelength=self.wavelength
+        )
+        if (
+            type(sldc).__module__ == np.__name__
+        ):  # check if the type is accidentally cast into numpy.
             sldc = sldc.item()
         return 1 - sldc  # pt.xsf makes the type numpy affiliated...
         # __complex__ does not play nice so we reconvert with .item()
@@ -854,7 +950,7 @@ class PXR_MaterialSLD(PXR_Scatterer):
     def tensor(self):
         """
         An isotropic 3x3 tensor composed of `complex(self.delta, self.beta)` along the diagonal.
-        
+
         Returns
         -------
             tensor : np.ndarray
@@ -878,7 +974,7 @@ class PXR_Component(object):
     Currently limited to Gaussian interfaces.
     """
 
-    def __init__(self, name=''):
+    def __init__(self, name=""):
         self.name = name
 
     def __or__(self, other):
@@ -943,8 +1039,9 @@ class PXR_Component(object):
         """
         :class:`refnx.analysis.Parameters` associated with this component
         """
-        raise NotImplementedError("A component should override the parameters "
-                                  "property")
+        raise NotImplementedError(
+            "A component should override the parameters " "property"
+        )
 
     def slabs(self, structure=None):
         """
@@ -975,8 +1072,7 @@ class PXR_Component(object):
         If a Component returns None, then it doesn't have any slabs.
         """
 
-        raise NotImplementedError("A component should override the slabs "
-                                  "property")
+        raise NotImplementedError("A component should override the slabs " "property")
 
     def logp(self):
         """
@@ -1008,17 +1104,15 @@ class PXR_Slab(PXR_Component):
         Name of this slab
     """
 
-    def __init__(self, thick, sld, rough, name=''):
+    def __init__(self, thick, sld, rough, name=""):
         super(PXR_Slab, self).__init__(name=name)
-        self.thick = possibly_create_parameter(thick,
-                                               name=f'{name}_thick')
+        self.thick = possibly_create_parameter(thick, name=f"{name}_thick")
         if isinstance(sld, PXR_Scatterer):
             self.sld = sld
         else:
             self.sld = PXR_SLD(sld)
 
-        self.rough = possibly_create_parameter(rough,
-                                               name=f'{name}_rough')
+        self.rough = possibly_create_parameter(rough, name=f"{name}_rough")
 
         p = Parameters(name=self.name)
         p.extend([self.thick])
@@ -1028,8 +1122,10 @@ class PXR_Slab(PXR_Component):
         self._parameters = p
 
     def __repr__(self):
-        return (f"Slab({self.thick!r}, {self.sld!r}, {self.rough!r},"
-                f" name={self.name!r},")
+        return (
+            f"Slab({self.thick!r}, {self.sld!r}, {self.rough!r},"
+            f" name={self.name!r},"
+        )
 
     def __str__(self):
         # sld = repr(self.sld)
@@ -1054,26 +1150,23 @@ class PXR_Slab(PXR_Component):
         Slab representation of this component. See :class:`Component.slabs`
         """
         sldc = complex(self.sld)
-        return np.array([[self.thick.value,
-                          sldc.real,
-                          sldc.imag,
-                          self.rough.value]])
+        return np.array([[self.thick.value, sldc.real, sldc.imag, self.rough.value]])
 
     def tensor(self, energy=None):
         """
         Stored information pertaining to the tensor dielectric properties of the slab.
-        
+
         Parameters
         -----------
         energy : float
             Updates PXR_SLD energy component associated with slab. Only required for PXR_MaterialSLD objects
-        
+
         Returns
         --------
         tensor : np.ndarray
             Complex tensor index of refraction associated with slab.
         """
-        if energy is not None and hasattr(self.sld, 'energy'):
+        if energy is not None and hasattr(self.sld, "energy"):
             self.sld.energy = energy
         return np.array([self.sld.tensor])
 
@@ -1106,8 +1199,14 @@ class PXR_MixedMaterialSlab(PXR_Component):
 
     """
 
-    def __init__(self, thick, sld_list, vf_list, rough, name="",
-                 ):
+    def __init__(
+        self,
+        thick,
+        sld_list,
+        vf_list,
+        rough,
+        name="",
+    ):
         super(PXR_MixedMaterialSlab, self).__init__(name=name)
 
         self.thick = possibly_create_parameter(thick, name="%s - thick" % name)
@@ -1125,9 +1224,7 @@ class PXR_MixedMaterialSlab(PXR_Component):
 
             self._sld_parameters.append(self.sld[-1].parameters)
 
-            vf = possibly_create_parameter(
-                v, name=f"vf{i} - {name}", bounds=(0.0, 1.0)
-            )
+            vf = possibly_create_parameter(v, name=f"vf{i} - {name}", bounds=(0.0, 1.0))
             self.vf.append(vf)
             self._vf_parameters.append(vf)
             i += 1
@@ -1167,9 +1264,7 @@ class PXR_MixedMaterialSlab(PXR_Component):
         vfs = np.array(self._vf_parameters)
         sum_vfs = np.sum(vfs)
 
-        sldc = np.sum(
-            [complex(sld) * vf / sum_vfs for sld, vf in zip(self.sld, vfs)]
-        )
+        sldc = np.sum([complex(sld) * vf / sum_vfs for sld, vf in zip(self.sld, vfs)])
 
         return np.array(
             [
@@ -1185,12 +1280,12 @@ class PXR_MixedMaterialSlab(PXR_Component):
     def tensor(self, energy=None):
         """
         Stored information pertaining to the tensor dielectric properties of the slab.
-        
+
         Parameters
         -----------
         energy : float
             Updates PXR_SLD energy component associated with slab. Only required for PXR_MaterialSLD objects
-        
+
         Returns
         --------
         tensor : np.ndarray
@@ -1199,7 +1294,7 @@ class PXR_MixedMaterialSlab(PXR_Component):
         vfs = np.array(self._vf_parameters)
         sum_vfs = np.sum(vfs)
 
-        if energy is not None and hasattr(self.sld, 'energy'):
+        if energy is not None and hasattr(self.sld, "energy"):
             self.sld.energy = energy
 
         combinetensor = np.sum(
@@ -1207,15 +1302,13 @@ class PXR_MixedMaterialSlab(PXR_Component):
         )
 
         return combinetensor  # self.sld.tensor
-        
-        
-        
-        
+
+
 class PXR_Stack(PXR_Component, UserList):
     r"""
     A series of PXR_Components that are considered as a single item. When
     incorporated into a PXR_Structure the PXR_Stack will be repeated as a multilayer
-    
+
     Parameters
     ------------
     components : sequence
@@ -1224,133 +1317,127 @@ class PXR_Stack(PXR_Component, UserList):
         Human readable name for the stack
     repeats: number, Parameter
         Number of times to repeat the stack within a structure to make a multilayer
-        
+
     """
-    
+
     def __init__(self, components=(), name="", repeats=1):
         PXR_Component.__init__(self, name=name)
-        UserList.__init__(self) 
-        
+        UserList.__init__(self)
+
         self.repeats = possibly_create_parameter(repeats, "repeat")
         self.repeats.bounds.lb = 1
-        
+
         # Construct the list of components
-        for c in components: 
+        for c in components:
             if isinstance(c, PXR_Component):
                 self.data.append(c)
             else:
                 raise ValueError(
                     "You can only initialise a PXR_Stack with PXR_Components"
                 )
+
     def __setitem__(self, i, v):
         self.data[i] = vac
-        
+
     def __str__(self):
         s = list()
         s.append("{:=>80}".format(""))
-        
+
         s.append(f"Stack start: {int(round(abs(self.repeats.value)))} repeats")
         for component in self:
             s.append(str(component))
         s.append("Stack finish")
         s.append("{:=>80}".format(""))
-        
+
         return "/n".join(s)
-        
+
     def __repr__(self):
         return (
             "Stack(name={name!r},"
             " components={data!r},"
             " repeats={repeats!r}".format(**self.__dict__)
         )
-    
+
     def append(self, item):
         """
         Append a PXR_Component to the Stack.
-        
+
         Parameters
         -----------
         item: PXR_Compponent
             PXR_Component to be added to the PXR_Stack
-            
+
         """
-        
+
         if isinstance(item, PXR_Scatterer):
             self.append(item())
             return
-        
+
         if not isinstance(item, PXR_Component):
-            raise ValueError(
-                "You can only add PXR_Components"
-            )
+            raise ValueError("You can only add PXR_Components")
         self.data.append(item)
-        
+
     def slabs(self, structure=None):
         """
         Slab representation of this component.
 
         Notes
         -----
-        Returns a list of each slab included within this Stack. 
+        Returns a list of each slab included within this Stack.
 
         """
         if not len(self):
             return None
-        
+
         repeats = int(round(abs(self.repeats.value)))
-        
-        slabs = np.concatenate(
-            [c.slabs(structure=self) for c in self.components]
-        )
-        
+
+        slabs = np.concatenate([c.slabs(structure=self) for c in self.components])
+
         if repeats > 1:
             slabs = np.concatenate([slabs] * repeats)
-            
+
         if hasattr(self, "solvent"):
             delattr(self, "solvent")
-            
+
         return slabs
-    
+
     def tensor(self, energy=None):
         """
         Tensor representation of this component. Builds list of all components
         """
-        
+
         if not len(self):
             return None
-        
+
         repeats = int(round(abs(self.repeats.value)))
 
         tensor = np.concatenate(
             [c.tensor(energy=energy) for c in self.components], axis=0
         )
-        
+
         if repeats > 1:
             tensor = np.concatenate([tensor] * repeats)
-        
+
         return tensor
 
-              
-    
     @property
     def components(self):
         """
         List of components
         """
         return self.data
-    
+
     @property
     def parameters(self):
         r"""
         All Parameters associated with this Stack
-        
+
         """
-        
+
         p = Parameters(name="Stack - {0}".format(self.name))
         p.append(self.repeats)
         p.extend([component.parameters for component in self.components])
-        return p  
-        
+        return p
 
 
 def birefringence_profile(slabs, tensor, z=None, step=False):
@@ -1366,34 +1453,36 @@ def birefringence_profile(slabs, tensor, z=None, step=False):
         fronting medium and the first layer.
     step : Boolean
         Set 'True' for slab model without interfacial widths
-    
+
 
     Returns
     -------
     zed : float / np.ndarray
         Depth into the film / Angstrom
-    
+
     index_tensor : complex / np.ndarray
         Real and imaginary tensor components of index of refraction / unitless
         Array elements: [nxx, nyy, nzz]
-    
+
     Optional:
-    
+
     index_step : complex / np.ndarray
         Real and imaginary tensor components of index of refraction / unitless
-        Calculated WITHOUT interfacial roughness 
+        Calculated WITHOUT interfacial roughness
 
     Notes
     -----
     This can be called in vectorised fashion.
-    
+
     To calculate the isotropic components:
         index_iso = index_tensor.sum(axis=1)/3 #(nxx + nyy + nzz)/3
     To calculate the birefringence/dichroism:
         diff = index_tensor[:,0] - index_tensor[:,2] #nxx - nzz
 
     """
-    nlayers = np.size(slabs, 0) - 2  # Calculate total number of layers (not including fronting/backing)
+    nlayers = (
+        np.size(slabs, 0) - 2
+    )  # Calculate total number of layers (not including fronting/backing)
 
     # work on a copy of the input array
     layers = np.copy(slabs)
@@ -1404,21 +1493,28 @@ def birefringence_profile(slabs, tensor, z=None, step=False):
 
     # distance of each interface from the fronting interface
     dist = np.cumsum(layers[:-1, 0])
-    total_film_thickness = int(np.round(dist[-1]))  # Total film thickness for point density
+    total_film_thickness = int(
+        np.round(dist[-1])
+    )  # Total film thickness for point density
     # workout how much space the SLD profile should encompass
     # (if z array not provided)
     if z is None:
         zstart = -5 - 4 * np.fabs(slabs[1, 3])
         zend = 5 + dist[-1] + 4 * layers[-1, 3]
-        zed = np.linspace(zstart, zend, num=total_film_thickness * 2)  # 0.5 Angstrom resolution default
+        zed = np.linspace(
+            zstart, zend, num=total_film_thickness * 2
+        )  # 0.5 Angstrom resolution default
     else:
         zed = np.asfarray(z)
 
     # Reduce the dimensionality of the tensor for ease of use
-    reduced_tensor = tensor.diagonal(0, 1,
-                                     2)  # 0 - no offset, 1 - first axis of the tensor, 2 - second axis of the tensor
+    reduced_tensor = tensor.diagonal(
+        0, 1, 2
+    )  # 0 - no offset, 1 - first axis of the tensor, 2 - second axis of the tensor
 
-    tensor_erf = np.ones((len(zed), 3), dtype=float) * reduced_tensor[0]  # Full wave of initial conditions
+    tensor_erf = (
+        np.ones((len(zed), 3), dtype=float) * reduced_tensor[0]
+    )  # Full wave of initial conditions
     tensor_step = np.copy(tensor_erf)  # Full wave without interfacial roughness
     delta_n = reduced_tensor[1:] - reduced_tensor[:-1]  # Change in n at each interface
 
@@ -1433,7 +1529,11 @@ def birefringence_profile(slabs, tensor, z=None, step=False):
         g = step_f
         if sigma[i] == 0:
             f = step_f
-        tensor_erf += delta_n[None, i, :] * f(zed, scale=sigma[i], loc=dist[i])[:, None]  # Broadcast into a single item
-        tensor_step += delta_n[None, i, :] * g(zed, scale=0, loc=dist[i])[:, None]  # Broadcast into a single item
+        tensor_erf += (
+            delta_n[None, i, :] * f(zed, scale=sigma[i], loc=dist[i])[:, None]
+        )  # Broadcast into a single item
+        tensor_step += (
+            delta_n[None, i, :] * g(zed, scale=0, loc=dist[i])[:, None]
+        )  # Broadcast into a single item
 
     return zed, tensor_erf if step is False else tensor_step
