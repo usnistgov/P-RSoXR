@@ -27,16 +27,25 @@ import numbers
 import warnings
 
 import numpy as np
-import scipy
 from scipy.interpolate import splrep, splev
 
 from refnx.analysis import (Parameters, Parameter, possibly_create_parameter,
                             Transform)
-# from ani_reflect._biaxial_reflect import * ##TFerron Edits 05/20/2020 *Include model for anisotropic calculation
 try:
     from pypxr._uniaxial_reflect import *
 except ImportError:
     from _uniaxial_reflect import *
+
+try:
+    import jax.numpy as jnp
+    from pypxr._jax_uniaxial_reflect import (
+        uniaxial_reflectivity_jax,
+        juniaxial_reflectivity_smeared,
+    )
+    _JAX_AVAILABLE = True
+except Exception:
+    _JAX_AVAILABLE = False
+
 """
 Calculates the specular reflectivity from a stratified series of layers
 using polarized resonant soft X-ray reflectivity.
@@ -79,6 +88,7 @@ class PXR_ReflectModel(object):
     """
 
     def __init__(self, structure, scale=1, bkg=0, name='', dq=0., q_offset=0.0, en_offset=0.0, energy=None, phi=0, pol='s', backend='uni'):
+        # backend: 'uni' (numpy 4×4), 'bi' (biaxial 4×4), 'jax' (JAX-accelerated 4×4)
 
         self.name = name
         self._parameters = None
@@ -462,6 +472,39 @@ def PXR_reflectivity(q, slabs, tensor, energy=250.0, phi=0, scale=1., bkg=0., dq
     >>> print(reflectivity(q, slabs))
     """
 
+    # JAX backend — dispatches to JAX-compiled 4×4 TMM
+    if backend == 'jax':
+        if not _JAX_AVAILABLE:
+            raise RuntimeError(
+                "JAX backend requested but JAX is not installed. "
+                "Install with: pip install jax jaxlib"
+            )
+        dq_val = float(dq) if isinstance(dq, numbers.Real) else 0.0
+        dq_frac = dq_val / 100.0  # dq supplied as percentage
+
+        tensor_j = jnp.array(tensor, dtype='complex128')
+        slabs_j  = jnp.array(slabs,  dtype='float64')
+        q_j      = jnp.array(q,      dtype='float64')
+
+        if dq_frac < 0.005:
+            refl_j, tran_j = uniaxial_reflectivity_jax(q_j, slabs_j, tensor_j, energy)
+            refl  = np.array(refl_j)
+            tran  = np.array(tran_j)
+        else:
+            # Use the polarisation flag from the model if available
+            pol_str = getattr(PXR_reflectivity, '_active_pol', 's')
+            refl_smeared = juniaxial_reflectivity_smeared(
+                np.asarray(q), np.array(slabs), np.array(tensor),
+                energy, pol=pol_str, dq_frac=dq_frac,
+            )
+            # Reconstruct full 2×2 refl from the smeared single-pol result
+            refl = np.zeros((len(np.asarray(q)), 2, 2), dtype=np.float64)
+            pi, pj = {'s': (1, 1), 'p': (0, 0)}.get(pol_str, (1, 1))
+            refl[:, pi, pj] = refl_smeared
+            tran = np.zeros((len(np.asarray(q)), 2, 2), dtype=np.complex128)
+
+        return (scale * refl + bkg), tran, []
+
     # constant dq/q smearing
     if isinstance(dq, numbers.Real) and float(dq) == 0:
         if backend == 'uni':
@@ -478,7 +521,7 @@ def PXR_reflectivity(q, slabs, tensor, energy=250.0, phi=0, scale=1., bkg=0., dq
                                                                         dq,
                                                                         backend=backend)
 
-        return [(scale * smear_tefl + bkg), smear_tran, components]
+        return [(scale * smear_refl + bkg), smear_tran, components]
 
     return None
 

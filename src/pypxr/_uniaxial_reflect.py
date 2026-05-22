@@ -30,7 +30,6 @@ import warnings
 
 import numpy as np
 #from numba import njit, complex128
-import scipy
 from scipy.interpolate import splrep, splev
 
 from refnx.analysis import (Parameters, Parameter, possibly_create_parameter,
@@ -95,7 +94,7 @@ def uniaxial_reflectivity(q, layers, tensor, energy):
     phi = 0 #This is a uniaxial calculation
 
     ##Organize qvals into proper order
-    qvals = np.asfarray(q)
+    qvals = np.asarray(q, dtype=float)
     flatq = qvals.ravel()
     numpnts = flatq.size #Number of q-points
     
@@ -177,9 +176,9 @@ def calculate_kz_uni(ep, kx, ky, k0, opticaxis=([0., 1., 0.])):
     k_par = np.sqrt(kx**2 + ky**2) #Magnitude of parallel component
     #l = [kx/k_par, ky/k_par, 0]
     
-    kz_ord = np.zeros(len(kx), dtype=np.complex_)
-    kz_extraord = np.zeros(len(kx), dtype=np.complex_)
-    kz_out = np.zeros((len(kx),4), dtype=np.complex_)
+    kz_ord = np.zeros(len(kx), dtype=np.complex128)
+    kz_extraord = np.zeros(len(kx), dtype=np.complex128)
+    kz_out = np.zeros((len(kx),4), dtype=np.complex128)
 
     
     #n = [0, 0, 1] #Normal vector
@@ -220,10 +219,10 @@ def calculate_Dpol_uni(ep, kx, ky, kz, k0, opticaxis=([0., 1., 0.])):
     e_e = ep[2,2]
     nu = (e_e - e_o) / e_o #intermediate birefringence from reference
 
-    kvec = np.zeros((len(kx), 4,3), dtype=np.complex_)
-    kdiv = np.zeros((len(kx), 4), dtype=np.complex_)
-    dpol_temp = np.zeros((len(kx), 4, 3), dtype=np.complex_)
-    hpol_temp = np.zeros((len(kx), 4, 3), dtype=np.complex_)
+    kvec = np.zeros((len(kx), 4,3), dtype=np.complex128)
+    kdiv = np.zeros((len(kx), 4), dtype=np.complex128)
+    dpol_temp = np.zeros((len(kx), 4, 3), dtype=np.complex128)
+    hpol_temp = np.zeros((len(kx), 4, 3), dtype=np.complex128)
     
     #create k-vector
     kvec[:,:,0] = kx[:,None]
@@ -267,8 +266,8 @@ def calculate_D(numpnts,nlayers, Dpol, Hpol):
 
      .. important:: Requires prior execution of :py:func:`calculate_Dpol_uni`.
     """
-    D_Temp = np.zeros((numpnts,nlayers,4,4), dtype=np.complex_)
-    Di_Temp = np.zeros((numpnts,nlayers,4,4), dtype=np.complex_)
+    D_Temp = np.zeros((numpnts,nlayers,4,4), dtype=np.complex128)
+    Di_Temp = np.zeros((numpnts,nlayers,4,4), dtype=np.complex128)
     
     D_Temp[:, :, 0, 0] = Dpol[:, :, 0, 0]
     D_Temp[:, :, 0, 1] = Dpol[:, :, 1, 0]
@@ -336,9 +335,9 @@ def calculate_W(numpnts, nlayers, kz1, kz2, r):
     .. important:: Requires prior execution of :py:func:`calculate_kz`.
     """
         
-    W_temp = np.zeros((numpnts, nlayers, 4,4), dtype=np.complex_)
-    eplus = np.zeros((numpnts, nlayers, 4), dtype=np.complex_)
-    eminus = np.zeros((numpnts, nlayers, 4), dtype=np.complex_)
+    W_temp = np.zeros((numpnts, nlayers, 4,4), dtype=np.complex128)
+    eplus = np.zeros((numpnts, nlayers, 4), dtype=np.complex128)
+    eminus = np.zeros((numpnts, nlayers, 4), dtype=np.complex128)
     """ 
     for i in range(numpnts):
         for j in range(nlayers):
@@ -403,8 +402,8 @@ def calculate_TMM(numpnts,nlayers,M,D,Di,P,W):
 
 def calculate_output(numpnts, M_full):
 
-    refl = np.zeros((numpnts,2,2),dtype=np.float_)
-    tran = np.zeros((numpnts,2,2),dtype=np.complex_)
+    refl = np.zeros((numpnts,2,2),dtype=np.float64)
+    tran = np.zeros((numpnts,2,2),dtype=np.complex128)
     
     #for i in range(numpnts):
     M = M_full #[i,:,:]

@@ -292,13 +292,13 @@ def save_fitresults(objective, name='FitResults'):
             con = str(param.constraint)
             mu, std = norm.fit(param.chain)
             
-            save_output = save_output.append(pd.DataFrame([[value, stderr, vary, plb, pub, logp, con, mu, std]], columns=save_columns))
+            save_output = pd.concat([save_output, pd.DataFrame([[value, stderr, vary, plb, pub, logp, con, mu, std]], columns=save_columns)])
 
             vals, bins = np.histogram(param.chain, bins=75, density=True)
             bin_min = bins[0]
             bin_max = bins[-1]
             bin_diff = bins[1] - bins[0]
-            
+
             hist_header_info[param.name] = [bin_min, bin_max, bin_diff]
             hist_popdensity[param.name] = vals
             if vary or 'rough' in param.name or 'thick' in param.name:
@@ -310,14 +310,14 @@ def save_fitresults(objective, name='FitResults'):
         hist_stats = pd.DataFrame(hist_header_info)
         hist_stats.index = ['bin_min', 'bin_max', 'bin_diff']
         hist_vals = pd.DataFrame(hist_popdensity)
-        hist_output = hist_stats.append(hist_vals, ignore_index=False)
+        hist_output = pd.concat([hist_stats, hist_vals])
         hist_output.to_csv((objective_name+'_HistogramResults.csv'))
         #Save Correlation
         corr = corrDF.corr(method='pearson').round(decimals=1)
         corr.to_csv((objective_name + '_correlations.csv'))
         save_correlation_diagram(corr, objective_name)
-        
-    return 0 
+
+    return 0
 
 def save_fitresults_old1(objective, name='FitResults'):
     import numpy as np
@@ -347,13 +347,13 @@ def save_fitresults_old1(objective, name='FitResults'):
             vary = param.vary
             mu, std = norm.fit(param.chain)
             
-            save_output = save_output.append(pd.DataFrame([[value, stderr, vary, mu, std]], columns=save_columns))
+            save_output = pd.concat([save_output, pd.DataFrame([[value, stderr, vary, mu, std]], columns=save_columns)])
 
             vals, bins = np.histogram(param.chain, bins=75, density=True)
             bin_min = bins[0]
             bin_max = bins[-1]
             bin_diff = bins[1] - bins[0]
-            
+
             hist_header_info[param.name] = [bin_min, bin_max, bin_diff]
             hist_popdensity[param.name] = vals
             if vary or 'rough' in param.name or 'thick' in param.name:
@@ -365,15 +365,15 @@ def save_fitresults_old1(objective, name='FitResults'):
         hist_stats = pd.DataFrame(hist_header_info)
         hist_stats.index = ['bin_min', 'bin_max', 'bin_diff']
         hist_vals = pd.DataFrame(hist_popdensity)
-        hist_output = hist_stats.append(hist_vals, ignore_index=False)
+        hist_output = pd.concat([hist_stats, hist_vals])
         hist_output.to_csv((objective_name+'_HistogramResults.csv'))
         #Save Correlation
         corr = corrDF.corr(method='pearson').round(decimals=1)
         corr.to_csv((objective_name + '_correlations.csv'))
         save_correlation_diagram(corr, objective_name)
-        
+
     return 0
-    
+
 def MCMC_summary(fitter, nburn=0, nthin=1):
     import arviz as az
     sampler = fitter.sampler

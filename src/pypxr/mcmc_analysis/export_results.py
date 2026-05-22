@@ -128,7 +128,7 @@ def save_fitresults(path, objective, save_name):
                 mu, std = norm.fit(param.chain)
                 prior_pdf = 1#1/(param.bounds.ub - param.bounds.lb)
 
-                out = out.append(pd.DataFrame([[value, std, vary, logp, mu, std, prior_pdf]], columns=cols))
+                out = pd.concat([out, pd.DataFrame([[value, std, vary, logp, mu, std, prior_pdf]], columns=cols)])
 
                 # Build Histogram for Posterior
                 vals, bins = np.histogram(param.chain, bins=75, density=True)
@@ -145,12 +145,12 @@ def save_fitresults(path, objective, save_name):
             # Save results
             out.index = index_list
             out.to_excel(writer, sheet_name=(name+'_Values'))
-            
+
             # Save Histogram
             hist_stats = pd.DataFrame(hist_header)
             hist_stats.index = ['bin_min', 'bin_max', 'bin_diff']
             hist_vals = pd.DataFrame(hist_popdensity)
-            hist_output = hist_stats.append(hist_vals, ignore_index=False)
+            hist_output = pd.concat([hist_stats, hist_vals])
             hist_output.to_excel(writer, sheet_name=(name+'_Hist'))
 
             #Save Correlation
